@@ -53,6 +53,61 @@ class SoundchartsService:
             logger.error(f"Unexpected error getting platforms: {e}")
             return None
 
+    def get_song_metadata(self, uuid):
+        url = f"{self.api_url}/api/v2.25/song/{uuid}"
+        try:
+            headers = {"x-app-id": self.app_id, "x-api-key": self.api_key}
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Song metadata API response: {data}")
+            return data
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error getting song metadata: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error getting song metadata: {e}")
+            return None
+
+    def get_song_audience(self, uuid, platform="spotify"):
+        """
+        Fetch audience and demographic data for a song from Soundcharts API
+        Endpoint: /api/v2/song/{uuid}/audience/{platform}
+        """
+        url = f"{self.api_url}/api/v2/song/{uuid}/audience/{platform}"
+        try:
+            headers = {"x-app-id": self.app_id, "x-api-key": self.api_key}
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Song audience API response for {uuid} on {platform}: {data}")
+            return data
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error getting song audience for {uuid} on {platform}: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error getting song audience for {uuid} on {platform}: {e}")
+            return None
+
+    def get_song_metadata_enhanced(self, uuid):
+        """
+        Enhanced metadata fetching with additional fields
+        """
+        url = f"{self.api_url}/api/v2.25/song/{uuid}"
+        try:
+            headers = {"x-app-id": self.app_id, "x-api-key": self.api_key}
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Enhanced song metadata API response: {data}")
+            return data
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error getting enhanced song metadata: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error getting enhanced song metadata: {e}")
+            return None
+
     def get_artist_metadata(self, uuid):
         url = f"{self.api_url}/api/v2.9/artist/{uuid}"
         try:

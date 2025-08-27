@@ -1,1 +1,96 @@
-{'items': [{'name': 'Airplay', 'code': 'airplay'}, {'name': 'Amazon', 'code': 'amazon'}, {'name': 'Anghami', 'code': 'anghami'}, {'name': 'Apple Music', 'code': 'apple-music'}, {'name': 'Beatport', 'code': 'beatport'}, {'name': 'Boomplay', 'code': 'boomplay'}, {'name': 'Deezer', 'code': 'deezer'}, {'name': 'Gaana', 'code': 'gaana'}, {'name': 'Genius', 'code': 'genius'}, {'name': 'Jiosaavn', 'code': 'jiosaavn'}, {'name': 'Line Music', 'code': 'line-music'}, {'name': 'Melon', 'code': 'melon'}, {'name': 'NetEase', 'code': 'netease'}, {'name': 'QQ Music', 'code': 'qq-music'}, {'name': 'Shazam', 'code': 'shazam'}, {'name': 'Soundcloud', 'code': 'soundcloud'}, {'name': 'Spotify', 'code': 'spotify'}, {'name': 'Tidal', 'code': 'tidal'}, {'name': 'TikTok', 'code': 'tiktok'}, {'name': 'YouTube', 'code': 'youtube'}, {'name': 'iTunes', 'code': 'itunes'}], 'page': {'offset': 0, 'limit': 100, 'next': None, 'previous': None, 'total': 21}, 'errors': []}
+{
+    "items": [
+        {
+            "name": "Airplay",
+            "code": "airplay"
+        },
+        {
+            "name": "Amazon",
+            "code": "amazon"
+        },
+        {
+            "name": "Anghami",
+            "code": "anghami"
+        },
+        {
+            "name": "Apple Music",
+            "code": "apple-music"
+        },
+        {
+            "name": "Beatport",
+            "code": "beatport"
+        },
+        {
+            "name": "Boomplay",
+            "code": "boomplay"
+        },
+        {
+            "name": "Deezer",
+            "code": "deezer"
+        },
+        {
+            "name": "Gaana",
+            "code": "gaana"
+        },
+        {
+            "name": "Genius",
+            "code": "genius"
+        },
+        {
+            "name": "Jiosaavn",
+            "code": "jiosaavn"
+        },
+        {
+            "name": "Line Music",
+            "code": "line-music"
+        },
+        {
+            "name": "Melon",
+            "code": "melon"
+        },
+        {
+            "name": "NetEase",
+            "code": "netease"
+        },
+        {
+            "name": "QQ Music",
+            "code": "qq-music"
+        },
+        {
+            "name": "Shazam",
+            "code": "shazam"
+        },
+        {
+            "name": "Soundcloud",
+            "code": "soundcloud"
+        },
+        {
+            "name": "Spotify",
+            "code": "spotify"
+        },
+        {
+            "name": "Tidal",
+            "code": "tidal"
+        },
+        {
+            "name": "TikTok",
+            "code": "tiktok"
+        },
+        {
+            "name": "YouTube",
+            "code": "youtube"
+        },
+        {
+            "name": "iTunes",
+            "code": "itunes"
+        }
+    ],
+    "page": {
+        "offset": 0,
+        "limit": 100,
+        "next": None,
+        "previous": None,
+        "total": 21
+    },
+    "errors": []
+}

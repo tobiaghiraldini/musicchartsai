@@ -10,22 +10,19 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-import os, random, string
+import os
 from pathlib import Path
 from dotenv import load_dotenv
 from str2bool import str2bool
 from django.contrib import messages
 
 load_dotenv()  # take environment variables from .env.
+# load_dotenv(".env.local")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables from .env file
-import os
-from dotenv import load_dotenv
 
-load_dotenv(".env.local")
 
 ACR_CLOUD_API_KEY = os.getenv("ACR_CLOUD_API_KEY")
 ACR_CLOUD_API_SECRET = os.getenv("ACR_CLOUD_API_SECRET")

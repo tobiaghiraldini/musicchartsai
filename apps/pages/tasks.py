@@ -11,6 +11,13 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from celery.exceptions import Ignore, TaskError
 
+# Import Soundcharts models and service
+from django.apps import apps
+from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def get_scripts():
     """

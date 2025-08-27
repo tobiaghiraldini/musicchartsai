@@ -50,6 +50,19 @@ class Track(models.Model):
     uuid = models.CharField(max_length=255)
     credit_name = models.CharField(max_length=255, blank=True)
     image_url = models.CharField(max_length=255, blank=True)
+    
+    # Enhanced metadata fields
+    slug = models.CharField(max_length=255, blank=True, help_text="Soundcharts track slug")
+    release_date = models.DateField(null=True, blank=True, help_text="Track release date")
+    duration = models.IntegerField(null=True, blank=True, help_text="Track duration in seconds")
+    isrc = models.CharField(max_length=255, blank=True, help_text="International Standard Recording Code")
+    label = models.CharField(max_length=255, blank=True, help_text="Record label")
+    genre = models.CharField(max_length=255, blank=True, help_text="Primary genre")
+    
+    # Metadata fetch tracking
+    metadata_fetched_at = models.DateTimeField(null=True, blank=True, help_text="When metadata was last fetched")
+    audience_fetched_at = models.DateTimeField(null=True, blank=True, help_text="When audience data was last fetched")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -292,3 +305,101 @@ class ChartRankingEntry(models.Model):
             return f"↑+{self.position_change}"
         else:
             return f"↓{abs(self.position_change)}"
+
+
+class TrackAudience(models.Model):
+    """
+    Stores audience and demographic data for tracks from Soundcharts API
+    """
+    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="audience_data")
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, help_text="Platform for this audience data")
+    
+    # Audience metrics
+    total_listeners = models.BigIntegerField(null=True, blank=True, help_text="Total number of listeners")
+    unique_listeners = models.BigIntegerField(null=True, blank=True, help_text="Unique listeners")
+    repeat_listeners = models.BigIntegerField(null=True, blank=True, help_text="Repeat listeners")
+    
+    # Demographic data
+    age_13_17 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 13-17")
+    age_18_24 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 18-24")
+    age_25_34 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 25-34")
+    age_35_44 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 35-44")
+    age_45_54 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 45-54")
+    age_55_64 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 55-64")
+    age_65_plus = models.IntegerField(null=True, blank=True, help_text="Listeners aged 65+")
+    
+    # Geographic data
+    top_countries = models.JSONField(default=list, help_text="Top countries by listeners")
+    top_cities = models.JSONField(default=list, help_text="Top cities by listeners")
+    
+    # Raw API data
+    api_data = models.JSONField(default=dict, help_text="Raw API response data")
+    
+    # Metadata
+    fetched_at = models.DateTimeField(auto_now_add=True, help_text="When this data was fetched")
+    
+    class Meta:
+        unique_together = ['track', 'platform']
+        ordering = ['-fetched_at']
+        verbose_name = "Track Audience"
+        verbose_name_plural = "Track Audiences"
+    
+    def __str__(self):
+        return f"{self.track.name} - {self.platform.name} - {self.fetched_at.strftime('%Y-%m-%d')}"
+
+
+class MetadataFetchTask(models.Model):
+    """
+    Tracks the status of metadata fetching tasks
+    """
+    TASK_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('running', 'Running'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    TASK_TYPE_CHOICES = [
+        ('metadata', 'Track Metadata'),
+        ('audience', 'Track Audience'),
+        ('bulk_metadata', 'Bulk Metadata'),
+        ('bulk_audience', 'Bulk Audience'),
+    ]
+    
+    task_type = models.CharField(max_length=20, choices=TASK_TYPE_CHOICES)
+    status = models.CharField(max_length=20, choices=TASK_STATUS_CHOICES, default='pending')
+    
+    # Task details
+    track_uuids = models.JSONField(default=list, help_text="List of track UUIDs to process")
+    total_tracks = models.IntegerField(default=0, help_text="Total number of tracks to process")
+    processed_tracks = models.IntegerField(default=0, help_text="Number of tracks processed")
+    successful_tracks = models.IntegerField(default=0, help_text="Number of tracks successfully processed")
+    failed_tracks = models.IntegerField(default=0, help_text="Number of tracks that failed")
+    
+    # Celery task info
+    celery_task_id = models.CharField(max_length=255, blank=True, help_text="Celery task ID")
+    
+    # Error handling
+    error_message = models.TextField(blank=True, help_text="Error message if task failed")
+    retry_count = models.IntegerField(default=0, help_text="Number of retry attempts")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Metadata Fetch Task"
+        verbose_name_plural = "Metadata Fetch Tasks"
+    
+    def __str__(self):
+        return f"{self.get_task_type_display()} - {self.status} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+    
+    @property
+    def progress_percentage(self):
+        """Returns progress as a percentage"""
+        if self.total_tracks == 0:
+            return 0
+        return int((self.processed_tracks / self.total_tracks) * 100)
