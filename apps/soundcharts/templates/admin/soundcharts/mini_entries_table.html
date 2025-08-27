@@ -56,9 +56,7 @@
         </td>
         <td class="weeks">{{ entry.weeks_on_chart|default:"N/A" }}</td>
         <td class="streams">
-          {% if entry.api_data.metric %} {{
-          entry.api_data.metric|floatformat:0|intcomma }} {% else %} N/A {%
-          endif %}
+          {% if entry.api_data.metric %} {{ entry.api_data.metric|floatformat:0|intcomma }} {% else %} N/A {% endif %}
         </td>
         <td class="previous-position">
           {{ entry.previous_position|default:"N/A" }}
@@ -69,8 +67,6 @@
   </table>
 
   <div style="margin-top: 20px; text-align: center">
-    <a href="{% url 'admin:chart_ranking_entries' ranking_id %}" class="button"
-      >View Full Interactive Table</a
-    >
+    <a href="{% url 'admin:chart_ranking_entries' ranking_id %}" class="button">View Full Interactive Table</a>
   </div>
 </div>

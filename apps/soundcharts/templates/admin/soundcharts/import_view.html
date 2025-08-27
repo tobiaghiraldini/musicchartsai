@@ -137,6 +137,7 @@
           id="platform_code"
           placeholder="Enter platform code (e.g., spotify, apple)"
           class="vTextField"
+          {% if prefilled_platform_code %}value="{{ prefilled_platform_code }}"{% endif %}
         />
         <p class="help">
           {% trans 'Enter a platform code to get charts for that platform.' %}
@@ -272,6 +273,19 @@
             >
               {% trans 'Name' %}
             </th>
+            {% if model_name == 'platform' %}
+            <th
+              style="
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                background: #f8f9fa;
+                font-weight: bold;
+              "
+            >
+              {% trans 'Code' %}
+            </th>
+            {% else %}
             <th
               style="
                 padding: 12px;
@@ -283,6 +297,7 @@
             >
               {% trans 'UUID' %}
             </th>
+            {% endif %}
             {% if model_name == 'artist' %}
             <th
               style="
@@ -295,7 +310,8 @@
             >
               {% trans 'Slug' %}
             </th>
-            {% endif %} {% if model_name == 'platform' %}
+            {% endif %}
+            {% if model_name == 'chart' %}
             <th
               style="
                 padding: 12px;
@@ -305,7 +321,44 @@
                 font-weight: bold;
               "
             >
-              {% trans 'Code' %}
+              {% trans 'Slug' %}
+            </th>
+            <th
+              style="
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                background: #f8f9fa;
+                font-weight: bold;
+              "
+            >
+              {% trans 'Frequency' %}
+            </th>
+            {% endif %}
+            {% if model_name == 'album' or model_name == 'track' %}
+            <th
+              style="
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                background: #f8f9fa;
+                font-weight: bold;
+              "
+            >
+              {% trans 'Artist UUID' %}
+            </th>
+            {% endif %}
+            {% if model_name == 'venue' %}
+            <th
+              style="
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                background: #f8f9fa;
+                font-weight: bold;
+              "
+            >
+              {% trans 'Country' %}
             </th>
             {% endif %}
             <th
@@ -458,9 +511,15 @@
             <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
               item.name || "N/A"
             }</td>
-            <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
-              identifier || "N/A"
-            }</td>
+            ${
+              "{{ model_name }}" === "platform"
+                ? `<td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
+                    item.code || "N/A"
+                  }</td>`
+                : `<td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
+                    item.uuid || "N/A"
+                  }</td>`
+            }
             ${
               "{{ model_name }}" === "artist"
                 ? `<td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
@@ -469,9 +528,26 @@
                 : ""
             }
             ${
-              "{{ model_name }}" === "platform"
+              "{{ model_name }}" === "chart"
                 ? `<td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
-                    item.code || "N/A"
+                    item.slug || "N/A"
+                  }</td>
+                  <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
+                    item.frequency || "N/A"
+                  }</td>`
+                : ""
+            }
+            ${
+              "{{ model_name }}" === "album" || "{{ model_name }}" === "track"
+                ? `<td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
+                    item.artist_uuid || "N/A"
+                  }</td>`
+                : ""
+            }
+            ${
+              "{{ model_name }}" === "venue"
+                ? `<td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
+                    item.country_code || "N/A"
                   }</td>`
                 : ""
             }

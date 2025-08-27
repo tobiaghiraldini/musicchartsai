@@ -85,6 +85,13 @@ class SoundchartsAdminMixin:
             "has_delete_permission": self.has_delete_permission(request),
             "has_view_permission": self.has_view_permission(request),
         }
+        
+        # If this is the Chart model and a platform_code is provided, add it to context
+        if self.model == Chart:
+            platform_code = request.GET.get('platform_code')
+            if platform_code:
+                context['prefilled_platform_code'] = platform_code
+        
         return TemplateResponse(request, "admin/soundcharts/import_view.html", context)
 
     @csrf_exempt
@@ -139,6 +146,10 @@ class SoundchartsAdminMixin:
                 result = service.get_charts(
                     platform_code=platform_code, offset=offset, limit=limit
                 )
+                # Store platform_code in each chart item for later use
+                if result and isinstance(result, list):
+                    for item in result:
+                        item['_platform_code'] = platform_code
             elif self.model == Genre:
                 result = service.get_genres(limit=limit, offset=offset)
             else:
@@ -347,8 +358,16 @@ class SoundchartsAdminMixin:
                 uuid=item_data.get("uuid", ""), name=item_data.get("name", "")
             )
         elif self.model == Chart:
-            platform_code = item_data.get("platform_code", "")
-            platform = Platform.objects.get(slug=platform_code)
+            # Use the stored platform_code from the API call
+            platform_code = item_data.get("_platform_code", "")
+            if not platform_code:
+                raise ValueError("Platform code not found in chart data")
+            
+            try:
+                platform = Platform.objects.get(slug=platform_code)
+            except Platform.DoesNotExist:
+                raise ValueError(f"Platform with slug '{platform_code}' does not exist in database")
+            
             return Chart.objects.create(
                 name=item_data.get("name", ""),
                 slug=item_data.get("slug", ""),
