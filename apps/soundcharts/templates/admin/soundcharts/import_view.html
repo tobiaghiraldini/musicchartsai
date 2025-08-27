@@ -447,7 +447,7 @@
     currentData.forEach((item, index) => {
       const row = document.createElement("tr");
       const identifier =
-        "{{ model_name }}" === "platform" ? item.slug : item.uuid;
+        "{{ model_name }}" === "platform" ? item.code : item.uuid;
       const isExisting = existingRecords.includes(identifier);
 
       if (isExisting) {

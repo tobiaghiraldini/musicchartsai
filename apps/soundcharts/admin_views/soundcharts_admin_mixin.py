@@ -278,6 +278,7 @@ class SoundchartsAdminMixin:
         if not isinstance(api_data, list):
             return []
 
+        print("api_data: ", api_data)
         existing_records = []
         for item in api_data:
             if self.model == Chart:
@@ -286,7 +287,7 @@ class SoundchartsAdminMixin:
                     existing_records.append(slug)
             if self.model == Platform:
                 # Platform uses slug for duplicate checking
-                slug = item.get("slug")
+                slug = item.get("code")
                 if slug and self.model.objects.filter(slug=slug).exists():
                     existing_records.append(slug)
             else:
