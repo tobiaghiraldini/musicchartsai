@@ -1,0 +1,356 @@
+/* Admin Data Table Styles */
+.data-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  transition: background-color 0.2s;
+}
+
+.data-table th:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.data-table th.sortable::after {
+  content: "↕";
+  margin-left: 8px;
+  opacity: 0.7;
+}
+
+.data-table th.sort-asc::after {
+  content: "↑";
+  opacity: 1;
+}
+
+.data-table th.sort-desc::after {
+  content: "↓";
+  opacity: 1;
+}
+
+.data-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+.data-table tr:hover {
+  background-color: #f8f9ff;
+}
+
+.data-table tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.data-table tr:nth-child(even):hover {
+  background-color: #f0f4ff;
+}
+
+.position {
+  font-weight: bold;
+  text-align: center;
+  min-width: 60px;
+  font-size: 16px;
+  color: #495057;
+}
+
+.track-info {
+  min-width: 300px;
+}
+
+.track-name {
+  font-weight: 600;
+  color: #2c3e50;
+  display: block;
+  margin-bottom: 4px;
+  text-decoration: none;
+}
+
+.track-name:hover {
+  color: #3498db;
+  text-decoration: underline;
+}
+
+.artist-name {
+  color: #7f8c8d;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.trend {
+  text-align: center;
+  min-width: 100px;
+  font-weight: 600;
+}
+
+.trend.up {
+  color: #27ae60;
+  background: rgba(39, 174, 96, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.trend.down {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.trend.new {
+  color: #3498db;
+  background: rgba(52, 152, 219, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.trend.no-change {
+  color: #95a5a6;
+  background: rgba(149, 165, 166, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.weeks {
+  text-align: center;
+  min-width: 80px;
+  font-weight: 500;
+  color: #34495e;
+}
+
+.streams {
+  text-align: right;
+  min-width: 120px;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.previous-position {
+  text-align: center;
+  min-width: 80px;
+  color: #7f8c8d;
+  font-size: 13px;
+}
+
+.ranking-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.ranking-title {
+  font-size: 2em;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.ranking-meta {
+  font-size: 1.1em;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.stat-item {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px 20px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.stat-number {
+  font-size: 1.8em;
+  font-weight: bold;
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.9em;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.table-controls {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid #dee2e6;
+  border-bottom: none;
+}
+
+.search-box {
+  padding: 10px 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 300px;
+  transition: border-color 0.2s;
+}
+
+.search-box:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.table-info {
+  margin-top: 15px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.pagination {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 0 0 8px 8px;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.pagination-btn {
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-btn.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.submit-row {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.submit-row .button {
+  display: inline-block;
+  padding: 12px 24px;
+  margin: 0 10px;
+  background: #667eea;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  font-weight: 600;
+}
+
+.submit-row .button:hover {
+  background: #5a6fd8;
+  color: white;
+}
+
+.submit-row .button.secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.submit-row .button.secondary:hover {
+  background: #5a6268;
+  color: white;
+}
+
+/* Mini table styles for admin tab */
+.mini-table-container {
+  margin: 20px 0;
+}
+
+.mini-table-controls {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mini-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mini-table td {
+  padding: 10px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+.mini-table tr:hover {
+  background-color: #f8f9ff;
+}
+
+.mini-table tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.mini-table tr:nth-child(even):hover {
+  background-color: #f0f4ff;
+}

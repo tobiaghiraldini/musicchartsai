@@ -1,0 +1,26 @@
+# Import all admin classes to maintain backward compatibility
+from .soundcharts_admin_mixin import SoundchartsAdminMixin
+from .platform_admin import PlatformAdmin
+from .artist_admin import ArtistAdmin
+from .album_admin import AlbumAdmin
+from .track_admin import TrackAdmin
+from .venue_admin import VenueAdmin
+from .chart_ranking_inline import ChartRankingInline
+from .chart_admin import ChartAdmin
+from .genre_admin import GenreAdmin
+from .chart_ranking_admin import ChartRankingAdmin
+from .chart_ranking_entry_admin import ChartRankingEntryAdmin
+
+__all__ = [
+    "SoundchartsAdminMixin",
+    "PlatformAdmin",
+    "ArtistAdmin",
+    "AlbumAdmin",
+    "TrackAdmin",
+    "VenueAdmin",
+    "ChartRankingInline",
+    "ChartAdmin",
+    "GenreAdmin",
+    "ChartRankingAdmin",
+    "ChartRankingEntryAdmin",
+]

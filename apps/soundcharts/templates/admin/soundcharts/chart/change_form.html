@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+    {% if original and original.slug %}
+    <li>
+        <a href="{% url 'admin:soundcharts_chart_import_rankings' original.id %}" class="addlink">
+            {% trans 'Import Song Rankings from Soundcharts' %}
+        </a>
+    </li>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

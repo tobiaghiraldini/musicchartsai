@@ -1,0 +1,1731 @@
+{
+  "related": {
+    "chart": {
+      "name": "Top Songs",
+      "type": "song",
+      "slug": "global-28",
+      "platform": "spotify",
+      "frequency": "daily",
+      "countryCode": "",
+      "countryName": "Worldwide",
+      "cityName": "",
+      "maxResultsCount": 200,
+      "webUrl": "https://charts.spotify.com/charts/view/regional-global-daily/latest",
+      "metric": {
+        "type": "streamcount",
+        "description": "Streams"
+      }
+    },
+    "date": "2025-08-23T12:00:00+00:00"
+  },
+  "items": [
+    {
+      "song": {
+        "uuid": "8a927b4b-ac0d-4ca4-83db-43aedbe6a1d2",
+        "name": "Golden",
+        "creditName": "HUNTR/X & EJAE & AUDREY NUNA & REI AMI & KPop Demon Hunters Cast",
+        "imageUrl": "https://assets.soundcharts.com/song/d/0/c/8a927b4b-ac0d-4ca4-83db-43aedbe6a1d2.jpg"
+      },
+      "position": 1,
+      "positionEvolution": 0,
+      "metric": 8287561,
+      "entryState": "",
+      "entryDate": "2025-06-22T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 1,
+      "timeOnChart": 55,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "04843a5b-b689-4f70-a8e9-efe5e99c5971",
+        "name": "back to friends",
+        "creditName": "sombr",
+        "imageUrl": "https://assets.soundcharts.com/song/9/8/6/04843a5b-b689-4f70-a8e9-efe5e99c5971.jpg"
+      },
+      "position": 2,
+      "positionEvolution": 0,
+      "metric": 6130086,
+      "entryState": "",
+      "entryDate": "2025-03-18T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 2,
+      "timeOnChart": 151,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "4096e9da-dc91-4365-84d0-c0874986c5bb",
+        "name": "Soda Pop",
+        "creditName": "Saja Boys & Andrew Choi & Neckwav & Danny Chung & KEVIN WOO & samUIL Lee & KPop Demon Hunters Cast",
+        "imageUrl": "https://assets.soundcharts.com/song/1/9/c/4096e9da-dc91-4365-84d0-c0874986c5bb.jpg"
+      },
+      "position": 3,
+      "positionEvolution": 1,
+      "metric": 4712016,
+      "entryState": "",
+      "entryDate": "2025-06-23T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 4,
+      "timeOnChart": 54,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "7126b8aa-194e-4280-acb0-413a57d25786",
+        "name": "Ordinary",
+        "creditName": "Alex Warren",
+        "imageUrl": "https://assets.soundcharts.com/song/e/4/9/7126b8aa-194e-4280-acb0-413a57d25786.jpg"
+      },
+      "position": 4,
+      "positionEvolution": -1,
+      "metric": 4584884,
+      "entryState": "",
+      "entryDate": "2025-02-07T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 3,
+      "timeOnChart": 190,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "8000a05f-24f6-48d4-8f86-48fb012c68ee",
+        "name": "Your Idol",
+        "creditName": "Saja Boys & Andrew Choi & Neckwav & Danny Chung & KEVIN WOO & samUIL Lee & KPop Demon Hunters Cast",
+        "imageUrl": "https://assets.soundcharts.com/song/6/f/4/8000a05f-24f6-48d4-8f86-48fb012c68ee.jpg"
+      },
+      "position": 5,
+      "positionEvolution": 0,
+      "metric": 4487234,
+      "entryState": "",
+      "entryDate": "2025-06-23T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 5,
+      "timeOnChart": 54,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "8c1f0037-ee87-4e1d-b631-4fd6be41856e",
+        "name": "How It’s Done",
+        "creditName": "HUNTR/X & EJAE & AUDREY NUNA & REI AMI & KPop Demon Hunters Cast",
+        "imageUrl": "https://assets.soundcharts.com/song/7/8/e/8c1f0037-ee87-4e1d-b631-4fd6be41856e.jpg"
+      },
+      "position": 6,
+      "positionEvolution": 1,
+      "metric": 3906563,
+      "entryState": "",
+      "entryDate": "2025-06-23T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 7,
+      "timeOnChart": 54,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "ab4ed2fb-f529-4741-bdef-406103fb5c3a",
+        "name": "What It Sounds Like",
+        "creditName": "HUNTR/X & EJAE & AUDREY NUNA & REI AMI & KPop Demon Hunters Cast",
+        "imageUrl": "https://assets.soundcharts.com/song/9/2/5/ab4ed2fb-f529-4741-bdef-406103fb5c3a.jpg"
+      },
+      "position": 7,
+      "positionEvolution": 3,
+      "metric": 3504933,
+      "entryState": "",
+      "entryDate": "2025-06-23T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 10,
+      "timeOnChart": 54,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "fc3cc03b-033f-481a-a51b-92b9d1592918",
+        "name": "DAISIES",
+        "creditName": "Justin Bieber",
+        "imageUrl": "https://assets.soundcharts.com/song/f/3/3/fc3cc03b-033f-481a-a51b-92b9d1592918.jpg"
+      },
+      "position": 8,
+      "positionEvolution": -2,
+      "metric": 3494877,
+      "entryState": "",
+      "entryDate": "2025-07-11T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 6,
+      "timeOnChart": 44,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "f3a02705-8ec5-4c58-b2f7-faa7e991f187",
+        "name": "Die With A Smile",
+        "creditName": "Lady Gaga & Bruno Mars",
+        "imageUrl": "https://assets.soundcharts.com/song/5/c/e/f3a02705-8ec5-4c58-b2f7-faa7e991f187.jpg"
+      },
+      "position": 9,
+      "positionEvolution": -1,
+      "metric": 3486346,
+      "entryState": "",
+      "entryDate": "2024-08-16T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 8,
+      "timeOnChart": 365,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "f045a50e-3fcd-488c-b6df-1771a6f782cb",
+        "name": "Don’t Say You Love Me",
+        "creditName": "Jin",
+        "imageUrl": "https://assets.soundcharts.com/song/d/c/f/f045a50e-3fcd-488c-b6df-1771a6f782cb.jpg"
+      },
+      "position": 10,
+      "positionEvolution": 5,
+      "metric": 3374384,
+      "entryState": "",
+      "entryDate": "2025-05-16T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 15,
+      "timeOnChart": 92,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "d5ec3afb-4002-472a-8f8f-89d836465f38",
+        "name": "BIRDS OF A FEATHER",
+        "creditName": "Billie Eilish",
+        "imageUrl": "https://assets.soundcharts.com/song/2/0/0/d5ec3afb-4002-472a-8f8f-89d836465f38.jpg"
+      },
+      "position": 11,
+      "positionEvolution": -2,
+      "metric": 3350593,
+      "entryState": "",
+      "entryDate": "2024-05-17T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 9,
+      "timeOnChart": 456,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "3879a5be-f932-488b-8ef8-bf08fa16b9d1",
+        "name": "La Plena (W Sound 05)",
+        "creditName": "W Sound & Beéle & Ovy On The Drums",
+        "imageUrl": "https://assets.soundcharts.com/song/2/3/9/3879a5be-f932-488b-8ef8-bf08fa16b9d1.jpg"
+      },
+      "position": 12,
+      "positionEvolution": -1,
+      "metric": 3344711,
+      "entryState": "",
+      "entryDate": "2025-02-26T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 11,
+      "timeOnChart": 171,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "e2856ee1-e6b8-46e7-b33c-3d25cf0bfa72",
+        "name": "Takedown",
+        "creditName": "HUNTR/X & EJAE & AUDREY NUNA & REI AMI & KPop Demon Hunters Cast",
+        "imageUrl": "https://assets.soundcharts.com/song/8/b/6/e2856ee1-e6b8-46e7-b33c-3d25cf0bfa72.jpg"
+      },
+      "position": 13,
+      "positionEvolution": 4,
+      "metric": 3145511,
+      "entryState": "",
+      "entryDate": "2025-06-24T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 17,
+      "timeOnChart": 53,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "68dc2ba0-23bc-427c-8d8d-397cd6865b56",
+        "name": "JUMP",
+        "creditName": "BLACKPINK",
+        "imageUrl": "https://assets.soundcharts.com/song/c/b/3/68dc2ba0-23bc-427c-8d8d-397cd6865b56.jpg"
+      },
+      "position": 14,
+      "positionEvolution": -1,
+      "metric": 3112819,
+      "entryState": "",
+      "entryDate": "2025-07-11T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 13,
+      "timeOnChart": 44,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "0adf676e-8d33-47f6-bcaf-ea02075a4162",
+        "name": "Free",
+        "creditName": "Rumi & Jinu & EJAE & Andrew Choi & KPop Demon Hunters Cast",
+        "imageUrl": "https://assets.soundcharts.com/song/3/3/d/0adf676e-8d33-47f6-bcaf-ea02075a4162.jpg"
+      },
+      "position": 15,
+      "positionEvolution": 1,
+      "metric": 3077395,
+      "entryState": "",
+      "entryDate": "2025-06-23T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 16,
+      "timeOnChart": 54,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "3fe4ce26-7aef-4e46-a251-e0d5865692cd",
+        "name": "undressed",
+        "creditName": "sombr",
+        "imageUrl": "https://assets.soundcharts.com/song/f/e/a/3fe4ce26-7aef-4e46-a251-e0d5865692cd.jpg"
+      },
+      "position": 16,
+      "positionEvolution": -4,
+      "metric": 2954145,
+      "entryState": "",
+      "entryDate": "2025-03-27T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 12,
+      "timeOnChart": 142,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "0dd6d9ec-83cd-497e-8042-325ce768cc4c",
+        "name": "Love Me Not",
+        "creditName": "Ravyn Lenae",
+        "imageUrl": "https://assets.soundcharts.com/song/d/c/3/0dd6d9ec-83cd-497e-8042-325ce768cc4c.jpg"
+      },
+      "position": 17,
+      "positionEvolution": 1,
+      "metric": 2865453,
+      "entryState": "",
+      "entryDate": "2025-03-18T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 18,
+      "timeOnChart": 150,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "d637eebc-6ebd-4f71-97a3-a0643cbe9017",
+        "name": "No Broke Boys",
+        "creditName": "Disco Lines & Tinashe",
+        "imageUrl": "https://assets.soundcharts.com/song/d/b/e/d637eebc-6ebd-4f71-97a3-a0643cbe9017.jpg"
+      },
+      "position": 18,
+      "positionEvolution": 1,
+      "metric": 2777431,
+      "entryState": "",
+      "entryDate": "2025-06-27T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 19,
+      "timeOnChart": 51,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "8fd62edb-3a38-4b2a-8019-69381ad27e55",
+        "name": "Gabriela",
+        "creditName": "KATSEYE",
+        "imageUrl": "https://assets.soundcharts.com/song/8/3/a/8fd62edb-3a38-4b2a-8019-69381ad27e55.jpg"
+      },
+      "position": 19,
+      "positionEvolution": 5,
+      "metric": 2760806,
+      "entryState": "",
+      "entryDate": "2025-06-20T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 24,
+      "timeOnChart": 57,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "46e68d4d-c9ee-453b-9f4f-a245aff899e6",
+        "name": "Goo Goo Dolls Iris",
+        "creditName": "The Goo Goo Dolls",
+        "imageUrl": "https://assets.soundcharts.com/song/e/e/9/46e68d4d-c9ee-453b-9f4f-a245aff899e6.jpg"
+      },
+      "position": 20,
+      "positionEvolution": 0,
+      "metric": 2675156,
+      "entryState": "",
+      "entryDate": "2022-06-06T11:43:52+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 20,
+      "timeOnChart": 655,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "bb681f17-617d-4da2-8e92-3e3cd08a8007",
+        "name": "Manchild",
+        "creditName": "Sabrina Carpenter",
+        "imageUrl": "https://assets.soundcharts.com/song/d/7/1/bb681f17-617d-4da2-8e92-3e3cd08a8007.jpg"
+      },
+      "position": 21,
+      "positionEvolution": 1,
+      "metric": 2669916,
+      "entryState": "",
+      "entryDate": "2025-06-06T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 22,
+      "timeOnChart": 71,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "7a835787-953d-4dcf-8286-665ca1e4335f",
+        "name": "Who",
+        "creditName": "Jimin",
+        "imageUrl": "https://assets.soundcharts.com/song/d/3/5/7a835787-953d-4dcf-8286-665ca1e4335f.jpg"
+      },
+      "position": 22,
+      "positionEvolution": 4,
+      "metric": 2613063,
+      "entryState": "",
+      "entryDate": "2024-07-19T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 26,
+      "timeOnChart": 393,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "09d7cdf3-7579-4732-b2d0-e65cf8cb32cb",
+        "name": "APT.",
+        "creditName": "ROSÉ & Bruno Mars",
+        "imageUrl": "https://assets.soundcharts.com/song/9/7/5/09d7cdf3-7579-4732-b2d0-e65cf8cb32cb.jpg"
+      },
+      "position": 23,
+      "positionEvolution": 5,
+      "metric": 2605370,
+      "entryState": "",
+      "entryDate": "2024-10-18T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 28,
+      "timeOnChart": 302,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "4094dc9f-bbb6-42f4-9c63-6896082df668",
+        "name": "The Subway",
+        "creditName": "Chappell Roan",
+        "imageUrl": "https://assets.soundcharts.com/song/6/b/b/4094dc9f-bbb6-42f4-9c63-6896082df668.jpg"
+      },
+      "position": 24,
+      "positionEvolution": -3,
+      "metric": 2549559,
+      "entryState": "",
+      "entryDate": "2025-08-01T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 21,
+      "timeOnChart": 23,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "8619f309-c56a-4e4a-831d-b01a88034385",
+        "name": "Beautiful Things",
+        "creditName": "Benson Boone",
+        "imageUrl": "https://assets.soundcharts.com/song/a/6/5/8619f309-c56a-4e4a-831d-b01a88034385.jpg"
+      },
+      "position": 25,
+      "positionEvolution": 0,
+      "metric": 2526897,
+      "entryState": "",
+      "entryDate": "2024-01-19T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 25,
+      "timeOnChart": 575,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "cbfa1c26-5822-4ec6-b49a-2efd72b81c4c",
+        "name": "Saiyaara (From \"Saiyaara\")",
+        "creditName": "Tanishk Bagchi & Faheem Abdullah & Arslan Nizami & Irshad Kamil",
+        "imageUrl": "https://assets.soundcharts.com/song/2/2/8/cbfa1c26-5822-4ec6-b49a-2efd72b81c4c.jpg"
+      },
+      "position": 26,
+      "positionEvolution": 6,
+      "metric": 2457522,
+      "entryState": "",
+      "entryDate": "2025-07-16T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 32,
+      "timeOnChart": 39,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "29eea75f-3ef8-4091-8db6-7dba36479efc",
+        "name": "TU VAS SIN (fav)",
+        "creditName": "Rels B",
+        "imageUrl": "https://assets.soundcharts.com/song/8/f/e/29eea75f-3ef8-4091-8db6-7dba36479efc.jpg"
+      },
+      "position": 27,
+      "positionEvolution": 2,
+      "metric": 2397291,
+      "entryState": "",
+      "entryDate": "2025-07-14T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 29,
+      "timeOnChart": 41,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e826ad-96b2-590e-b184-a0369fe50396",
+        "name": "The Night We Met",
+        "creditName": "Lord Huron",
+        "imageUrl": "https://assets.soundcharts.com/song/2/b/6/11e826ad-96b2-590e-b184-a0369fe50396.jpg"
+      },
+      "position": 28,
+      "positionEvolution": -5,
+      "metric": 2393914,
+      "entryState": "",
+      "entryDate": "2022-06-22T10:10:02+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 23,
+      "timeOnChart": 863,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "baf602a7-2f6f-4f14-8bb1-921b2e85d8b9",
+        "name": "Sailor Song",
+        "creditName": "Gigi Perez",
+        "imageUrl": "https://assets.soundcharts.com/song/f/6/f/baf602a7-2f6f-4f14-8bb1-921b2e85d8b9.jpg"
+      },
+      "position": 29,
+      "positionEvolution": 1,
+      "metric": 2387240,
+      "entryState": "",
+      "entryDate": "2024-09-24T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 30,
+      "timeOnChart": 363,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "e06a5b3a-9796-4462-99f5-008a0f6b1b16",
+        "name": "Perlas Negras",
+        "creditName": "Natanael Cano & Gabito Ballesteros",
+        "imageUrl": "https://assets.soundcharts.com/song/6/9/7/e06a5b3a-9796-4462-99f5-008a0f6b1b16.jpg"
+      },
+      "position": 30,
+      "positionEvolution": 3,
+      "metric": 2383166,
+      "entryState": "",
+      "entryDate": "2025-07-03T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 33,
+      "timeOnChart": 48,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "97ba7780-0b53-4c17-a4e9-7c762a113d33",
+        "name": "WILDFLOWER",
+        "creditName": "Billie Eilish",
+        "imageUrl": "https://assets.soundcharts.com/song/3/5/b/97ba7780-0b53-4c17-a4e9-7c762a113d33.jpg"
+      },
+      "position": 31,
+      "positionEvolution": 0,
+      "metric": 2283805,
+      "entryState": "",
+      "entryDate": "2024-05-17T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 31,
+      "timeOnChart": 456,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "c4b8ae99-1516-43c9-a5b9-5aabe03afdf2",
+        "name": "P do Pecado (Ao Vivo)",
+        "creditName": "Grupo Menos É Mais & Simone Mendes",
+        "imageUrl": "https://assets.soundcharts.com/song/6/1/5/c4b8ae99-1516-43c9-a5b9-5aabe03afdf2.jpg"
+      },
+      "position": 32,
+      "positionEvolution": 33,
+      "metric": 2223431,
+      "entryState": "",
+      "entryDate": "2025-05-17T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 65,
+      "timeOnChart": 46,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "2001902e-293c-4059-9dec-abb61a0234dd",
+        "name": "DtMF",
+        "creditName": "Bad Bunny",
+        "imageUrl": "https://assets.soundcharts.com/song/c/3/9/2001902e-293c-4059-9dec-abb61a0234dd.jpg"
+      },
+      "position": 33,
+      "positionEvolution": 4,
+      "metric": 2194454,
+      "entryState": "",
+      "entryDate": "2025-01-05T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 37,
+      "timeOnChart": 223,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e82615-ccd2-3de4-95a0-a0369fe50396",
+        "name": "Yellow",
+        "creditName": "Coldplay",
+        "imageUrl": "https://assets.soundcharts.com/song/2/d/c/11e82615-ccd2-3de4-95a0-a0369fe50396.jpg"
+      },
+      "position": 34,
+      "positionEvolution": 1,
+      "metric": 2193602,
+      "entryState": "",
+      "entryDate": "2022-06-06T11:43:52+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 35,
+      "timeOnChart": 1155,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "e87bb4f1-079c-44b7-8821-1e4169f36771",
+        "name": "TABOLA BALE",
+        "creditName": "Silet Open Up & Jacson Seran & Juan Reza & Diva Aurel",
+        "imageUrl": "https://assets.soundcharts.com/song/c/9/7/e87bb4f1-079c-44b7-8821-1e4169f36771.jpg"
+      },
+      "position": 35,
+      "positionEvolution": 27,
+      "metric": 2171738,
+      "entryState": "",
+      "entryDate": "2025-07-27T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 62,
+      "timeOnChart": 23,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "a364c758-082a-46ba-8400-1053e453aa35",
+        "name": "BAILE INoLVIDABLE",
+        "creditName": "Bad Bunny",
+        "imageUrl": "https://assets.soundcharts.com/song/a/2/8/a364c758-082a-46ba-8400-1053e453aa35.jpg"
+      },
+      "position": 36,
+      "positionEvolution": 6,
+      "metric": 2130859,
+      "entryState": "",
+      "entryDate": "2025-01-05T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 42,
+      "timeOnChart": 223,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "f175afa6-483a-4fad-b489-c7b38f26a585",
+        "name": "YO y TÚ",
+        "creditName": "Ovy On The Drums & Quevedo & Beéle",
+        "imageUrl": "https://assets.soundcharts.com/song/a/3/8/f175afa6-483a-4fad-b489-c7b38f26a585.jpg"
+      },
+      "position": 37,
+      "positionEvolution": -1,
+      "metric": 2123651,
+      "entryState": "",
+      "entryDate": "2025-06-17T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 36,
+      "timeOnChart": 60,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "ff22c836-6452-48b7-a8fc-f827f2874d39",
+        "name": "Espresso",
+        "creditName": "Sabrina Carpenter",
+        "imageUrl": "https://assets.soundcharts.com/song/2/5/4/ff22c836-6452-48b7-a8fc-f827f2874d39.jpg"
+      },
+      "position": 38,
+      "positionEvolution": 7,
+      "metric": 2100312,
+      "entryState": "",
+      "entryDate": "2024-04-12T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 45,
+      "timeOnChart": 491,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "b870f398-95d2-4e15-bd60-3b3bf233e56d",
+        "name": "Marlboro Rojo",
+        "creditName": "Fuerza Regida",
+        "imageUrl": "https://assets.soundcharts.com/song/2/d/5/b870f398-95d2-4e15-bd60-3b3bf233e56d.jpg"
+      },
+      "position": 39,
+      "positionEvolution": 5,
+      "metric": 2084568,
+      "entryState": "",
+      "entryDate": "2025-05-09T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 44,
+      "timeOnChart": 99,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "a3aeccc9-2847-4a42-84eb-54b9485aaa7f",
+        "name": "One Of The Girls",
+        "creditName": "The Weeknd & JENNIE & Lily-Rose Depp",
+        "imageUrl": "https://assets.soundcharts.com/song/7/4/8/a3aeccc9-2847-4a42-84eb-54b9485aaa7f.jpg"
+      },
+      "position": 40,
+      "positionEvolution": -1,
+      "metric": 2082023,
+      "entryState": "",
+      "entryDate": "2024-02-09T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 39,
+      "timeOnChart": 678,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "e97ee04d-33d4-46f6-b289-9b1228129e1b",
+        "name": "TU SANCHO",
+        "creditName": "Fuerza Regida",
+        "imageUrl": "https://assets.soundcharts.com/song/4/d/3/e97ee04d-33d4-46f6-b289-9b1228129e1b.jpg"
+      },
+      "position": 41,
+      "positionEvolution": -3,
+      "metric": 2063527,
+      "entryState": "",
+      "entryDate": "2025-05-13T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 38,
+      "timeOnChart": 95,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e82615-cc5b-2d62-8f85-a0369fe50396",
+        "name": "Sparks",
+        "creditName": "Chris Martin & Guy Berryman & Jonny Buckland & Will Champion & Coldplay",
+        "imageUrl": "https://assets.soundcharts.com/song/b/5/c/11e82615-cc5b-2d62-8f85-a0369fe50396.jpg"
+      },
+      "position": 42,
+      "positionEvolution": -1,
+      "metric": 2056046,
+      "entryState": "",
+      "entryDate": "2022-08-25T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 41,
+      "timeOnChart": 344,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "b7c90359-2852-4542-b4f4-29076e5f088e",
+        "name": "12 to 12",
+        "creditName": "sombr",
+        "imageUrl": "https://assets.soundcharts.com/song/2/5/8/b7c90359-2852-4542-b4f4-29076e5f088e.jpg"
+      },
+      "position": 43,
+      "positionEvolution": -9,
+      "metric": 2054893,
+      "entryState": "",
+      "entryDate": "2025-07-25T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 34,
+      "timeOnChart": 27,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "b324f50a-94d0-4455-a2e0-144cca68712d",
+        "name": "That’s So True",
+        "creditName": "Gracie Abrams",
+        "imageUrl": "https://assets.soundcharts.com/song/0/d/4/b324f50a-94d0-4455-a2e0-144cca68712d.jpg"
+      },
+      "position": 44,
+      "positionEvolution": 3,
+      "metric": 2050716,
+      "entryState": "",
+      "entryDate": "2024-10-18T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 47,
+      "timeOnChart": 302,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "9d8cf46a-55c5-4dfd-93d0-758842f3733c",
+        "name": "TAKEDOWN (JEONGYEON, JIHYO, CHAEYOUNG)",
+        "creditName": "TWICE",
+        "imageUrl": "https://assets.soundcharts.com/song/5/c/5/9d8cf46a-55c5-4dfd-93d0-758842f3733c.jpg"
+      },
+      "position": 45,
+      "positionEvolution": 16,
+      "metric": 2033048,
+      "entryState": "",
+      "entryDate": "2025-07-14T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 61,
+      "timeOnChart": 53,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e82693-06c8-f70e-9b64-aa1c026db3d8",
+        "name": "Sweater Weather",
+        "creditName": "The Neighbourhood",
+        "imageUrl": "https://assets.soundcharts.com/song/8/c/6/11e82693-06c8-f70e-9b64-aa1c026db3d8.jpg"
+      },
+      "position": 46,
+      "positionEvolution": 2,
+      "metric": 2012137,
+      "entryState": "",
+      "entryDate": "2022-06-06T11:43:52+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 48,
+      "timeOnChart": 1159,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "f6309a80-ad16-46e5-8872-4adb83659640",
+        "name": "Lose Control",
+        "creditName": "Teddy Swims",
+        "imageUrl": "https://assets.soundcharts.com/song/6/1/d/f6309a80-ad16-46e5-8872-4adb83659640.jpg"
+      },
+      "position": 47,
+      "positionEvolution": -7,
+      "metric": 1999077,
+      "entryState": "",
+      "entryDate": "2023-11-10T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 40,
+      "timeOnChart": 639,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "9f445801-baca-4142-9eea-ce69a9acbdfc",
+        "name": "Jealous Type",
+        "creditName": "Doja Cat",
+        "imageUrl": "https://assets.soundcharts.com/song/a/c/a/9f445801-baca-4142-9eea-ce69a9acbdfc.jpg"
+      },
+      "position": 48,
+      "positionEvolution": -34,
+      "metric": 1996755,
+      "entryState": "",
+      "entryDate": "2025-08-22T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 14,
+      "timeOnChart": 2,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "704cd0a5-10c5-49f2-92cd-8e5a6a53b83c",
+        "name": "Chula Vente",
+        "creditName": "Luis R Conriquez & Fuerza Regida & Neton Vega",
+        "imageUrl": "https://assets.soundcharts.com/song/5/c/0/704cd0a5-10c5-49f2-92cd-8e5a6a53b83c.jpg"
+      },
+      "position": 49,
+      "positionEvolution": 7,
+      "metric": 1984184,
+      "entryState": "",
+      "entryDate": "2025-07-31T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 56,
+      "timeOnChart": 24,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "a5b01404-5a26-4079-a1e6-297ca6187152",
+        "name": "no tiene sentido",
+        "creditName": "Beéle",
+        "imageUrl": "https://assets.soundcharts.com/song/6/2/a/a5b01404-5a26-4079-a1e6-297ca6187152.jpg"
+      },
+      "position": 50,
+      "positionEvolution": -1,
+      "metric": 1976667,
+      "entryState": "",
+      "entryDate": "2025-05-21T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 49,
+      "timeOnChart": 87,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e82612-d006-af3e-88f1-a0369fe50396",
+        "name": "Dreams (live, 1977 Rumours World Tour)",
+        "creditName": "Fleetwood Mac",
+        "imageUrl": "https://assets.soundcharts.com/song/6/0/0/11e82612-d006-af3e-88f1-a0369fe50396.jpg"
+      },
+      "position": 51,
+      "positionEvolution": 8,
+      "metric": 1971657,
+      "entryState": "",
+      "entryDate": "2022-12-01T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 59,
+      "timeOnChart": 402,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e82613-ba5a-a694-81ec-aa1c026db3d8",
+        "name": "Every Breath You Take",
+        "creditName": "The Police",
+        "imageUrl": "https://assets.soundcharts.com/song/a/5/a/11e82613-ba5a-a694-81ec-aa1c026db3d8.jpg"
+      },
+      "position": 52,
+      "positionEvolution": -1,
+      "metric": 1958051,
+      "entryState": "",
+      "entryDate": "2022-06-06T11:43:52+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 51,
+      "timeOnChart": 985,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e8264f-030e-77ae-9e4e-aa1c026db3d8",
+        "name": "I Wanna Be Yours",
+        "creditName": "Arctic Monkeys",
+        "imageUrl": "https://assets.soundcharts.com/song/e/0/3/11e8264f-030e-77ae-9e4e-aa1c026db3d8.jpg"
+      },
+      "position": 53,
+      "positionEvolution": 0,
+      "metric": 1953475,
+      "entryState": "",
+      "entryDate": "2022-06-27T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 53,
+      "timeOnChart": 1135,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e8411c-8dbb-07fe-b550-a0369fe50396",
+        "name": "All The Stars",
+        "creditName": "Kendrick Lamar & SZA",
+        "imageUrl": "https://assets.soundcharts.com/song/b/b/d/11e8411c-8dbb-07fe-b550-a0369fe50396.jpg"
+      },
+      "position": 54,
+      "positionEvolution": 0,
+      "metric": 1935327,
+      "entryState": "",
+      "entryDate": "2024-02-21T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 54,
+      "timeOnChart": 486,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e82612-a9dc-f6ba-8e5d-a0369fe50396",
+        "name": "Creep",
+        "creditName": "Radiohead",
+        "imageUrl": "https://assets.soundcharts.com/song/c/d/9/11e82612-a9dc-f6ba-8e5d-a0369fe50396.jpg"
+      },
+      "position": 55,
+      "positionEvolution": -5,
+      "metric": 1921315,
+      "entryState": "",
+      "entryDate": "2023-05-08T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 50,
+      "timeOnChart": 624,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "47f6c945-3631-47cd-9578-919d7cc0467b",
+        "name": "YUKON",
+        "creditName": "Justin Bieber",
+        "imageUrl": "https://assets.soundcharts.com/song/1/3/6/47f6c945-3631-47cd-9578-919d7cc0467b.jpg"
+      },
+      "position": 56,
+      "positionEvolution": -13,
+      "metric": 1915681,
+      "entryState": "",
+      "entryDate": "2025-07-11T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 43,
+      "timeOnChart": 44,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "1d7e0080-c4a3-44f1-8841-3e601efacae5",
+        "name": "Just Keep Watching (From F1® The Movie)",
+        "creditName": "Tate McRae & F1 The Album",
+        "imageUrl": "https://assets.soundcharts.com/song/3/a/4/1d7e0080-c4a3-44f1-8841-3e601efacae5.jpg"
+      },
+      "position": 57,
+      "positionEvolution": -11,
+      "metric": 1904510,
+      "entryState": "",
+      "entryDate": "2025-05-30T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 46,
+      "timeOnChart": 78,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "f4df299e-195e-4300-8860-7e02df754e0f",
+        "name": "Pink Pony Club",
+        "creditName": "Chappell Roan",
+        "imageUrl": "https://assets.soundcharts.com/song/e/5/9/f4df299e-195e-4300-8860-7e02df754e0f.jpg"
+      },
+      "position": 58,
+      "positionEvolution": 13,
+      "metric": 1879154,
+      "entryState": "",
+      "entryDate": "2024-06-26T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 71,
+      "timeOnChart": 364,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "be76f5ba-7bc6-4f88-ac7d-1dce9e23c8a9",
+        "name": "Sahiba",
+        "creditName": "Aditya Rikhari",
+        "imageUrl": "https://assets.soundcharts.com/song/6/c/b/be76f5ba-7bc6-4f88-ac7d-1dce9e23c8a9.jpg"
+      },
+      "position": 59,
+      "positionEvolution": -4,
+      "metric": 1875015,
+      "entryState": "",
+      "entryDate": "2025-07-09T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 55,
+      "timeOnChart": 46,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "c78ca17c-47dd-4d8b-8884-66864f621f99",
+        "name": "Frecuencia",
+        "creditName": "Los Dareyes De La Sierra",
+        "imageUrl": "https://assets.soundcharts.com/song/d/d/7/c78ca17c-47dd-4d8b-8884-66864f621f99.jpg"
+      },
+      "position": 60,
+      "positionEvolution": 3,
+      "metric": 1867175,
+      "entryState": "",
+      "entryDate": "2025-06-23T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 63,
+      "timeOnChart": 54,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "a96618f8-39dc-43f0-8119-2ca1a2e5bc6a",
+        "name": "CEREMONY",
+        "creditName": "Stray Kids",
+        "imageUrl": "https://assets.soundcharts.com/song/c/d/9/a96618f8-39dc-43f0-8119-2ca1a2e5bc6a.jpg"
+      },
+      "position": 61,
+      "positionEvolution": 0,
+      "metric": 1857843,
+      "entryState": "",
+      "entryDate": "2025-08-22T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 0,
+      "timeOnChart": 2,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "dfe0819e-1779-47fe-9296-01de318ecb6f",
+        "name": "Timeless",
+        "creditName": "The Weeknd & Playboi Carti",
+        "imageUrl": "https://assets.soundcharts.com/song/9/7/7/dfe0819e-1779-47fe-9296-01de318ecb6f.jpg"
+      },
+      "position": 62,
+      "positionEvolution": -5,
+      "metric": 1848387,
+      "entryState": "",
+      "entryDate": "2024-09-27T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 57,
+      "timeOnChart": 323,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "c2ece272-1fb7-4990-bffa-f477601749dd",
+        "name": "Good Luck, Babe!",
+        "creditName": "Chappell Roan",
+        "imageUrl": "https://assets.soundcharts.com/song/7/b/f/c2ece272-1fb7-4990-bffa-f477601749dd.jpg"
+      },
+      "position": 63,
+      "positionEvolution": 3,
+      "metric": 1845631,
+      "entryState": "",
+      "entryDate": "2024-04-09T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 66,
+      "timeOnChart": 494,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "e029d34b-f95b-4df3-b7fa-4ab2a9d336a7",
+        "name": "NUEVAYoL",
+        "creditName": "Bad Bunny",
+        "imageUrl": "https://assets.soundcharts.com/song/b/5/9/e029d34b-f95b-4df3-b7fa-4ab2a9d336a7.jpg"
+      },
+      "position": 64,
+      "positionEvolution": 5,
+      "metric": 1826994,
+      "entryState": "",
+      "entryDate": "2025-01-05T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 69,
+      "timeOnChart": 223,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "97159a80-d771-474b-97f5-f9471fc2af22",
+        "name": "Mystical Magical",
+        "creditName": "Benson Boone",
+        "imageUrl": "https://assets.soundcharts.com/song/1/7/7/97159a80-d771-474b-97f5-f9471fc2af22.jpg"
+      },
+      "position": 65,
+      "positionEvolution": -5,
+      "metric": 1816617,
+      "entryState": "",
+      "entryDate": "2025-04-25T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 60,
+      "timeOnChart": 113,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "03bb6529-1ca2-4f7a-9b11-5fac898fd708",
+        "name": "Show Me Love",
+        "creditName": "WizTheMC & bees & honey & 袁娅维TIA RAY",
+        "imageUrl": "https://assets.soundcharts.com/song/2/a/c/03bb6529-1ca2-4f7a-9b11-5fac898fd708.jpg"
+      },
+      "position": 66,
+      "positionEvolution": -8,
+      "metric": 1803160,
+      "entryState": "",
+      "entryDate": "2025-03-05T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 58,
+      "timeOnChart": 164,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "8fb152c7-82cb-474e-a7a7-f05751cf6493",
+        "name": "Messy",
+        "creditName": "Lola Young",
+        "imageUrl": "https://assets.soundcharts.com/song/b/c/2/8fb152c7-82cb-474e-a7a7-f05751cf6493.jpg"
+      },
+      "position": 67,
+      "positionEvolution": -3,
+      "metric": 1777341,
+      "entryState": "",
+      "entryDate": "2024-12-03T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 64,
+      "timeOnChart": 256,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "84d3fd53-7aac-450f-8eda-fa81f51223c9",
+        "name": "we can't be friends (wait for your love)",
+        "creditName": "Ariana Grande",
+        "imageUrl": "https://assets.soundcharts.com/song/c/a/a/84d3fd53-7aac-450f-8eda-fa81f51223c9.jpg"
+      },
+      "position": 68,
+      "positionEvolution": 2,
+      "metric": 1758995,
+      "entryState": "",
+      "entryDate": "2024-03-08T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 70,
+      "timeOnChart": 526,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "d713221d-ad45-4337-beb1-5fb8b081eae6",
+        "name": "Seven (Explicit Ver.)",
+        "creditName": "Jung Kook & Latto",
+        "imageUrl": "https://assets.soundcharts.com/song/5/4/d/d713221d-ad45-4337-beb1-5fb8b081eae6.jpg"
+      },
+      "position": 69,
+      "positionEvolution": 6,
+      "metric": 1731283,
+      "entryState": "",
+      "entryDate": "2023-07-14T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 75,
+      "timeOnChart": 763,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "43520e9c-a762-4ec2-b927-8664cc6d62ef",
+        "name": "capaz (merengueton)",
+        "creditName": "Alleh & Yorghaki",
+        "imageUrl": "https://assets.soundcharts.com/song/2/6/7/43520e9c-a762-4ec2-b927-8664cc6d62ef.jpg"
+      },
+      "position": 70,
+      "positionEvolution": 4,
+      "metric": 1728237,
+      "entryState": "",
+      "entryDate": "2024-12-20T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 74,
+      "timeOnChart": 237,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e82650-dd4e-d124-a6dd-aa1c026db3d8",
+        "name": "Breakin' Dishes (Soul Seekerz remix)",
+        "creditName": "Rihanna",
+        "imageUrl": "https://assets.soundcharts.com/song/e/4/d/11e82650-dd4e-d124-a6dd-aa1c026db3d8.jpg"
+      },
+      "position": 71,
+      "positionEvolution": 11,
+      "metric": 1726975,
+      "entryState": "",
+      "entryDate": "2024-12-27T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 82,
+      "timeOnChart": 148,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e82612-ac03-7572-89d6-aa1c026db3d8",
+        "name": "Let Down",
+        "creditName": "Radiohead",
+        "imageUrl": "https://assets.soundcharts.com/song/3/0/c/11e82612-ac03-7572-89d6-aa1c026db3d8.jpg"
+      },
+      "position": 72,
+      "positionEvolution": -4,
+      "metric": 1724055,
+      "entryState": "",
+      "entryDate": "2025-06-01T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 68,
+      "timeOnChart": 76,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "7190d474-5a33-4c14-a826-6e46d981a06e",
+        "name": "OJITOS MENTIROSOS",
+        "creditName": "Chino Pacas",
+        "imageUrl": "https://assets.soundcharts.com/song/3/3/a/7190d474-5a33-4c14-a826-6e46d981a06e.jpg"
+      },
+      "position": 73,
+      "positionEvolution": 0,
+      "metric": 1722930,
+      "entryState": "",
+      "entryDate": "2025-08-09T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 73,
+      "timeOnChart": 15,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "f5d5505e-5929-4ac4-8dd2-2db21d360a0e",
+        "name": "luther",
+        "creditName": "Kendrick Lamar & SZA",
+        "imageUrl": "https://assets.soundcharts.com/song/9/2/9/f5d5505e-5929-4ac4-8dd2-2db21d360a0e.jpg"
+      },
+      "position": 74,
+      "positionEvolution": -2,
+      "metric": 1718214,
+      "entryState": "",
+      "entryDate": "2024-11-22T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 72,
+      "timeOnChart": 267,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "c0cf20a0-fbb5-4c29-9649-6681ae000774",
+        "name": "Te Quería Ver",
+        "creditName": "AIemán & Neton Vegа",
+        "imageUrl": "https://assets.soundcharts.com/song/5/b/b/c0cf20a0-fbb5-4c29-9649-6681ae000774.jpg"
+      },
+      "position": 75,
+      "positionEvolution": 6,
+      "metric": 1675801,
+      "entryState": "",
+      "entryDate": "2025-02-05T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 81,
+      "timeOnChart": 192,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "0c745f76-722c-4d57-b294-48a73f305057",
+        "name": "No One Noticed",
+        "creditName": "The Marías",
+        "imageUrl": "https://assets.soundcharts.com/song/c/2/2/0c745f76-722c-4d57-b294-48a73f305057.jpg"
+      },
+      "position": 76,
+      "positionEvolution": 3,
+      "metric": 1658882,
+      "entryState": "",
+      "entryDate": "2024-10-28T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 79,
+      "timeOnChart": 280,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "da408b5d-19a7-4ad5-bb9c-e276fd304a0e",
+        "name": "POR SUS BESOS",
+        "creditName": "Tito Double P",
+        "imageUrl": "https://assets.soundcharts.com/song/7/a/9/da408b5d-19a7-4ad5-bb9c-e276fd304a0e.jpg"
+      },
+      "position": 77,
+      "positionEvolution": 3,
+      "metric": 1655911,
+      "entryState": "",
+      "entryDate": "2025-07-13T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 80,
+      "timeOnChart": 42,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "6d2edc66-20c2-4cdd-8bb7-895c46aaac12",
+        "name": "Sugar On My Tongue",
+        "creditName": "Tyler, The Creator",
+        "imageUrl": "https://assets.soundcharts.com/song/2/c/0/6d2edc66-20c2-4cdd-8bb7-895c46aaac12.jpg"
+      },
+      "position": 78,
+      "positionEvolution": 0,
+      "metric": 1648027,
+      "entryState": "",
+      "entryDate": "2025-07-21T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 78,
+      "timeOnChart": 34,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "485af798-d15a-42e0-9f11-f538f147951e",
+        "name": "Strategy",
+        "creditName": "TWICE",
+        "imageUrl": "https://assets.soundcharts.com/song/a/5/1/485af798-d15a-42e0-9f11-f538f147951e.jpg"
+      },
+      "position": 79,
+      "positionEvolution": 26,
+      "metric": 1641138,
+      "entryState": "",
+      "entryDate": "2025-06-29T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 105,
+      "timeOnChart": 50,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "fd078da6-6a62-4290-b827-3155b5848e18",
+        "name": "Gnarly",
+        "creditName": "KATSEYE",
+        "imageUrl": "https://assets.soundcharts.com/song/2/6/a/fd078da6-6a62-4290-b827-3155b5848e18.jpg"
+      },
+      "position": 80,
+      "positionEvolution": 17,
+      "metric": 1636272,
+      "entryState": "",
+      "entryDate": "2025-05-02T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 97,
+      "timeOnChart": 106,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e82615-cc98-da40-a988-a0369fe50396",
+        "name": "Viva la Vida",
+        "creditName": "Coldplay",
+        "imageUrl": "https://assets.soundcharts.com/song/8/9/c/11e82615-cc98-da40-a988-a0369fe50396.jpg"
+      },
+      "position": 81,
+      "positionEvolution": 15,
+      "metric": 1622783,
+      "entryState": "",
+      "entryDate": "2022-08-23T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 96,
+      "timeOnChart": 1083,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e8261c-08b0-a642-ac29-aa1c026db3d8",
+        "name": "In the End",
+        "creditName": "Linkin Park",
+        "imageUrl": "https://assets.soundcharts.com/song/0/b/8/11e8261c-08b0-a642-ac29-aa1c026db3d8.jpg"
+      },
+      "position": 82,
+      "positionEvolution": -5,
+      "metric": 1603766,
+      "entryState": "",
+      "entryDate": "2023-02-10T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 77,
+      "timeOnChart": 631,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "3cb97641-a3c9-400d-ae5d-7ecd568829eb",
+        "name": "QLOO*",
+        "creditName": "Young Cister & Kreamly",
+        "imageUrl": "https://assets.soundcharts.com/song/9/c/3/3cb97641-a3c9-400d-ae5d-7ecd568829eb.jpg"
+      },
+      "position": 83,
+      "positionEvolution": 2,
+      "metric": 1603095,
+      "entryState": "",
+      "entryDate": "2025-07-15T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 85,
+      "timeOnChart": 25,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "546bf078-a9a6-4362-b1b7-23265bc0b7b0",
+        "name": "like JENNIE",
+        "creditName": "JENNIE",
+        "imageUrl": "https://assets.soundcharts.com/song/6/a/9/546bf078-a9a6-4362-b1b7-23265bc0b7b0.jpg"
+      },
+      "position": 84,
+      "positionEvolution": 3,
+      "metric": 1601618,
+      "entryState": "",
+      "entryDate": "2025-03-07T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 87,
+      "timeOnChart": 162,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e826b6-adac-861c-a40a-a0369fe50396",
+        "name": "Starboy",
+        "creditName": "The Weeknd & Daft Punk",
+        "imageUrl": "https://assets.soundcharts.com/song/c/a/d/11e826b6-adac-861c-a40a-a0369fe50396.jpg"
+      },
+      "position": 85,
+      "positionEvolution": 5,
+      "metric": 1599776,
+      "entryState": "",
+      "entryDate": "2022-06-06T11:43:52+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 90,
+      "timeOnChart": 1159,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "ffe9aca7-df46-4353-9a79-59b6d1ac1787",
+        "name": "DIA DELÍCIA",
+        "creditName": "Nakama & Mc Staff & ΣP",
+        "imageUrl": "https://assets.soundcharts.com/song/6/4/f/ffe9aca7-df46-4353-9a79-59b6d1ac1787.jpg"
+      },
+      "position": 86,
+      "positionEvolution": 6,
+      "metric": 1590762,
+      "entryState": "",
+      "entryDate": "2025-06-21T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 92,
+      "timeOnChart": 56,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e8261b-c119-eaf0-bf63-aa1c026db3d8",
+        "name": "Rock That Body",
+        "creditName": "Black Eyed Peas",
+        "imageUrl": "https://assets.soundcharts.com/song/9/1/1/11e8261b-c119-eaf0-bf63-aa1c026db3d8.jpg"
+      },
+      "position": 87,
+      "positionEvolution": -3,
+      "metric": 1589812,
+      "entryState": "",
+      "entryDate": "2025-06-01T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 84,
+      "timeOnChart": 76,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "35fe15d4-1867-4d1c-bd2c-5ba45f0f2c7c",
+        "name": "si te pillara",
+        "creditName": "Beéle",
+        "imageUrl": "https://assets.soundcharts.com/song/7/6/8/35fe15d4-1867-4d1c-bd2c-5ba45f0f2c7c.jpg"
+      },
+      "position": 88,
+      "positionEvolution": -2,
+      "metric": 1585006,
+      "entryState": "",
+      "entryDate": "2025-06-27T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 86,
+      "timeOnChart": 52,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "dfae5f6c-e5b3-407a-a5d0-cbd4859f2cfb",
+        "name": "EoO",
+        "creditName": "Bad Bunny",
+        "imageUrl": "https://assets.soundcharts.com/song/3/b/5/dfae5f6c-e5b3-407a-a5d0-cbd4859f2cfb.jpg"
+      },
+      "position": 89,
+      "positionEvolution": -1,
+      "metric": 1581571,
+      "entryState": "",
+      "entryDate": "2025-01-05T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 88,
+      "timeOnChart": 223,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "b78eda8e-c481-4f7e-b5fc-5324f6984553",
+        "name": "Sapphire",
+        "creditName": "Ed Sheeran",
+        "imageUrl": "https://assets.soundcharts.com/song/1/8/4/b78eda8e-c481-4f7e-b5fc-5324f6984553.jpg"
+      },
+      "position": 90,
+      "positionEvolution": -7,
+      "metric": 1579845,
+      "entryState": "",
+      "entryDate": "2025-06-06T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 83,
+      "timeOnChart": 71,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "79f32d88-e591-47d9-a98c-8f8308ce1e54",
+        "name": "Man I Need",
+        "creditName": "Olivia Dean",
+        "imageUrl": "https://assets.soundcharts.com/song/1/9/5/79f32d88-e591-47d9-a98c-8f8308ce1e54.jpg"
+      },
+      "position": 91,
+      "positionEvolution": -15,
+      "metric": 1578334,
+      "entryState": "",
+      "entryDate": "2025-08-20T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 76,
+      "timeOnChart": 4,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "c3785026-be69-487d-a0ec-32a0a9d607b3",
+        "name": "Si Antes Te Hubiera Conocido",
+        "creditName": "KAROL G",
+        "imageUrl": "https://assets.soundcharts.com/song/9/6/e/c3785026-be69-487d-a0ec-32a0a9d607b3.jpg"
+      },
+      "position": 92,
+      "positionEvolution": 15,
+      "metric": 1575359,
+      "entryState": "",
+      "entryDate": "2024-06-21T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 107,
+      "timeOnChart": 421,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e826a3-6ed8-a3f2-b5be-a0369fe50396",
+        "name": "Shape of You",
+        "creditName": "Ed Sheeran",
+        "imageUrl": "https://assets.soundcharts.com/song/8/d/e/11e826a3-6ed8-a3f2-b5be-a0369fe50396.jpg"
+      },
+      "position": 93,
+      "positionEvolution": 15,
+      "metric": 1574081,
+      "entryState": "",
+      "entryDate": "2022-06-06T11:43:52+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 108,
+      "timeOnChart": 644,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "b6ac0f7e-112b-11ea-8a46-a81e84f2a475",
+        "name": "Blinding Lights",
+        "creditName": "The Weeknd",
+        "imageUrl": "https://assets.soundcharts.com/song/b/2/1/b6ac0f7e-112b-11ea-8a46-a81e84f2a475.jpg"
+      },
+      "position": 94,
+      "positionEvolution": 7,
+      "metric": 1547947,
+      "entryState": "",
+      "entryDate": "2022-06-06T11:43:52+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 101,
+      "timeOnChart": 1155,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e8264f-02f1-b286-9e5b-aa1c026db3d8",
+        "name": "505",
+        "creditName": "Arctic Monkeys",
+        "imageUrl": "https://assets.soundcharts.com/song/1/f/2/11e8264f-02f1-b286-9e5b-aa1c026db3d8.jpg"
+      },
+      "position": 95,
+      "positionEvolution": -1,
+      "metric": 1547680,
+      "entryState": "",
+      "entryDate": "2022-06-06T11:43:52+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 94,
+      "timeOnChart": 1148,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e826d9-0bed-45be-bacc-a0369fe50396",
+        "name": "Another Love",
+        "creditName": "Tom Odell",
+        "imageUrl": "https://assets.soundcharts.com/song/d/e/b/11e826d9-0bed-45be-bacc-a0369fe50396.jpg"
+      },
+      "position": 96,
+      "positionEvolution": -5,
+      "metric": 1537898,
+      "entryState": "",
+      "entryDate": "2022-06-06T11:43:52+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 91,
+      "timeOnChart": 1157,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "5856505d-5bc6-4f8f-a584-4bc4e2424ea2",
+        "name": "Azizam",
+        "creditName": "Ed Sheeran",
+        "imageUrl": "https://assets.soundcharts.com/song/6/c/b/5856505d-5bc6-4f8f-a584-4bc4e2424ea2.jpg"
+      },
+      "position": 97,
+      "positionEvolution": 1,
+      "metric": 1522122,
+      "entryState": "",
+      "entryDate": "2025-04-22T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 98,
+      "timeOnChart": 130,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "11e82615-cc78-2192-82d4-a0369fe50396",
+        "name": "The Scientist",
+        "creditName": "Coldplay",
+        "imageUrl": "https://assets.soundcharts.com/song/8/7/c/11e82615-cc78-2192-82d4-a0369fe50396.jpg"
+      },
+      "position": 98,
+      "positionEvolution": -5,
+      "metric": 1520220,
+      "entryState": "",
+      "entryDate": "2022-08-25T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 93,
+      "timeOnChart": 319,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "ada11be5-0922-4f67-8ed6-545466665cb6",
+        "name": "august",
+        "creditName": "Taylor Swift",
+        "imageUrl": "https://assets.soundcharts.com/song/2/2/9/ada11be5-0922-4f67-8ed6-545466665cb6.jpg"
+      },
+      "position": 99,
+      "positionEvolution": -10,
+      "metric": 1518287,
+      "entryState": "",
+      "entryDate": "2022-07-31T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 89,
+      "timeOnChart": 477,
+      "timeOnChartUnit": "DOC"
+    },
+    {
+      "song": {
+        "uuid": "4a3bd75b-dab7-45d1-bab5-08a8178ff716",
+        "name": "FAMOSINHA",
+        "creditName": "Dj Caio Vieira & MC Meno K & Mc Rodrigo do CN",
+        "imageUrl": "https://assets.soundcharts.com/song/7/b/a/4a3bd75b-dab7-45d1-bab5-08a8178ff716.jpg"
+      },
+      "position": 100,
+      "positionEvolution": 21,
+      "metric": 1514036,
+      "entryState": "",
+      "entryDate": "2025-06-14T12:00:00+00:00",
+      "rankDate": "2025-08-23T12:00:00+00:00",
+      "oldPosition": 121,
+      "timeOnChart": 59,
+      "timeOnChartUnit": "DOC"
+    }
+  ],
+  "page": {
+    "offset": 0,
+    "limit": 100,
+    "next": "/api/v2.14/chart/song/global-28/ranking/latest?offset=100&limit=100",
+    "previous": null,
+    "total": 200
+  },
+  "errors": []
+}

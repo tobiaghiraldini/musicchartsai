@@ -1,0 +1,12 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+The documentation of this project is stored in the /docs folder, each topic per file, in .md format.
+Strings between <> in this rule are name placeholders, to be replaced with actual names in the rule execution.
+When appropriate, keep track of the details of the design and the implementation in specific documents files.
+For example: When building the integration with an external service, keep track of the logic, details, configurations, mock data location and so on, in a dedicated md file, named along the integration service name, and appended the main topic, like "soundchart_integration".
+When setting up the project, or when implementing some features that requires additional dependencies or configuration, track the details in a <feature_name>\_setup.md file. if it's generic or part of the project setup use the setup.md file.
+When configuring the project for deployment, keep track of the details, configurations, variations needed for the deployment phase in the deploy.md file. if it's a specific part that needs a configuration, use a <part_name>\_deploy.md file.

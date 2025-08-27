@@ -1,0 +1,17 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+    {% if original and original.uuid %}
+    <li>
+        <form method="post" action="{{ request.path }}" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="_fetch_metadata" value="1">
+            <button type="submit" class="btn btn-info" onclick="return confirm('Fetch metadata for this artist from Soundcharts API?')">
+                {% trans 'Fetch Metadata from Soundcharts' %}
+            </button>
+        </form>
+    </li>
+    {% endif %}
+    {{ block.super }}
+{% endblock %} 

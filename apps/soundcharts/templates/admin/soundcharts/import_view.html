@@ -1,0 +1,598 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %} {% block extrahead %} {{ block.super }}
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+{{ media }} {% endblock %} {% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+  &rsaquo;
+  <a href="{% url 'admin:app_list' app_label=opts.app_label %}"
+    >{{ opts.app_config.verbose_name }}</a
+  >
+  &rsaquo;
+  <a href="{% url 'admin:soundcharts_'|add:opts.model_name|add:'_changelist' %}"
+    >{{ opts.verbose_name_plural }}</a
+  >
+  &rsaquo; {% trans 'Import from API' %}
+</div>
+{% endblock %} {% block content %}
+<div id="content-main">
+  <div class="module">
+    <div class="description">
+      <h2>
+        {% trans 'Import' %} {{ model_verbose_name }} {% trans 'from Soundcharts API' %}
+      </h2>
+      <p>
+        {% trans 'Fetch data from the Soundcharts API and add it to your
+        database.' %}
+      </p>
+    </div>
+
+    <div class="form-row">
+      <div class="field-box">
+        <label for="limit"
+          >{% trans 'Limit (number of records to fetch)' %}:</label
+        >
+        <input
+          type="number"
+          id="limit"
+          value="50"
+          min="1"
+          max="1000"
+          class="vTextField"
+        />
+        <p class="help">
+          {% trans 'Maximum number of records to fetch from the API' %}
+        </p>
+      </div>
+
+      <div class="field-box">
+        <label for="offset">{% trans 'Offset (skip records)' %}:</label>
+        <input type="number" id="offset" value="0" min="0" class="vTextField" />
+        <p class="help">
+          {% trans 'Number of records to skip (for pagination)' %}
+        </p>
+      </div>
+    </div>
+
+    {% if model_name == 'artist' %}
+    <div class="form-row">
+      <div class="field-box">
+        <label for="search_term"
+          >{% trans 'Search Term (required for artists)' %}:</label
+        >
+        <input
+          type="text"
+          id="search_term"
+          placeholder="Enter artist name to search for"
+          class="vTextField"
+        />
+        <p class="help">
+          {% trans 'Enter an artist name to search for. Leave empty to use
+          sample data.' %}
+        </p>
+      </div>
+    </div>
+    {% endif %} {% if model_name == 'album' %}
+    <div class="form-row">
+      <div class="field-box">
+        <label for="artist_uuid"
+          >{% trans 'Artist UUID (required for albums)' %}:</label
+        >
+        <input
+          type="text"
+          id="artist_uuid"
+          placeholder="Enter artist UUID"
+          class="vTextField"
+        />
+        <p class="help">
+          {% trans 'Enter the UUID of the artist to fetch albums for.' %}
+        </p>
+      </div>
+    </div>
+    {% endif %} {% if model_name == 'track' %}
+    <div class="form-row">
+      <div class="field-box">
+        <label for="artist_uuid"
+          >{% trans 'Artist UUID (optional for tracks)' %}:</label
+        >
+        <input
+          type="text"
+          id="artist_uuid"
+          placeholder="Enter artist UUID (optional)"
+          class="vTextField"
+        />
+        <p class="help">
+          {% trans 'Enter the UUID of the artist to fetch tracks for
+          (optional).' %}
+        </p>
+      </div>
+    </div>
+    {% endif %} {% if model_name == 'venue' %}
+    <div class="form-row">
+      <div class="field-box">
+        <label for="country_code"
+          >{% trans 'Country Code (optional for venues)' %}:</label
+        >
+        <input
+          type="text"
+          id="country_code"
+          placeholder="Enter country code (e.g., US, GB)"
+          maxlength="2"
+          class="vTextField"
+        />
+        <p class="help">
+          {% trans 'Enter a 2-letter country code to filter venues (optional).'
+          %}
+        </p>
+      </div>
+    </div>
+    {% endif %} {% if model_name == 'chart' %}
+    <div class="form-row">
+      <div class="field-box">
+        <label for="platform_code"
+          >{% trans 'Platform Code (optional for charts)' %}:</label
+        >
+        <input
+          type="text"
+          id="platform_code"
+          placeholder="Enter platform code (e.g., spotify, apple)"
+          class="vTextField"
+        />
+        <p class="help">
+          {% trans 'Enter a platform code to get charts for that platform.' %}
+        </p>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="submit-row">
+      <input
+        type="button"
+        value="{% trans 'Fetch from API' %}"
+        class="default"
+        onclick="fetchData()"
+      />
+      <input
+        type="button"
+        value="{% trans 'Add All New Items' %}"
+        class="default"
+        onclick="addAll()"
+      />
+      <input
+        type="button"
+        value="{% trans 'Clear Results' %}"
+        onclick="clearResults()"
+      />
+    </div>
+  </div>
+
+  <div class="loading" id="loading" style="display: none">
+    <div class="module">
+      <p>{% trans 'Fetching data from API...' %}</p>
+    </div>
+  </div>
+
+  <div id="alert-container"></div>
+
+  <div class="results-container" id="results-container" style="display: none">
+    <div class="module">
+      <h2>{% trans 'API Results' %}</h2>
+
+      <div class="stats" id="stats" style="margin-bottom: 20px">
+        <div
+          class="stat-item"
+          style="
+            display: inline-block;
+            margin-right: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+          "
+        >
+          <div
+            class="stat-number"
+            id="total-count"
+            style="font-size: 24px; font-weight: bold; color: #007cba"
+          >
+            0
+          </div>
+          <div class="stat-label" style="font-size: 12px; color: #6c757d">
+            {% trans 'Total Results' %}
+          </div>
+        </div>
+        <div
+          class="stat-item"
+          style="
+            display: inline-block;
+            margin-right: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+          "
+        >
+          <div
+            class="stat-number"
+            id="existing-count"
+            style="font-size: 24px; font-weight: bold; color: #28a745"
+          >
+            0
+          </div>
+          <div class="stat-label" style="font-size: 12px; color: #6c757d">
+            {% trans 'Already Exist' %}
+          </div>
+        </div>
+        <div
+          class="stat-item"
+          style="
+            display: inline-block;
+            margin-right: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+          "
+        >
+          <div
+            class="stat-number"
+            id="new-count"
+            style="font-size: 24px; font-weight: bold; color: #ffc107"
+          >
+            0
+          </div>
+          <div class="stat-label" style="font-size: 12px; color: #6c757d">
+            {% trans 'New Items' %}
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-row" style="margin-bottom: 20px">
+        <input
+          type="button"
+          value="{% trans 'Add All New Items' %}"
+          class="default"
+          onclick="addAll()"
+          id="add-all-btn"
+        />
+      </div>
+
+      <table
+        class="results-table"
+        id="results-table"
+        style="width: 100%; border-collapse: collapse"
+      >
+        <thead>
+          <tr>
+            <th
+              style="
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                background: #f8f9fa;
+                font-weight: bold;
+              "
+            >
+              {% trans 'Name' %}
+            </th>
+            <th
+              style="
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                background: #f8f9fa;
+                font-weight: bold;
+              "
+            >
+              {% trans 'UUID' %}
+            </th>
+            {% if model_name == 'artist' %}
+            <th
+              style="
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                background: #f8f9fa;
+                font-weight: bold;
+              "
+            >
+              {% trans 'Slug' %}
+            </th>
+            {% endif %} {% if model_name == 'platform' %}
+            <th
+              style="
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                background: #f8f9fa;
+                font-weight: bold;
+              "
+            >
+              {% trans 'Code' %}
+            </th>
+            {% endif %}
+            <th
+              style="
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                background: #f8f9fa;
+                font-weight: bold;
+              "
+            >
+              {% trans 'Status' %}
+            </th>
+            <th
+              style="
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                background: #f8f9fa;
+                font-weight: bold;
+              "
+            >
+              {% trans 'Actions' %}
+            </th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentData = [];
+  let existingRecords = [];
+
+  function showAlert(message, type = "info") {
+    const container = document.getElementById("alert-container");
+    const alertClass =
+      type === "error"
+        ? "errornote"
+        : type === "success"
+        ? "successnote"
+        : "infonote";
+    container.innerHTML = `<p class="${alertClass}">${message}</p>`;
+    setTimeout(() => {
+      container.innerHTML = "";
+    }, 5000);
+  }
+
+  function showLoading(show = true) {
+    const loading = document.getElementById("loading");
+    if (show) {
+      loading.style.display = "block";
+    } else {
+      loading.style.display = "none";
+    }
+  }
+
+  function fetchData() {
+    const limit = document.getElementById("limit").value;
+    const offset = document.getElementById("offset").value;
+    const artistUuid = document.getElementById("artist_uuid")?.value;
+    const searchTerm = document.getElementById("search_term")?.value;
+    const countryCode = document.getElementById("country_code")?.value;
+    const platformCode = document.getElementById("platform_code")?.value;
+
+    // Validation for required fields
+    if (artistUuid === undefined && "{{ model_name }}" === "album") {
+      showAlert("Artist UUID is required for albums", "error");
+      return;
+    }
+
+    showLoading(true);
+
+    const data = {
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+    };
+
+    if (artistUuid) {
+      data.artist_uuid = artistUuid;
+    }
+
+    if (searchTerm !== undefined) {
+      data.search_term = searchTerm;
+    }
+
+    if (countryCode) {
+      data.country_code = countryCode;
+    }
+
+    if (platformCode) {
+      data.platform_code = platformCode;
+    }
+
+    fetch(
+      '{% url "admin:soundcharts_"|add:opts.model_name|add:"_fetch_api" %}',
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify(data),
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        showLoading(false);
+        if (data.error) {
+          showAlert(data.error, "error");
+        } else {
+          currentData = data.data || [];
+          existingRecords = data.existing_records || [];
+          displayResults();
+        }
+      })
+      .catch((error) => {
+        showLoading(false);
+        showAlert("Error fetching data: " + error.message, "error");
+      });
+  }
+
+  function displayResults() {
+    const container = document.getElementById("results-container");
+    const tbody = document.getElementById("results-tbody");
+    const totalCount = document.getElementById("total-count");
+    const existingCount = document.getElementById("existing-count");
+    const newCount = document.getElementById("new-count");
+
+    tbody.innerHTML = "";
+
+    if (!Array.isArray(currentData)) {
+      showAlert("Invalid data format received from API", "error");
+      return;
+    }
+
+    currentData.forEach((item, index) => {
+      const row = document.createElement("tr");
+      const identifier =
+        "{{ model_name }}" === "platform" ? item.slug : item.uuid;
+      const isExisting = existingRecords.includes(identifier);
+
+      if (isExisting) {
+        row.style.backgroundColor = "#fff3cd";
+      }
+
+      row.innerHTML = `
+            <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
+              item.name || "N/A"
+            }</td>
+            <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
+              identifier || "N/A"
+            }</td>
+            ${
+              "{{ model_name }}" === "artist"
+                ? `<td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
+                    item.slug || "N/A"
+                  }</td>`
+                : ""
+            }
+            ${
+              "{{ model_name }}" === "platform"
+                ? `<td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
+                    item.code || "N/A"
+                  }</td>`
+                : ""
+            }
+            <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${
+              isExisting ? "Already exists" : "New"
+            }</td>
+            <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">
+                ${
+                  !isExisting
+                    ? `<input type="button" value="Add" class="default" onclick="addItem(${index})">`
+                    : "Already added"
+                }
+            </td>
+        `;
+
+      tbody.appendChild(row);
+    });
+
+    totalCount.textContent = currentData.length;
+    existingCount.textContent = existingRecords.length;
+    newCount.textContent = currentData.length - existingRecords.length;
+
+    container.style.display = "block";
+
+    const addAllBtn = document.getElementById("add-all-btn");
+    if (currentData.length - existingRecords.length > 0) {
+      addAllBtn.style.display = "inline-block";
+    } else {
+      addAllBtn.style.display = "none";
+    }
+  }
+
+  function addItem(index) {
+    const item = currentData[index];
+
+    // Use the correct API endpoint URL
+    const apiUrl = window.location.pathname.replace(
+      "/import/",
+      "/api/add-item/"
+    );
+
+    fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({ item: item }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          showAlert(data.message, "success");
+          // Mark as existing and update the display
+          const identifier =
+            "{{ model_name }}" === "platform" ? item.code : item.uuid;
+          if (identifier && !existingRecords.includes(identifier)) {
+            existingRecords.push(identifier);
+          }
+          // Refresh the display to show updated status
+          displayResults();
+        } else {
+          showAlert(data.error, "error");
+        }
+      })
+      .catch((error) => {
+        showAlert("Error adding item: " + error.message, "error");
+      });
+  }
+
+  function addAll() {
+    const newItems = currentData.filter((item) => {
+      const identifier =
+        "{{ model_name }}" === "platform" ? item.code : item.uuid;
+      return !existingRecords.includes(identifier);
+    });
+
+    if (newItems.length === 0) {
+      showAlert("No new items to add", "info");
+      return;
+    }
+
+    showLoading(true);
+
+    fetch('{% url "admin:soundcharts_"|add:opts.model_name|add:"_add_all" %}', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({ items: newItems }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        showLoading(false);
+        if (data.success) {
+          showAlert(data.message, "success");
+          // Update existing records
+          newItems.forEach((item) => {
+            const identifier =
+              "{{ model_name }}" === "platform" ? item.code : item.uuid;
+            if (identifier && !existingRecords.includes(identifier)) {
+              existingRecords.push(identifier);
+            }
+          });
+          displayResults();
+        } else {
+          showAlert(data.error, "error");
+        }
+      })
+      .catch((error) => {
+        showLoading(false);
+        showAlert("Error adding items: " + error.message, "error");
+      });
+  }
+
+  function clearResults() {
+    currentData = [];
+    existingRecords = [];
+    document.getElementById("results-container").style.display = "none";
+    document.getElementById("alert-container").innerHTML = "";
+  }
+</script>
+{% endblock %}

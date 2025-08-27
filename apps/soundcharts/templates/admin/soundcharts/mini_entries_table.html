@@ -1,0 +1,76 @@
+{% load i18n static mathfilters %} {% load humanize %}
+<div class="mini-table-container">
+  <div class="mini-table-controls">
+    <input
+      type="text"
+      id="searchBox_{{ ranking_id }}"
+      placeholder="Search tracks, artists, trends..."
+      class="search-box"
+    />
+    <span id="tableInfo_{{ ranking_id }}" class="table-info"
+      >Showing {{ entries.count }} entries</span
+    >
+  </div>
+
+  <table id="entriesTable_{{ ranking_id }}" class="mini-table">
+    <thead>
+      <tr>
+        <th>Position ↕</th>
+        <th>Track & Artist ↕</th>
+        <th>Trend ↕</th>
+        <th>Weeks ↕</th>
+        <th>Streams ↕</th>
+        <th>Previous ↕</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in entries %}
+      <tr>
+        <td class="position">{{ entry.position }}</td>
+        <td class="track-info">
+          {% if entry.track %}
+          <a
+            href="{% url 'admin:soundcharts_track_change' entry.track.id %}"
+            target="_blank"
+            class="track-name"
+            >{{ entry.track.name }}</a
+          ><br />
+          <small class="artist-name"
+            >{{ entry.track.credit_name|default:"Unknown Artist" }}</small
+          >
+          {% else %}
+          <span class="track-name">Unknown</span><br />
+          <small class="artist-name">Unknown Artist</small>
+          {% endif %}
+        </td>
+        <td class="trend">
+          {% if entry.position_change is None %}
+          <span class="trend new">🆕 New</span>
+          {% elif entry.position_change == 0 %}
+          <span class="trend no-change">→ No change</span>
+          {% elif entry.position_change > 0 %}
+          <span class="trend up">↑ +{{ entry.position_change }}</span>
+          {% else %}
+          <span class="trend down">↓ {{ entry.position_change|abs }}</span>
+          {% endif %}
+        </td>
+        <td class="weeks">{{ entry.weeks_on_chart|default:"N/A" }}</td>
+        <td class="streams">
+          {% if entry.api_data.metric %} {{
+          entry.api_data.metric|floatformat:0|intcomma }} {% else %} N/A {%
+          endif %}
+        </td>
+        <td class="previous-position">
+          {{ entry.previous_position|default:"N/A" }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="margin-top: 20px; text-align: center">
+    <a href="{% url 'admin:chart_ranking_entries' ranking_id %}" class="button"
+      >View Full Interactive Table</a
+    >
+  </div>
+</div>

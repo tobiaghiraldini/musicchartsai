@@ -1,0 +1,87 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+    {% if show_import_button %}
+    <li>
+        <a href="{{ import_url }}" class="addlink">
+            {% trans 'Import from API' %}
+        </a>
+    </li>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    
+    <script>
+        // Add metadata fetch button to each artist row
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('#result_list tbody tr');
+            
+            rows.forEach(function(row) {
+                const uuidCell = row.querySelector('td:nth-child(2)'); // UUID column
+                if (uuidCell) {
+                    const uuid = uuidCell.textContent.trim();
+                    if (uuid) {
+                        // Create fetch metadata button
+                        const button = document.createElement('button');
+                        button.textContent = 'Fetch Metadata';
+                        button.className = 'btn btn-sm btn-info';
+                        button.style.marginLeft = '5px';
+                        button.onclick = function() {
+                            fetchArtistMetadata(uuid);
+                        };
+                        
+                        // Add button to the last cell (actions column)
+                        const lastCell = row.querySelector('td:last-child');
+                        if (lastCell) {
+                            lastCell.appendChild(button);
+                        }
+                    }
+                }
+            });
+        });
+        
+        function fetchArtistMetadata(uuid) {
+            if (!confirm('Fetch metadata for this artist from Soundcharts API?')) {
+                return;
+            }
+            
+            // Show loading state
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Fetching...';
+            button.disabled = true;
+            
+            // Call the API endpoint
+            const url = window.location.pathname.replace('/admin/soundcharts/artist/', '/admin/soundcharts/artist/api/fetch-metadata/') + uuid + '/';
+            
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Success: ' + data.message);
+                    console.log('Metadata:', data.metadata);
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            })
+            .finally(() => {
+                // Restore button state
+                button.textContent = originalText;
+                button.disabled = false;
+            });
+        }
+    </script>
+{% endblock %} 
