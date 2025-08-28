@@ -271,3 +271,19 @@ DYNAMIC_API = {
     "product": "apps.pages.models.Product",
 }
 ########################################
+
+# Logging
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}

@@ -1,0 +1,77 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block content_title %}
+    {% if ranking %}
+        <h1>Chart Entries - {{ ranking.chart.name }}</h1>
+        <p style="margin: 0; color: #666; font-size: 14px;">
+            Platform: {{ ranking.chart.platform.name|default:"Unknown" }} | 
+            Frequency: {{ ranking.chart.frequency }} | 
+            Date: {{ ranking.ranking_date|date:"F j, Y H:i" }}
+        </p>
+    {% else %}
+        <h1>Chart Entries Summary</h1>
+    {% endif %}
+{% endblock %}
+
+{% block result_list %}
+    {% if ranking and summary and chart_metadata %}
+        <div class="module">
+            <h2>Chart Information</h2>
+            <div class="results">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Chart Name</th>
+                            <th>Platform</th>
+                            <th>Frequency</th>
+                            <th>Ranking Date</th>
+                            <th>API Total</th>
+                            <th>Actual Entries</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ chart_metadata.chart_name }}</td>
+                            <td>{{ chart_metadata.platform_name }}</td>
+                            <td>{{ chart_metadata.frequency }}</td>
+                            <td>{{ chart_metadata.ranking_date|date:"F j, Y H:i" }}</td>
+                            <td>{{ chart_metadata.total_api_entries }}</td>
+                            <td>{{ chart_metadata.actual_entries }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="module">
+            <h2>Entry Statistics</h2>
+            <div class="results">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Total Entries</th>
+                            <th>New Entries</th>
+                            <th>Moving Up</th>
+                            <th>Moving Down</th>
+                            <th>No Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ summary.total_entries|default:0 }}</td>
+                            <td>{{ summary.new_entries|default:0 }}</td>
+                            <td>{{ summary.moving_up|default:0 }}</td>
+                            <td>{{ summary.moving_down|default:0 }}</td>
+                            <td>{{ summary.no_change|default:0 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+    
+    {{ block.super }}
+{% endblock %}
+
+{# Pagination will be handled by Django admin automatically #}

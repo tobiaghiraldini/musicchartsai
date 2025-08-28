@@ -8,8 +8,9 @@ from .venue_admin import VenueAdmin
 from .chart_ranking_inline import ChartRankingInline
 from .chart_admin import ChartAdmin
 from .genre_admin import GenreAdmin
-from .chart_ranking_admin import ChartRankingAdmin
+from .chart_ranking_admin import ChartRankingAdmin, ChartRankingEntrySummaryAdmin
 from .chart_ranking_entry_admin import ChartRankingEntryAdmin
+from .metadata_fetch_task_admin import MetadataFetchTaskAdmin
 
 __all__ = [
     "SoundchartsAdminMixin",
@@ -22,5 +23,7 @@ __all__ = [
     "ChartAdmin",
     "GenreAdmin",
     "ChartRankingAdmin",
+    "ChartRankingEntrySummaryAdmin",
     "ChartRankingEntryAdmin",
+    "MetadataFetchTaskAdmin",
 ]

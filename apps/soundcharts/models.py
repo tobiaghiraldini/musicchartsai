@@ -55,9 +55,9 @@ class Track(models.Model):
     slug = models.CharField(max_length=255, blank=True, help_text="Soundcharts track slug")
     release_date = models.DateField(null=True, blank=True, help_text="Track release date")
     duration = models.IntegerField(null=True, blank=True, help_text="Track duration in seconds")
-    isrc = models.CharField(max_length=255, blank=True, help_text="International Standard Recording Code")
-    label = models.CharField(max_length=255, blank=True, help_text="Record label")
-    genre = models.CharField(max_length=255, blank=True, help_text="Primary genre")
+    isrc = models.CharField(max_length=255, null=True, blank=True, help_text="International Standard Recording Code")
+    label = models.CharField(max_length=255, null=True, blank=True, help_text="Record label")
+    genre = models.CharField(max_length=255, null=True, blank=True, help_text="Primary genre")
     
     # Metadata fetch tracking
     metadata_fetched_at = models.DateTimeField(null=True, blank=True, help_text="When metadata was last fetched")
@@ -403,3 +403,13 @@ class MetadataFetchTask(models.Model):
         if self.total_tracks == 0:
             return 0
         return int((self.processed_tracks / self.total_tracks) * 100)
+
+
+class ChartRankingEntrySummary(ChartRankingEntry):
+    """
+    Proxy model for displaying chart ranking entries in a native admin table format
+    """
+    class Meta:
+        proxy = True
+        verbose_name = 'Chart Entry Summary'
+        verbose_name_plural = 'Chart Entries Summary'

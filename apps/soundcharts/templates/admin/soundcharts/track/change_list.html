@@ -1,0 +1,40 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+  {% if show_bulk_metadata_button %}
+    <li>
+      <a href="{% url 'admin:soundcharts_track_import' %}" class="addlink">
+        {% trans 'Import from API' %}
+      </a>
+    </li>
+    <li>
+      <a href="#" onclick="createBulkMetadataTask(); return false;" class="addlink">
+        {% trans 'Fetch All Metadata' %}
+      </a>
+    </li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+function createBulkMetadataTask() {
+    if (confirm('{% trans "This will create a background task to fetch metadata for all tracks that need it. Continue?" %}')) {
+        // Get all track UUIDs from the current page
+        const checkboxes = document.querySelectorAll('input[name="_selected_action"]:checked');
+        if (checkboxes.length === 0) {
+            alert('{% trans "Please select at least one track to fetch metadata for." %}');
+            return;
+        }
+        
+        // Submit the form with the bulk metadata action
+        const form = document.getElementById('changelist-form');
+        const actionSelect = document.getElementById('action');
+        actionSelect.value = 'create_bulk_metadata_task';
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

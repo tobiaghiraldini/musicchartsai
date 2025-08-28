@@ -6,8 +6,142 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
+from django.db.models import Count, Sum, Min, Max, Q
+from django.db.models.functions import Trunc
+from django.db.models import DateTimeField
 
-from ..models import ChartRanking
+from ..models import ChartRanking, ChartRankingEntrySummary
+
+
+class ChartRankingEntrySummaryAdmin(admin.ModelAdmin):
+    """
+    Admin for displaying chart ranking entries in a native admin table format
+    """
+    change_list_template = 'admin/soundcharts/chart_ranking_entries_summary.html'
+    
+    list_display = (
+        'position',
+        'get_track_info',
+        'get_position_trend',
+        'weeks_on_chart',
+        'get_streams',
+        'previous_position',
+    )
+    
+    list_filter = ('weeks_on_chart',)
+    search_fields = ('track__name', 'track__credit_name')
+    ordering = ('position',)
+    list_per_page = 100
+    
+    def get_queryset(self, request):
+        """Filter entries for a specific ranking"""
+        qs = super().get_queryset(request)
+        # Get ranking_id from the URL or context
+        ranking_id = request.GET.get('ranking_id')
+        if ranking_id:
+            qs = qs.filter(ranking_id=ranking_id)
+        return qs.select_related('track')
+    
+    def changelist_view(self, request, extra_context=None):
+        """Override changelist view to provide custom context"""
+        response = super().changelist_view(request, extra_context=extra_context)
+        
+        try:
+            qs = response.context_data['cl'].queryset
+        except (AttributeError, KeyError):
+            return response
+        
+        # Get ranking_id from request
+        ranking_id = request.GET.get('ranking_id')
+        if ranking_id:
+            ranking = ChartRanking.objects.select_related('chart__platform').get(id=ranking_id)
+            response.context_data['ranking'] = ranking
+            
+            # Add summary statistics
+            metrics = {
+                'total_entries': Count('id'),
+                'new_entries': Count('id', filter=Q(position_change__isnull=True)),
+                'moving_up': Count('id', filter=Q(position_change__gt=0)),
+                'moving_down': Count('id', filter=Q(position_change__lt=0)),
+                'no_change': Count('id', filter=Q(position_change=0)),
+            }
+            
+            response.context_data['summary'] = dict(qs.aggregate(**metrics))
+            
+            # Add chart metadata for better context
+            response.context_data['chart_metadata'] = {
+                'chart_name': ranking.chart.name,
+                'platform_name': ranking.chart.platform.name if ranking.chart.platform else 'Unknown',
+                'frequency': ranking.chart.frequency,
+                'ranking_date': ranking.ranking_date,
+                'total_api_entries': ranking.total_entries,
+                'actual_entries': qs.count(),
+            }
+        
+        return response
+    
+    def get_track_info(self, obj):
+        """Display track name and artist in a readable format"""
+        if not obj.track:
+            return "Unknown Track"
+        
+        track_name = obj.track.name
+        artist_name = obj.track.credit_name if obj.track.credit_name else "Unknown Artist"
+        
+        return format_html(
+            "<strong>{}</strong><br><small>{}</small>", 
+            track_name, 
+            artist_name
+        )
+    
+    get_track_info.short_description = "Track & Artist"
+    get_track_info.allow_tags = True
+    
+    def get_position_trend(self, obj):
+        """Display position trend with appropriate styling"""
+        if obj.position_change is None:
+            return format_html(
+                '<span style="color: #28a745; font-weight: bold;">🆕 New</span>'
+            )
+        elif obj.position_change == 0:
+            return format_html(
+                '<span style="color: #6c757d;">→ No change</span>'
+            )
+        elif obj.position_change > 0:
+            return format_html(
+                '<span style="color: #dc3545;">↑ +{}</span>', 
+                obj.position_change
+            )
+        else:
+            return format_html(
+                '<span style="color: #007bff;">↓ {}</span>', 
+                abs(obj.position_change)
+            )
+    
+    get_position_trend.short_description = "Trend"
+    get_position_trend.allow_tags = True
+    
+    def get_streams(self, obj):
+        """Display streams from API data"""
+        if obj.api_data and 'metric' in obj.api_data:
+            metric = obj.api_data['metric']
+            if metric:
+                return f"{metric:,}"
+        return "N/A"
+    
+    get_streams.short_description = "Streams"
+    
+    def has_add_permission(self, request):
+        """Entries are managed through the import process"""
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        """Entries are read-only"""
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        """Entries are managed through the import process"""
+        return False
 
 
 class ChartRankingAdmin(admin.ModelAdmin):
@@ -217,18 +351,22 @@ Chart Summary:
     get_entries_summary.short_description = "Entries Summary"
 
     def get_entries_table(self, obj):
-        """Display entries as an interactive data table using external template"""
+        """Display entries as a native Django admin table"""
         entries = obj.entries.select_related("track").order_by("position")
         if not entries:
             return "No entries available"
 
-        # Render the mini table template
-        context = {
-            "entries": entries,
-            "ranking_id": obj.id,
-        }
-
-        return render_to_string("admin/soundcharts/mini_entries_table.html", context)
+        # Create a link to view entries in the native admin format
+        url = reverse("admin:soundcharts_chartrankingentrysummary_changelist") + f"?ranking_id={obj.id}"
+        
+        return format_html(
+            '<div style="margin: 10px 0;">'
+            '<a href="{}" class="button" target="_blank">'
+            'View Entries in Admin Table ({})</a>'
+            '</div>',
+            url,
+            entries.count()
+        )
 
     get_entries_table.short_description = "Chart Entries"
     get_entries_table.allow_tags = True

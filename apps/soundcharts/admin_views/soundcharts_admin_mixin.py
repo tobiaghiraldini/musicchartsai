@@ -227,6 +227,30 @@ class SoundchartsAdminMixin:
 
             with transaction.atomic():
                 instance = self._create_instance(item_data)
+                
+                # If this is a track, create a metadata fetch task
+                if self.model == Track and instance.uuid:
+                    try:
+                        from ..tasks import fetch_track_metadata
+                        task = fetch_track_metadata.delay(instance.uuid)
+                        return JsonResponse(
+                            {
+                                "success": True,
+                                "message": f"{self.model._meta.verbose_name} added successfully and metadata fetch queued (Task ID: {task.id})",
+                                "id": instance.id,
+                                "task_id": task.id,
+                            }
+                        )
+                    except Exception as e:
+                        logger.warning(f"Track created but metadata fetch task failed: {e}")
+                        return JsonResponse(
+                            {
+                                "success": True,
+                                "message": f"{self.model._meta.verbose_name} added successfully but metadata fetch failed",
+                                "id": instance.id,
+                            }
+                        )
+                
                 return JsonResponse(
                     {
                         "success": True,
@@ -256,6 +280,7 @@ class SoundchartsAdminMixin:
 
             added_count = 0
             errors = []
+            track_uuids = []
 
             with transaction.atomic():
                 for item_data in items_data:
@@ -264,11 +289,52 @@ class SoundchartsAdminMixin:
                         if self._item_exists(item_data):
                             continue
 
-                        self._create_instance(item_data)
+                        instance = self._create_instance(item_data)
                         added_count += 1
+                        
+                        # Collect track UUIDs for bulk metadata fetch
+                        if self.model == Track and instance.uuid:
+                            track_uuids.append(instance.uuid)
+                            
                     except Exception as e:
                         errors.append(
                             f"Error adding {item_data.get('name', 'Unknown')}: {str(e)}"
+                        )
+
+                # If tracks were added, create a bulk metadata fetch task
+                if self.model == Track and track_uuids:
+                    try:
+                        from ..models import MetadataFetchTask
+                        from ..tasks import fetch_bulk_track_metadata
+                        
+                        task = MetadataFetchTask.objects.create(
+                            task_type='bulk_metadata',
+                            status='pending',
+                            track_uuids=track_uuids,
+                            total_tracks=len(track_uuids)
+                        )
+                        
+                        # Start the bulk fetch task
+                        fetch_bulk_track_metadata.delay(task.id)
+                        
+                        return JsonResponse(
+                            {
+                                "success": True,
+                                "message": f"Added {added_count} {self.model._meta.verbose_name_plural} and created bulk metadata fetch task (Task ID: {task.id})",
+                                "added_count": added_count,
+                                "errors": errors,
+                                "task_id": task.id,
+                            }
+                        )
+                    except Exception as e:
+                        logger.warning(f"Tracks added but bulk metadata fetch task failed: {e}")
+                        return JsonResponse(
+                            {
+                                "success": True,
+                                "message": f"Added {added_count} {self.model._meta.verbose_name_plural} but bulk metadata fetch failed",
+                                "added_count": added_count,
+                                "errors": errors,
+                            }
                         )
 
                 return JsonResponse(

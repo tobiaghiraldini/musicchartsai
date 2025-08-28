@@ -9,6 +9,8 @@ from .models import (
     Genre,
     ChartRanking,
     ChartRankingEntry,
+    ChartRankingEntrySummary,
+    MetadataFetchTask,
 )
 from .admin_views import (
     PlatformAdmin,
@@ -20,6 +22,8 @@ from .admin_views import (
     GenreAdmin,
     ChartRankingAdmin,
     ChartRankingEntryAdmin,
+    ChartRankingEntrySummaryAdmin,
+    MetadataFetchTaskAdmin,
 )
 
 # Register your models here.
@@ -32,3 +36,5 @@ admin.site.register(Chart, ChartAdmin)
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(ChartRanking, ChartRankingAdmin)
 admin.site.register(ChartRankingEntry, ChartRankingEntryAdmin)
+admin.site.register(ChartRankingEntrySummary, ChartRankingEntrySummaryAdmin)
+admin.site.register(MetadataFetchTask, MetadataFetchTaskAdmin)
