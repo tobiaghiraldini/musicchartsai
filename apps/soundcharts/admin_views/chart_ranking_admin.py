@@ -315,7 +315,7 @@ class ChartRankingAdmin(admin.ModelAdmin):
         # Use the custom view instead of the admin changelist
         url = reverse("admin:chart_ranking_entries", args=[obj.id])
         return format_html(
-            '<a href="{}" target="_blank">View Entries ({})</a>',
+            '<a href="{}">View Entries ({})</a>',
             url,
             obj.entries.count(),
         )
@@ -361,7 +361,7 @@ Chart Summary:
         
         return format_html(
             '<div style="margin: 10px 0;">'
-            '<a href="{}" class="button" target="_blank">'
+            '<a href="{}" class="button">'
             'View Entries in Admin Table ({})</a>'
             '</div>',
             url,

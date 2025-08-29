@@ -5,9 +5,58 @@
     {{ block.super }}
     {% if show_import_charts_button %}
         <li>
-            <a href="{{ import_charts_url }}?platform_code={{ platform_slug }}" class="button">
-                {% trans 'Import Charts' %}
-            </a>
+            <form method="get" action="{{ import_charts_url }}" style="display: inline;">
+                <input type="hidden" name="platform_code" value="{{ platform_slug }}">
+                <button type="submit" class="btn btn-info">
+                    {% trans 'Import Charts' %}
+                </button>
+            </form>
         </li>
     {% endif %}
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        /* Style the Import Charts button to match admin theme */
+        .btn.btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+        
+        .btn.btn-info:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Ensure consistent spacing with other admin buttons */
+        .object-tools li {
+            margin-left: 8px;
+        }
+        
+        /* Style the inline charts section */
+        .inline-group .platform-charts-inline {
+            margin-top: 20px;
+        }
+        
+        /* Ensure the inline table doesn't interfere with admin styling */
+        .platform-charts-inline .charts-table {
+            margin: 0;
+        }
+        
+        .platform-charts-inline .charts-table-container {
+            margin: 0;
+        }
+    </style>
 {% endblock %}

@@ -1351,6 +1351,21 @@ Ranking History Summary:
         urls = super().get_urls()
         custom_urls = [
             path(
+                "import/",
+                self.admin_site.admin_view(self.import_charts_view),
+                name="soundcharts_chart_import",
+            ),
+            path(
+                "fetch/",
+                self.admin_site.admin_view(self.fetch_charts_api),
+                name="soundcharts_chart_fetch",
+            ),
+            path(
+                "add/",
+                self.admin_site.admin_view(self.add_chart_api),
+                name="soundcharts_chart_add",
+            ),
+            path(
                 "<int:object_id>/import-rankings/",
                 self.admin_site.admin_view(self.import_rankings_view),
                 name="soundcharts_chart_import_rankings",
@@ -1367,6 +1382,168 @@ Ranking History Summary:
             ),
         ]
         return custom_urls + urls
+
+    def import_charts_view(self, request):
+        """Display the chart import interface for platforms"""
+        platform_code = request.GET.get('platform_code')
+        
+        if request.method == 'POST':
+            # Handle chart import
+            platform_code = request.POST.get('platform_code')
+            country_code = request.POST.get('country_code', 'IT')
+            limit = int(request.POST.get('limit', 50))
+            offset = int(request.POST.get('offset', 0))
+            
+            if platform_code:
+                try:
+                    service = SoundchartsService()
+                    charts_data = service.get_charts(
+                        platform_code=platform_code,
+                        country_code=country_code,
+                        limit=limit,
+                        offset=offset
+                    )
+                    
+                    if charts_data:
+                        # Process and import charts
+                        imported_count = 0
+                        for chart_data in charts_data:
+                            # Extract chart information from API response
+                            chart_name = chart_data.get('name', '')
+                            chart_slug = chart_data.get('slug', '')
+                            chart_type = chart_data.get('type', 'song')
+                            chart_frequency = chart_data.get('frequency', 'weekly')
+                            
+                            if chart_name and chart_slug:
+                                # Check if chart already exists
+                                existing_chart = Chart.objects.filter(slug=chart_slug).first()
+                                if not existing_chart:
+                                    # Get or create platform
+                                    platform = Platform.objects.filter(slug=platform_code).first()
+                                    if platform:
+                                        # Create new chart
+                                        chart = Chart.objects.create(
+                                            name=chart_name,
+                                            slug=chart_slug,
+                                            type=chart_type,
+                                            frequency=chart_frequency,
+                                            country_code=country_code,
+                                            platform=platform
+                                        )
+                                        imported_count += 1
+                                        logger.info(f"Imported chart: {chart_name} for platform {platform_code}")
+                        
+                        # Add success message
+                        from django.contrib import messages
+                        if imported_count > 0:
+                            messages.success(request, f"Successfully imported {imported_count} charts from {platform_code.upper()}")
+                        else:
+                            messages.warning(request, f"No new charts were imported. They may already exist.")
+                        
+                        # Redirect back to platform change view
+                        if platform_code:
+                            platform = Platform.objects.filter(slug=platform_code).first()
+                            if platform:
+                                return redirect(f'admin:soundcharts_platform_change', platform.id)
+                    
+                except Exception as e:
+                    from django.contrib import messages
+                    messages.error(request, f"Error importing charts: {str(e)}")
+                    logger.error(f"Error importing charts for platform {platform_code}: {e}")
+        
+        context = {
+            "title": "Import Charts from Platform",
+            "platform_code": platform_code,
+            "opts": self.model._meta,
+            "has_change_permission": self.has_change_permission(request),
+            "has_add_permission": self.has_add_permission(request),
+            "has_delete_permission": self.has_delete_permission(request),
+            "has_view_permission": self.has_view_permission(request),
+        }
+        return TemplateResponse(
+            request, "admin/soundcharts/chart_import.html", context
+        )
+
+    @csrf_exempt
+    def fetch_charts_api(self, request):
+        """API endpoint to fetch charts from platform"""
+        if request.method != "GET":
+            return JsonResponse({"error": "Method not allowed"}, status=405)
+
+        try:
+            platform_code = request.GET.get('platform_code')
+            country_code = request.GET.get('country_code', 'IT')
+            limit = int(request.GET.get('limit', 50))
+            offset = int(request.GET.get('offset', 0))
+            
+            if not platform_code:
+                return JsonResponse({"error": "Platform code is required"}, status=400)
+            
+            service = SoundchartsService()
+            charts_data = service.get_charts(
+                platform_code=platform_code,
+                country_code=country_code,
+                limit=limit,
+                offset=offset
+            )
+            
+            if charts_data:
+                # Process charts data and store in session for later use
+                processed_charts = []
+                session_key = f"fetched_charts_{request.session.session_key}"
+                fetched_charts = {}
+                
+                for chart_data in charts_data:
+                    chart_name = chart_data.get('name', '')
+                    chart_slug = chart_data.get('slug', '')
+                    chart_type = chart_data.get('type', 'song')
+                    chart_frequency = chart_data.get('frequency', 'weekly')
+                    
+                    if chart_name and chart_slug:
+                        # Check if chart already exists
+                        existing_chart = Chart.objects.filter(slug=chart_slug).first()
+                        
+                        # Store in session for later use
+                        fetched_charts[chart_slug] = {
+                            'name': chart_name,
+                            'slug': chart_slug,
+                            'type': chart_type,
+                            'frequency': chart_frequency,
+                            'country_code': country_code,
+                            'platform_code': platform_code
+                        }
+                        
+                        processed_charts.append({
+                            'name': chart_name,
+                            'slug': chart_slug,
+                            'type': chart_type,
+                            'frequency': chart_frequency,
+                            'country_code': country_code,
+                            'already_exists': existing_chart is not None,
+                            'existing_chart_id': existing_chart.id if existing_chart else None
+                        })
+                
+                # Store in session
+                request.session[session_key] = fetched_charts
+                request.session.modified = True
+                
+                return JsonResponse({
+                    "success": True,
+                    "charts": processed_charts,
+                    "total": len(processed_charts)
+                })
+            else:
+                return JsonResponse({
+                    "success": False,
+                    "error": "No charts found for this platform and country"
+                })
+                
+        except Exception as e:
+            logger.error(f"Error fetching charts: {e}")
+            return JsonResponse({
+                "success": False,
+                "error": f"Error fetching charts: {str(e)}"
+            }, status=500)
 
     def import_rankings_view(self, request, object_id):
         """Display the chart ranking import interface"""
@@ -1457,6 +1634,78 @@ Ranking History Summary:
         except Exception as e:
             logger.error(f"Error fetching rankings for chart {object_id}: {e}")
             return JsonResponse({"error": str(e)}, status=500)
+
+    @csrf_exempt
+    def add_chart_api(self, request):
+        """API endpoint to add a single chart"""
+        if request.method != "POST":
+            return JsonResponse({"error": "Method not allowed"}, status=405)
+
+        try:
+            data = json.loads(request.body)
+            chart_slug = data.get('slug')
+            
+            if not chart_slug:
+                return JsonResponse({"error": "Chart slug is required"}, status=400)
+            
+            # Check if chart already exists
+            existing_chart = Chart.objects.filter(slug=chart_slug).first()
+            if existing_chart:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Chart already exists",
+                    "chart_id": existing_chart.id
+                })
+            
+            # Get chart data from session (stored during fetch)
+            session_key = f"fetched_charts_{request.session.session_key}"
+            fetched_charts = request.session.get(session_key, {})
+            
+            if chart_slug not in fetched_charts:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Chart data not found. Please fetch charts first."
+                })
+            
+            chart_data = fetched_charts[chart_slug]
+            
+            # Get or create platform
+            platform = Platform.objects.filter(slug=chart_data.get('platform_code')).first()
+            if not platform:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Platform not found"
+                })
+            
+            # Create the chart
+            chart = Chart.objects.create(
+                name=chart_data.get('name', ''),
+                slug=chart_data.get('slug', ''),
+                type=chart_data.get('type', 'song'),
+                frequency=chart_data.get('frequency', 'weekly'),
+                country_code=chart_data.get('country_code', 'IT'),
+                platform=platform
+            )
+            
+            # Remove from session after successful creation
+            del fetched_charts[chart_slug]
+            request.session[session_key] = fetched_charts
+            request.session.modified = True
+            
+            logger.info(f"Successfully added chart: {chart.name} for platform {platform.slug}")
+            
+            return JsonResponse({
+                "success": True,
+                "chart_id": chart.id,
+                "message": f"Chart '{chart.name}' added successfully"
+            })
+                
+        except Exception as e:
+            logger.error(f"Error adding chart: {e}")
+            return JsonResponse({
+                "success": False,
+                "error": f"Error adding chart: {str(e)}"
+            }, status=500)
 
     @csrf_exempt
     def store_rankings_api(self, request, object_id):

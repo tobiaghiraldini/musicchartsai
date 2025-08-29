@@ -1,0 +1,485 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}">
+  <style>
+    .chart-import-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    
+    .import-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .import-header h1 {
+      margin: 0 0 15px 0;
+      font-size: 2em;
+      font-weight: 700;
+    }
+    
+    .import-header p {
+      margin: 0;
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+    
+    .import-content {
+      padding: 30px;
+    }
+    
+    .platform-info {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .platform-info h3 {
+      margin: 0 0 15px 0;
+      color: #495057;
+    }
+    
+    .platform-info p {
+      margin: 0;
+      color: #6c757d;
+    }
+    
+    .import-form {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #495057;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .fetch-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+    
+    .fetch-button:hover {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .fetch-button:active {
+      transform: translateY(0);
+    }
+    
+    .submit-row {
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+    .submit-row .button {
+      display: inline-block;
+      padding: 12px 24px;
+      margin: 0 10px;
+      background: #6c757d;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+      font-weight: 600;
+    }
+    
+    .submit-row .button:hover {
+      background: #5a6268;
+      color: white;
+    }
+    
+    .submit-row .button.primary {
+      background: #667eea;
+    }
+    
+    .submit-row .button.primary:hover {
+      background: #5a6fd8;
+    }
+    
+    /* Charts table styling consistent with admin */
+    .charts-table-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    
+    .charts-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    .charts-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 12px;
+      text-align: left;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      transition: background-color 0.2s;
+    }
+    
+    .charts-table th:hover {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    }
+    
+    .charts-table td {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: middle;
+    }
+    
+    .charts-table tr:hover {
+      background-color: #f8f9ff;
+    }
+    
+    .charts-table tr:nth-child(even) {
+      background-color: #fafbfc;
+    }
+    
+    .charts-table tr:nth-child(even):hover {
+      background-color: #f0f4ff;
+    }
+    
+    .chart-name {
+      font-weight: 600;
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    .chart-meta {
+      color: #7f8c8d;
+      font-size: 13px;
+      font-style: italic;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    
+    .btn-add {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .btn-add:hover {
+      background: #218838;
+    }
+    
+    .btn-add:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    
+    .btn-add-all {
+      background: #17a2b8;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 20px 0;
+    }
+    
+    .btn-add-all:hover {
+      background: #138496;
+      transform: translateY(-1px);
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #6c757d;
+    }
+    
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script>
+    function fetchCharts() {
+      const form = document.getElementById('fetchForm');
+      const formData = new FormData(form);
+      const params = new URLSearchParams(formData);
+      
+      // Show loading state
+      document.getElementById('loadingSection').style.display = 'block';
+      document.getElementById('fetchSection').style.display = 'none';
+      
+      // Fetch charts from API
+      fetch(`{% url 'admin:soundcharts_chart_fetch' %}?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            displayCharts(data.charts);
+          } else {
+            alert('Error fetching charts: ' + data.error);
+            document.getElementById('fetchSection').style.display = 'block';
+          }
+          document.getElementById('loadingSection').style.display = 'none';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error fetching charts. Please try again.');
+          document.getElementById('loadingSection').style.display = 'none';
+          document.getElementById('fetchSection').style.display = 'block';
+        });
+    }
+    
+    function displayCharts(charts) {
+      const container = document.getElementById('chartsContainer');
+      const table = document.getElementById('chartsTable');
+      const tbody = table.querySelector('tbody');
+      
+      // Clear existing rows
+      tbody.innerHTML = '';
+      
+      // Add chart rows
+      charts.forEach((chart, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <div class="chart-name">${chart.name}</div>
+            <div class="chart-meta">Type: ${chart.type} | Frequency: ${chart.frequency}</div>
+          </td>
+          <td>${chart.slug}</td>
+          <td>${chart.country_code}</td>
+          <td>
+            <div class="action-buttons">
+              <button type="button" class="btn-add" onclick="addChart('${chart.slug}', this)">
+                Add
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      
+      // Show charts section
+      container.style.display = 'block';
+      document.getElementById('fetchSection').style.display = 'none';
+      
+      // Add "Add All" button
+      const addAllBtn = document.createElement('button');
+      addAllBtn.type = 'button';
+      addAllBtn.className = 'btn-add-all';
+      addAllBtn.textContent = `Add All ${charts.length} Charts`;
+      addAllBtn.onclick = () => addAllCharts(charts);
+      container.insertBefore(addAllBtn, table);
+    }
+    
+    function addChart(slug, button) {
+      button.disabled = true;
+      button.textContent = 'Adding...';
+      
+      fetch('{% url "admin:soundcharts_chart_add" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ slug: slug })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          button.textContent = 'Added';
+          button.style.background = '#28a745';
+        } else {
+          button.textContent = 'Error';
+          button.style.background = '#dc3545';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        button.textContent = 'Error';
+        button.style.background = '#dc3545';
+      });
+    }
+    
+    function addAllCharts(charts) {
+      const addButtons = document.querySelectorAll('.btn-add');
+      addButtons.forEach(button => {
+        if (!button.disabled) {
+          button.click();
+        }
+      });
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <div class="chart-import-container">
+    <div class="import-header">
+      <h1>📊 Import Charts</h1>
+      <p>Import charts from Soundcharts platform</p>
+    </div>
+    
+    <div class="import-content">
+      {% if platform_code %}
+        <div class="platform-info">
+          <h3>Platform: {{ platform_code|upper }}</h3>
+          <p>You are importing charts for the <strong>{{ platform_code|upper }}</strong> platform.</p>
+        </div>
+      {% endif %}
+      
+      <!-- Fetch Charts Section -->
+      <div id="fetchSection" class="import-form">
+        <h3>Fetch Charts Configuration</h3>
+        <form id="fetchForm" onsubmit="event.preventDefault(); fetchCharts();">
+          {% csrf_token %}
+          <input type="hidden" name="platform_code" value="{{ platform_code|default:'' }}">
+          
+          <div class="form-group">
+            <label for="country_code">Country Code:</label>
+            <select name="country_code" id="country_code" required>
+              <option value="IT">Italy (IT)</option>
+              <option value="US">United States (US)</option>
+              <option value="GB">United Kingdom (GB)</option>
+              <option value="DE">Germany (DE)</option>
+              <option value="FR">France (FR)</option>
+              <option value="ES">Spain (ES)</option>
+              <option value="CA">Canada (CA)</option>
+              <option value="AU">Australia (AU)</option>
+              <option value="JP">Japan (JP)</option>
+              <option value="BR">Brazil (BR)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="limit">Number of Charts to Fetch:</label>
+            <input type="number" name="limit" id="limit" value="50" min="1" max="200" required>
+            <small>Maximum 200 charts per fetch</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="offset">Offset:</label>
+            <input type="number" name="offset" id="offset" value="0" min="0" required>
+            <small>Start from this position (useful for pagination)</small>
+          </div>
+          
+          <button type="submit" class="fetch-button">
+            🔍 Fetch Charts
+          </button>
+        </form>
+      </div>
+      
+      <!-- Loading Section -->
+      <div id="loadingSection" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Fetching charts from Soundcharts API...</p>
+      </div>
+      
+      <!-- Charts Display Section -->
+      <div id="chartsContainer" style="display: none;">
+        <h3>Fetched Charts</h3>
+        <div class="charts-table-container">
+          <table id="chartsTable" class="charts-table">
+            <thead>
+              <tr>
+                <th>Chart Information</th>
+                <th>Slug</th>
+                <th>Country</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Charts will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="submit-row">
+        <a href="{% url 'admin:soundcharts_platform_changelist' %}" class="button">← All Platforms</a>
+        {% if platform_code %}
+          <a href="{% url 'admin:soundcharts_platform_change' platform_code %}" class="button primary">← Back to Platform</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
