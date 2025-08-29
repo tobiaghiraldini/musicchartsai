@@ -45,9 +45,77 @@
             margin-left: 8px;
         }
         
-        /* Style the inline charts section */
+        /* Style the inline charts section to match ChartRankingEntries */
         .inline-group .platform-charts-inline {
             margin-top: 20px;
+        }
+        
+        .inline-group .platform-charts-inline .tabular {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .inline-group .platform-charts-inline table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .inline-group .platform-charts-inline th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+        
+        .inline-group .platform-charts-inline th:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        
+        .inline-group .platform-charts-inline td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        
+        .inline-group .platform-charts-inline tr:hover {
+            background-color: #f8f9ff;
+        }
+        
+        .inline-group .platform-charts-inline tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+        
+        .inline-group .platform-charts-inline tr:nth-child(even):hover {
+            background-color: #f0f4ff;
+        }
+        
+        /* Style the chart link button */
+        .inline-group .platform-charts-inline .button {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .inline-group .platform-charts-inline .button:hover {
+            background: #5a6fd8;
+            color: white;
+            text-decoration: none;
         }
         
         /* Ensure the inline table doesn't interfere with admin styling */
