@@ -5,7 +5,6 @@ from .artist_admin import ArtistAdmin
 from .album_admin import AlbumAdmin
 from .track_admin import TrackAdmin
 from .venue_admin import VenueAdmin
-from .chart_ranking_inline import ChartRankingInline
 from .chart_admin import ChartAdmin
 from .genre_admin import GenreAdmin
 from .chart_ranking_admin import ChartRankingAdmin, ChartRankingEntrySummaryAdmin
@@ -19,7 +18,7 @@ __all__ = [
     "AlbumAdmin",
     "TrackAdmin",
     "VenueAdmin",
-    "ChartRankingInline",
+
     "ChartAdmin",
     "GenreAdmin",
     "ChartRankingAdmin",

@@ -409,7 +409,7 @@
       <!-- Fetch Charts Section -->
       <div id="fetchSection" class="import-form">
         <h3>Fetch Charts Configuration</h3>
-        <form id="fetchForm" onsubmit="event.preventDefault(); fetchCharts();">
+        <form id="fetchForm" action="{% url 'admin:soundcharts_chart_import' %}" method="get" onsubmit="event.preventDefault(); fetchCharts();">
           {% csrf_token %}
           <input type="hidden" name="platform_code" value="{{ platform_code|default:'' }}">
           
@@ -475,8 +475,8 @@
       
       <div class="submit-row">
         <a href="{% url 'admin:soundcharts_platform_changelist' %}" class="button">← All Platforms</a>
-        {% if platform_code %}
-          <a href="{% url 'admin:soundcharts_platform_change' platform_code %}" class="button primary">← Back to Platform</a>
+        {% if platform_id %}
+          <a href="{% url 'admin:soundcharts_platform_change' platform_id %}" class="button primary">← Back to Platform</a>
         {% endif %}
       </div>
     </div>

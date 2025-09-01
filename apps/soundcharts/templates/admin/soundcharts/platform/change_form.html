@@ -2,6 +2,17 @@
 {% load i18n admin_urls static admin_modify %}
 
 {% block object-tools-items %}
+    {% if original and original.slug %}
+    <li>
+        <a href="{{ import_charts_url }}?platform_code={{ platform_slug }}" class="button">
+                {% trans 'Import Charts' %}
+            </a>
+    </li>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}
+
+{% block object-tools-items-old %}
     {{ block.super }}
     {% if show_import_charts_button %}
         <li>

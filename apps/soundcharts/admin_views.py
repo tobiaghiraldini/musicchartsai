@@ -6,7 +6,7 @@ from .admin_views import (
     AlbumAdmin,
     TrackAdmin,
     VenueAdmin,
-    ChartRankingInline,
+    ChartRankingsTableInline,
     ChartAdmin,
     GenreAdmin,
     ChartRankingAdmin,

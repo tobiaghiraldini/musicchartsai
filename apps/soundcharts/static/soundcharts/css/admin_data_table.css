@@ -7,6 +7,59 @@
   overflow: hidden;
 }
 
+/* Inline ranking entries styles */
+.ranking-entries-inline {
+  margin: 20px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.ranking-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.ranking-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.ranking-meta {
+  font-size: 14px;
+  color: #6c757d;
+  margin-bottom: 15px;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+  min-width: 100px;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #495057;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -154,54 +207,6 @@
   min-width: 80px;
   color: #7f8c8d;
   font-size: 13px;
-}
-
-.ranking-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 30px;
-  margin-bottom: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.ranking-title {
-  font-size: 2em;
-  margin-bottom: 15px;
-  font-weight: 700;
-}
-
-.ranking-meta {
-  font-size: 1.1em;
-  margin-bottom: 20px;
-  opacity: 0.9;
-}
-
-.summary-stats {
-  display: flex;
-  gap: 30px;
-  margin-top: 20px;
-}
-
-.stat-item {
-  text-align: center;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 15px 20px;
-  border-radius: 8px;
-  backdrop-filter: blur(10px);
-}
-
-.stat-number {
-  font-size: 1.8em;
-  font-weight: bold;
-  display: block;
-}
-
-.stat-label {
-  font-size: 0.9em;
-  opacity: 0.8;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 .table-controls {

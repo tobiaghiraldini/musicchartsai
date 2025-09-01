@@ -14,9 +14,44 @@ from datetime import datetime, timedelta
 from ..models import Chart, ChartRanking, ChartRankingEntry, Track, Platform
 from ..service import SoundchartsService
 from .soundcharts_admin_mixin import SoundchartsAdminMixin
-from .chart_ranking_inline import ChartRankingInline
+
+
+class ChartRankingsInline(admin.TabularInline):
+    """Inline for displaying chart rankings in the chart change view"""
+    model = ChartRanking
+    extra = 0
+    readonly_fields = ('ranking_date', 'total_entries', 'get_entries_count', 'fetched_at')
+    fields = ('ranking_date', 'total_entries', 'get_entries_count', 'fetched_at')
+    can_delete = False
+    ordering = ('-ranking_date',)
+    
+    def get_entries_count(self, obj):
+        """Display the actual count of entries"""
+        if not obj:
+            return "0 entries"
+        count = obj.entries.count()
+        if count == 0:
+            return "0 entries"
+        elif count == 1:
+            return "1 entry"
+        else:
+            return f"{count} entries"
+    
+    get_entries_count.short_description = "Entries Count"
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 logger = logging.getLogger(__name__)
+
+
+
 
 
 class ChartAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
@@ -64,7 +99,7 @@ class ChartAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
     search_fields = ("name", "slug")
     ordering = ("name",)
     readonly_fields = ("slug", "get_rankings_summary")
-    inlines = [ChartRankingInline]
+    inlines = [ChartRankingsInline]
     actions = ["view_chart_rankings"]
     fieldsets = (
         (
@@ -81,6 +116,7 @@ class ChartAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
                 )
             },
         ),
+
         (
             "Rankings Summary",
             {"fields": ("get_rankings_summary",), "classes": ("collapse",)},
@@ -1444,13 +1480,14 @@ Ranking History Summary:
                         if platform_code:
                             platform = Platform.objects.filter(slug=platform_code).first()
                             if platform:
-                                return redirect(f'admin:soundcharts_platform_change', platform.id)
+                                return redirect(reverse('admin:soundcharts_platform_change', args=[platform.id]))
                     
                 except Exception as e:
                     from django.contrib import messages
                     messages.error(request, f"Error importing charts: {str(e)}")
                     logger.error(f"Error importing charts for platform {platform_code}: {e}")
         
+        # For GET requests or if no POST data, show the import interface
         context = {
             "title": "Import Charts from Platform",
             "platform_code": platform_code,
@@ -1460,6 +1497,16 @@ Ranking History Summary:
             "has_delete_permission": self.has_delete_permission(request),
             "has_view_permission": self.has_view_permission(request),
         }
+        
+        # Add platform object and ID for proper back button URL
+        if platform_code:
+            platform = Platform.objects.filter(slug=platform_code).first()
+            if platform:
+                context.update({
+                    'platform': platform,
+                    'platform_id': platform.id,
+                })
+        
         return TemplateResponse(
             request, "admin/soundcharts/chart_import.html", context
         )

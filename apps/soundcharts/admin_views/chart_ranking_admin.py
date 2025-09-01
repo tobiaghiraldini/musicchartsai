@@ -9,8 +9,86 @@ from django.template.loader import render_to_string
 from django.db.models import Count, Sum, Min, Max, Q
 from django.db.models.functions import Trunc
 from django.db.models import DateTimeField
+from django.utils.safestring import mark_safe
 
-from ..models import ChartRanking, ChartRankingEntrySummary
+from ..models import ChartRanking, ChartRankingEntrySummary, ChartRankingEntry
+
+
+class ChartRankingEntryInline(admin.TabularInline):
+    """
+    Inline admin for ChartRankingEntries within ChartRanking admin
+    Uses the native Django admin table format
+    """
+    model = ChartRankingEntry
+    extra = 0
+    readonly_fields = ('get_track_info', 'get_position_trend', 'get_streams')
+    fields = ('position', 'get_track_info', 'get_position_trend', 'weeks_on_chart', 'get_streams', 'previous_position')
+    ordering = ('position',)
+    can_delete = False
+    max_num = 0
+    
+    def get_track_info(self, obj):
+        """Display track name and artist in a readable format"""
+        if not obj.track:
+            return "Unknown Track"
+        
+        track_name = obj.track.name
+        artist_name = obj.track.credit_name if obj.track.credit_name else "Unknown Artist"
+        
+        return format_html(
+            "<strong>{}</strong><br><small>{}</small>", 
+            track_name, 
+            artist_name
+        )
+    
+    get_track_info.short_description = "Track & Artist"
+    get_track_info.allow_tags = True
+    
+    def get_position_trend(self, obj):
+        """Display position trend with appropriate styling"""
+        if obj.position_change is None:
+            return format_html(
+                '<span style="color: #28a745; font-weight: bold;">🆕 New</span>'
+            )
+        elif obj.position_change == 0:
+            return format_html(
+                '<span style="color: #6c757d;">→ No change</span>'
+            )
+        elif obj.position_change > 0:
+            return format_html(
+                '<span style="color: #dc3545;">↑ +{}</span>', 
+                obj.position_change
+            )
+        else:
+            return format_html(
+                '<span style="color: #007bff;">↓ {}</span>', 
+                abs(obj.position_change)
+            )
+    
+    get_position_trend.short_description = "Trend"
+    get_position_trend.allow_tags = True
+    
+    def get_streams(self, obj):
+        """Display streams from API data"""
+        if obj.api_data and 'metric' in obj.api_data:
+            metric = obj.api_data['metric']
+            if metric:
+                return f"{metric:,}"
+        return "N/A"
+    
+    get_streams.short_description = "Streams"
+    
+    def has_add_permission(self, request, obj=None):
+        """Entries are managed through the import process"""
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        """Entries are read-only"""
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        """Entries are managed through the import process"""
+        return False
 
 
 class ChartRankingEntrySummaryAdmin(admin.ModelAdmin):
@@ -151,15 +229,15 @@ class ChartRankingAdmin(admin.ModelAdmin):
         "total_entries",
         "get_entries_count",
         "get_top_tracks",
-        "get_view_entries_link",
         "fetched_at",
     )
     list_filter = ("chart", "ranking_date", "fetched_at")
     search_fields = ("chart__name", "chart__slug")
     ordering = ("-ranking_date", "-fetched_at")
-    readonly_fields = ("fetched_at", "get_entries_summary", "get_entries_table")
+    readonly_fields = ("fetched_at", "get_entries_summary")
+    inlines = [ChartRankingEntryInline]
     date_hierarchy = "ranking_date"
-    actions = ["view_entries_in_table"]
+
 
     fieldsets = (
         (
@@ -184,101 +262,12 @@ class ChartRankingAdmin(admin.ModelAdmin):
                 "classes": ("collapse",),
             },
         ),
-        (
-            "Chart Entries",
-            {
-                "description": "Individual song rankings for this chart. Entries are automatically managed through the ranking import process.",
-                "fields": ("get_entries_table",),
-                "classes": ("collapse",),
-            },
-        ),
+
     )
 
-    def get_urls(self):
-        """Add custom URLs for better entry viewing"""
-        urls = super().get_urls()
-        custom_urls = [
-            path(
-                "<int:ranking_id>/entries/",
-                self.admin_site.admin_view(self.view_entries),
-                name="chart_ranking_entries",
-            ),
-        ]
-        return custom_urls + urls
 
-    def view_entries(self, request, ranking_id):
-        """Custom view to show entries in a proper interactive data table format"""
-        ranking = get_object_or_404(ChartRanking, id=ranking_id)
-        entries = ranking.entries.select_related("track").order_by("position")
 
-        # Prepare data for the data table
-        table_data = []
-        for entry in entries:
-            track = entry.track
-            if track:
-                track_url = reverse("admin:soundcharts_track_change", args=[track.id])
-            else:
-                track_url = "#"
 
-            # Format trend data
-            if entry.position_change is None:
-                trend_text = "New"
-                trend_class = "new"
-                trend_icon = "🆕"
-            elif entry.position_change == 0:
-                trend_text = "No change"
-                trend_class = "no-change"
-                trend_icon = "→"
-            elif entry.position_change > 0:
-                trend_text = f"+{entry.position_change}"
-                trend_class = "up"
-                trend_icon = "↑"
-            else:
-                trend_text = f"{entry.position_change}"
-                trend_class = "down"
-                trend_icon = "↓"
-
-            # Format streams
-            streams = "N/A"
-            if entry.api_data and "metric" in entry.api_data:
-                metric = entry.api_data["metric"]
-                if metric:
-                    streams = f"{metric:,}"
-
-            # Format weeks
-            weeks = str(entry.weeks_on_chart) if entry.weeks_on_chart else "N/A"
-
-            table_data.append(
-                {
-                    "id": entry.id,
-                    "position": entry.position,
-                    "track_name": track.name if track else "Unknown",
-                    "track_url": track_url,
-                    "artist_name": track.credit_name
-                    if track and track.credit_name
-                    else "Unknown Artist",
-                    "trend_text": trend_text,
-                    "trend_class": trend_class,
-                    "trend_icon": trend_icon,
-                    "weeks": weeks,
-                    "streams": streams,
-                    "previous_position": entry.previous_position or "N/A",
-                    "position_change": entry.position_change or 0,
-                    "api_data": entry.api_data,
-                }
-            )
-
-        context = {
-            "ranking": ranking,
-            "entries": entries,
-            "table_data": table_data,
-            "title": f"Chart Entries - {ranking.chart.name} ({ranking.ranking_date.strftime('%Y-%m-%d')})",
-            "opts": self.model._meta,
-        }
-
-        return TemplateResponse(
-            request, "admin/soundcharts/ranking_entries.html", context
-        )
 
     def get_entries_count(self, obj):
         """Display the actual count of entries with better formatting"""
@@ -307,21 +296,7 @@ class ChartRankingAdmin(admin.ModelAdmin):
 
     get_top_tracks.short_description = "Top Tracks"
 
-    def get_view_entries_link(self, obj):
-        """Display a link to view entries in a data table"""
-        if obj.entries.count() == 0:
-            return "No entries"
 
-        # Use the custom view instead of the admin changelist
-        url = reverse("admin:chart_ranking_entries", args=[obj.id])
-        return format_html(
-            '<a href="{}">View Entries ({})</a>',
-            url,
-            obj.entries.count(),
-        )
-
-    get_view_entries_link.short_description = "View Entries"
-    get_view_entries_link.allow_tags = True
 
     def get_entries_summary(self, obj):
         """Display summary statistics about the entries"""
@@ -350,40 +325,7 @@ Chart Summary:
 
     get_entries_summary.short_description = "Entries Summary"
 
-    def get_entries_table(self, obj):
-        """Display entries as a native Django admin table"""
-        entries = obj.entries.select_related("track").order_by("position")
-        if not entries:
-            return "No entries available"
 
-        # Create a link to view entries in the native admin format
-        url = reverse("admin:soundcharts_chartrankingentrysummary_changelist") + f"?ranking_id={obj.id}"
-        
-        return format_html(
-            '<div style="margin: 10px 0;">'
-            '<a href="{}" class="button">'
-            'View Entries in Admin Table ({})</a>'
-            '</div>',
-            url,
-            entries.count()
-        )
-
-    get_entries_table.short_description = "Chart Entries"
-    get_entries_table.allow_tags = True
-
-    def view_entries_in_table(self, request, queryset):
-        """Admin action to view entries in a data table"""
-        if queryset.count() != 1:
-            self.message_user(
-                request, "Please select exactly one chart ranking to view entries."
-            )
-            return
-
-        ranking = queryset.first()
-        url = reverse("admin:chart_ranking_entries", args=[ranking.id])
-        return redirect(url)
-
-    view_entries_in_table.short_description = "View entries in data table"
 
     def get_queryset(self, request):
         """Optimize queryset to include related data"""

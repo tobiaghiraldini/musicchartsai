@@ -53,6 +53,9 @@ class PlatformAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
     # Add the custom inline for charts
     inlines = [PlatformChartsInline]
     
+    # Explicitly specify the custom template
+    change_form_template = "admin/soundcharts/platform/change_form.html"
+    
     fieldsets = (
         (
             "Platform Information",
