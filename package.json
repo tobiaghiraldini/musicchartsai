@@ -1,7 +1,7 @@
 {
   "name": "rocket-django",
   "version": "1.0.0",
-  "description": "SaaS Django Starter styled with Tailwind/Flowbite",
+  "description": "Music Charts AI Dashboard",
   "main": "index.js",
   "directories": {
     "doc": "docs"
