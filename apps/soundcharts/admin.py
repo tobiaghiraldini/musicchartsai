@@ -11,6 +11,7 @@ from .models import (
     ChartRankingEntry,
     ChartRankingEntrySummary,
     MetadataFetchTask,
+    TrackAudienceTimeSeries,
 )
 from .admin_views import (
     PlatformAdmin,
@@ -38,3 +39,6 @@ admin.site.register(ChartRanking, ChartRankingAdmin)
 admin.site.register(ChartRankingEntry, ChartRankingEntryAdmin)
 admin.site.register(ChartRankingEntrySummary, ChartRankingEntrySummaryAdmin)
 admin.site.register(MetadataFetchTask, MetadataFetchTaskAdmin)
+
+# Register TrackAudienceTimeSeries with inline admin
+admin.site.register(TrackAudienceTimeSeries)

@@ -89,6 +89,27 @@ class SoundchartsService:
             logger.error(f"Unexpected error getting song audience for {uuid} on {platform}: {e}")
             return None
 
+    def get_song_audience_for_platform(self, uuid, platform="spotify"):
+        """
+        Fetch time-series audience data for a song from Soundcharts API
+        Endpoint: /api/v2/song/{uuid}/audience/{platform}/plots
+        This returns historical audience data over time for charting purposes
+        """
+        url = f"{self.api_url}/api/v2/song/{uuid}/audience/{platform}"
+        try:
+            headers = {"x-app-id": self.app_id, "x-api-key": self.api_key}
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Song audience for platform API response for {uuid} on {platform}: {data}")
+            return data
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error getting song audience for platform {uuid} on {platform}: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error getting song audience for platform {uuid} on {platform}: {e}")
+            return None
+
     def get_song_metadata_enhanced(self, uuid):
         """
         Enhanced metadata fetching with additional fields

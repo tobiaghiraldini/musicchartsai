@@ -5,6 +5,23 @@ from django.db import models
 class Platform(models.Model):
     name = models.CharField(max_length=255)
     slug = models.CharField(max_length=255)
+    
+    # Enhanced platform metadata
+    platform_type = models.CharField(max_length=50, choices=[
+        ('streaming', 'Streaming'),
+        ('social', 'Social Media'),
+        ('radio', 'Radio'),
+        ('tv', 'TV'),
+        ('other', 'Other'),
+    ], default='streaming', help_text="Type of platform")
+    
+    audience_metric_name = models.CharField(max_length=100, default="Listeners", 
+                                         help_text="Name of the audience metric (e.g., 'Listeners', 'Followers')")
+    
+    # Platform identification
+    platform_identifier = models.CharField(max_length=255, blank=True, 
+                                        help_text="Platform-specific identifier (e.g., 'spotify', 'apple_music')")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -77,6 +94,16 @@ class Track(models.Model):
         if self.credit_name:
             return f"{self.name} - {self.credit_name}"
         return self.name
+    
+    def get_audience_chart_data(self, platform, start_date=None, end_date=None, limit=None):
+        """Get audience chart data for this track on a specific platform"""
+        from .models import TrackAudienceTimeSeries
+        return TrackAudienceTimeSeries.get_chart_data(self, platform, start_date, end_date, limit)
+    
+    def get_platform_audience_comparison(self, platforms, start_date=None, end_date=None, limit=None):
+        """Get audience comparison data across multiple platforms"""
+        from .models import TrackAudienceTimeSeries
+        return TrackAudienceTimeSeries.get_platform_comparison(self, platforms, start_date, end_date, limit)
 
 
 class Genre(models.Model):
@@ -346,6 +373,99 @@ class TrackAudience(models.Model):
     
     def __str__(self):
         return f"{self.track.name} - {self.platform.name} - {self.fetched_at.strftime('%Y-%m-%d')}"
+
+
+class TrackAudienceTimeSeries(models.Model):
+    """
+    Stores time-series audience data for tracks from Soundcharts API
+    Designed for charting and trend analysis per platform
+    """
+    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="audience_timeseries")
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, related_name="audience_timeseries")
+    
+    # Time-series data
+    date = models.DateField(help_text="Date of the audience measurement")
+    audience_value = models.BigIntegerField(help_text="Audience value for this date/platform")
+    
+    # Platform-specific identifier (e.g., Spotify track ID)
+    platform_identifier = models.CharField(max_length=255, blank=True, 
+                                        help_text="Platform-specific identifier (e.g., '2Fxmhks0bxGSBdJ92vM42m')")
+    
+    # Metadata
+    fetched_at = models.DateTimeField(auto_now_add=True)
+    api_data = models.JSONField(default=dict, help_text="Raw API response data for this entry")
+    
+    class Meta:
+        unique_together = ['track', 'platform', 'date']
+        ordering = ['-date']
+        verbose_name = "Track Audience Time Series"
+        verbose_name_plural = "Track Audience Time Series"
+        indexes = [
+            models.Index(fields=['track', 'platform', 'date']),
+            models.Index(fields=['date']),
+            models.Index(fields=['platform', 'date']),
+        ]
+    
+    def __str__(self):
+        return f"{self.track.name} - {self.platform.name} - {self.date} ({self.audience_value:,})"
+    
+    @classmethod
+    def get_chart_data(cls, track, platform, start_date=None, end_date=None, limit=None):
+        """
+        Get formatted data ready for charting
+        Returns data ordered by date for line charts
+        """
+        queryset = cls.objects.filter(track=track, platform=platform)
+        
+        if start_date:
+            queryset = queryset.filter(date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date__lte=end_date)
+        
+        if limit:
+            queryset = queryset[:limit]
+        
+        return queryset.values('date', 'audience_value').order_by('date')
+    
+    @classmethod
+    def get_platform_comparison(cls, track, platforms, start_date=None, end_date=None, limit=None):
+        """
+        Get data for multiple platforms for comparison charts
+        Returns data grouped by platform for multi-line charts
+        """
+        queryset = cls.objects.filter(track=track, platform__in=platforms)
+        
+        if start_date:
+            queryset = queryset.filter(date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date__lte=end_date)
+        
+        if limit:
+            # Get the most recent dates within limit
+            recent_dates = queryset.values('date').distinct().order_by('-date')[:limit]
+            queryset = queryset.filter(date__in=recent_dates.values_list('date', flat=True))
+        
+        return queryset.values('platform__name', 'date', 'audience_value').order_by('platform__name', 'date')
+    
+    @classmethod
+    def get_latest_audience(cls, track, platform):
+        """Get the most recent audience value for a track on a specific platform"""
+        try:
+            return cls.objects.filter(track=track, platform=platform).latest('date')
+        except cls.DoesNotExist:
+            return None
+    
+    @property
+    def formatted_audience_value(self):
+        """Returns formatted audience value for display"""
+        if self.audience_value >= 1_000_000_000:
+            return f"{self.audience_value / 1_000_000_000:.1f}B"
+        elif self.audience_value >= 1_000_000:
+            return f"{self.audience_value / 1_000_000:.1f}M"
+        elif self.audience_value >= 1_000:
+            return f"{self.audience_value / 1_000:.1f}K"
+        else:
+            return f"{self.audience_value:,}"
 
 
 class MetadataFetchTask(models.Model):
