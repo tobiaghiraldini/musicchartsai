@@ -104,12 +104,19 @@ class AudienceChartView(View):
                 limit = None
         
         # Get the data using the model method
-        data = track.get_audience_chart_data(
-            platform, 
-            start_date=start_date, 
-            end_date=end_date, 
-            limit=limit
-        )
+        try:
+            data = track.get_audience_chart_data(
+                platform, 
+                start_date=start_date, 
+                end_date=end_date, 
+                limit=limit
+            )
+            # Convert to list to avoid queryset issues
+            data = list(data)
+            logger.info(f"Retrieved {len(data)} data points for {track.name} on {platform.name}")
+        except Exception as e:
+            logger.error(f"Error getting chart data for {track.name} on {platform.name}: {e}")
+            data = []
         
         # Format for charting libraries
         chart_data = {
@@ -139,12 +146,19 @@ class AudienceChartView(View):
                 limit = None
         
         # Get the data using the model method
-        data = track.get_platform_audience_comparison(
-            platforms, 
-            start_date=start_date, 
-            end_date=end_date, 
-            limit=limit
-        )
+        try:
+            data = track.get_platform_audience_comparison(
+                platforms, 
+                start_date=start_date, 
+                end_date=end_date, 
+                limit=limit
+            )
+            # Convert to list to avoid queryset issues
+            data = list(data)
+            logger.info(f"Retrieved {len(data)} data points for {track.name} across {len(platforms)} platforms")
+        except Exception as e:
+            logger.error(f"Error getting platform comparison data for {track.name}: {e}")
+            data = []
         
         # Group data by platform
         platform_data = {}
@@ -237,3 +251,81 @@ def audience_chart_data(request, track_uuid, platform_slug=None):
     """Legacy function-based view for audience chart data"""
     view = AudienceChartView()
     return view.get(request, track_uuid, platform_slug)
+
+
+@method_decorator(login_required, name='dispatch')
+class AudienceDashboardView(View):
+    """
+    View for the audience dashboard page
+    """
+    
+    def get(self, request):
+        """Render the audience dashboard page"""
+        return render(request, 'dashboard/audience_charts.html')
+
+
+@method_decorator(login_required, name='dispatch')
+class TracksWithAudienceView(View):
+    """
+    API view to get tracks with audience data for the dashboard
+    """
+    
+    def get(self, request):
+        """
+        Get all tracks that have audience data
+        """
+        try:
+            # Get tracks that have audience time-series data
+            tracks_with_audience = Track.objects.filter(
+                audience_timeseries__isnull=False
+            ).distinct().select_related().prefetch_related('audience_timeseries__platform')
+            
+            tracks_data = []
+            
+            for track in tracks_with_audience:
+                # Get platforms for this track
+                platforms = Platform.objects.filter(
+                    audience_timeseries__track=track
+                ).distinct()
+                
+                # Get latest audience data for each platform
+                platforms_data = []
+                for platform in platforms:
+                    latest_audience = TrackAudienceTimeSeries.objects.filter(
+                        track=track,
+                        platform=platform
+                    ).order_by('-date').first()
+                    
+                    platforms_data.append({
+                        'name': platform.name,
+                        'slug': platform.slug,
+                        'metric_name': platform.audience_metric_name,
+                        'latest_value': latest_audience.audience_value if latest_audience else 0,
+                        'latest_date': latest_audience.date.isoformat() if latest_audience else None,
+                        'data_points': TrackAudienceTimeSeries.objects.filter(
+                            track=track,
+                            platform=platform
+                        ).count()
+                    })
+                
+                tracks_data.append({
+                    'uuid': track.uuid,
+                    'name': track.name,
+                    'credit_name': track.credit_name,
+                    'image_url': track.image_url,
+                    'audience_fetched_at': track.audience_fetched_at.isoformat() if track.audience_fetched_at else None,
+                    'platforms': platforms_data
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'tracks': tracks_data,
+                'total_tracks': len(tracks_data)
+            })
+            
+        except Exception as e:
+            logger.error(f"Error in TracksWithAudienceView: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Internal server error'
+            }, status=500)

@@ -422,10 +422,13 @@ class TrackAudienceTimeSeries(models.Model):
         if end_date:
             queryset = queryset.filter(date__lte=end_date)
         
+        # Order first, then apply limit
+        queryset = queryset.order_by('date')
+        
         if limit:
             queryset = queryset[:limit]
         
-        return queryset.values('date', 'audience_value').order_by('date')
+        return queryset.values('date', 'audience_value')
     
     @classmethod
     def get_platform_comparison(cls, track, platforms, start_date=None, end_date=None, limit=None):
