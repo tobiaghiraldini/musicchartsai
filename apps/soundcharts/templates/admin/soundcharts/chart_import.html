@@ -230,9 +230,11 @@
       background: #218838;
     }
     
-    .btn-add:disabled {
+    .btn-add:disabled,
+    .btn-add.disabled {
       background: #6c757d;
       cursor: not-allowed;
+      opacity: 0.6;
     }
     
     .btn-add-all {
@@ -279,10 +281,45 @@
 {% block extrahead %}
   {{ block.super }}
   <script>
+    function showAlert(message, type = 'error') {
+      const alertContainer = document.getElementById('alertContainer');
+      alertContainer.style.display = 'block';
+      
+      // Set message and styling based on type
+      alertContainer.textContent = message;
+      
+      if (type === 'error') {
+        alertContainer.style.backgroundColor = '#f8d7da';
+        alertContainer.style.color = '#721c24';
+        alertContainer.style.border = '1px solid #f5c6cb';
+      } else if (type === 'success') {
+        alertContainer.style.backgroundColor = '#d4edda';
+        alertContainer.style.color = '#155724';
+        alertContainer.style.border = '1px solid #c3e6cb';
+      } else {
+        alertContainer.style.backgroundColor = '#d1ecf1';
+        alertContainer.style.color = '#0c5460';
+        alertContainer.style.border = '1px solid #bee5eb';
+      }
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        alertContainer.style.display = 'none';
+      }, 5000);
+    }
+    
+    function hideAlert() {
+      const alertContainer = document.getElementById('alertContainer');
+      alertContainer.style.display = 'none';
+    }
+    
     function fetchCharts() {
       const form = document.getElementById('fetchForm');
       const formData = new FormData(form);
       const params = new URLSearchParams(formData);
+      
+      // Hide any previous alerts
+      hideAlert();
       
       // Show loading state
       document.getElementById('loadingSection').style.display = 'block';
@@ -295,14 +332,14 @@
           if (data.success) {
             displayCharts(data.charts);
           } else {
-            alert('Error fetching charts: ' + data.error);
+            showAlert('Error fetching charts: ' + data.error, 'error');
             document.getElementById('fetchSection').style.display = 'block';
           }
           document.getElementById('loadingSection').style.display = 'none';
         })
         .catch(error => {
           console.error('Error:', error);
-          alert('Error fetching charts. Please try again.');
+          showAlert('Error fetching charts. Please try again.', 'error');
           document.getElementById('loadingSection').style.display = 'none';
           document.getElementById('fetchSection').style.display = 'block';
         });
@@ -319,6 +356,11 @@
       // Add chart rows
       charts.forEach((chart, index) => {
         const row = document.createElement('tr');
+        const isExisting = chart.already_exists;
+        const buttonText = isExisting ? 'Already Added' : 'Add';
+        const buttonClass = isExisting ? 'btn-add disabled' : 'btn-add';
+        const buttonOnclick = isExisting ? '' : `onclick="addChart('${chart.slug}', this)"`;
+        
         row.innerHTML = `
           <td>
             <div class="chart-name">${chart.name}</div>
@@ -328,8 +370,8 @@
           <td>${chart.country_code}</td>
           <td>
             <div class="action-buttons">
-              <button type="button" class="btn-add" onclick="addChart('${chart.slug}', this)">
-                Add
+              <button type="button" class="${buttonClass}" ${buttonOnclick} ${isExisting ? 'disabled' : ''}>
+                ${buttonText}
               </button>
             </div>
           </td>
@@ -341,13 +383,29 @@
       container.style.display = 'block';
       document.getElementById('fetchSection').style.display = 'none';
       
-      // Add "Add All" button
-      const addAllBtn = document.createElement('button');
-      addAllBtn.type = 'button';
-      addAllBtn.className = 'btn-add-all';
-      addAllBtn.textContent = `Add All ${charts.length} Charts`;
-      addAllBtn.onclick = () => addAllCharts(charts);
-      container.insertBefore(addAllBtn, table);
+      // Add "Add All" button (only for non-existing charts)
+      const newCharts = charts.filter(chart => !chart.already_exists);
+      if (newCharts.length > 0) {
+        const addAllBtn = document.createElement('button');
+        addAllBtn.type = 'button';
+        addAllBtn.className = 'btn-add-all';
+        addAllBtn.textContent = `Add All ${newCharts.length} New Charts`;
+        addAllBtn.onclick = () => addAllCharts(newCharts);
+        container.insertBefore(addAllBtn, table);
+      }
+      
+      // Show success message
+      const existingCount = charts.filter(chart => chart.already_exists).length;
+      const newCount = newCharts.length;
+      let message = `Successfully fetched ${charts.length} charts`;
+      if (existingCount > 0 && newCount > 0) {
+        message += ` (${existingCount} already exist, ${newCount} new)`;
+      } else if (existingCount > 0) {
+        message += ` (all already exist)`;
+      } else {
+        message += ` (all new)`;
+      }
+      showAlert(message, 'success');
     }
     
     function addChart(slug, button) {
@@ -452,6 +510,9 @@
         <div class="spinner"></div>
         <p>Fetching charts from Soundcharts API...</p>
       </div>
+      
+      <!-- Alert Container -->
+      <div id="alertContainer" style="display: none; margin: 20px 0; padding: 15px; border-radius: 6px; font-weight: 600;"></div>
       
       <!-- Charts Display Section -->
       <div id="chartsContainer" style="display: none;">

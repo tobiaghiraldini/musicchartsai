@@ -12,20 +12,26 @@
         class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="flex items-center justify-between mb-4">
           <div class="flex-shrink-0">
-            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">$45,385</span>
-            <h3 class="text-base font-light text-gray-500 dark:text-gray-400">Sales this week</h3>
+            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{ weekly_total|default:0 }}</span>
+            <h3 class="text-base font-light text-gray-500 dark:text-gray-400">Chart rankings fetched this week</h3>
           </div>
           <div
-            class="flex items-center justify-end flex-1 text-base font-medium text-green-500 dark:text-green-400">
-            12.5%
+            class="flex items-center justify-end flex-1 text-base font-medium {% if is_positive_change %}text-green-500 dark:text-green-400{% else %}text-red-500 dark:text-red-400{% endif %}">
+            {{ percentage_change }}%
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              {% if is_positive_change %}
               <path fill-rule="evenodd"
                 d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
                 clip-rule="evenodd"></path>
+              {% else %}
+              <path fill-rule="evenodd"
+                d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l2.293-2.293a1 1 0 011.414 0z"
+                clip-rule="evenodd"></path>
+              {% endif %}
             </svg>
           </div>
         </div>
-        <div id="main-chart"></div>
+        <div id="soundcharts-main-chart"></div>
         <!-- Card Footer -->
         <div
           class="flex items-center justify-between pt-3 mt-4 border-t border-gray-200 sm:pt-6 dark:border-gray-700">
@@ -80,9 +86,9 @@
             </div>
           </div>
           <div class="flex-shrink-0">
-            <a href="#"
+            <a href="{% url 'admin:soundcharts_chartranking_changelist' %}"
               class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-              Sales Report
+              View Rankings
               <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -134,260 +140,85 @@
           class="hidden text-sm font-medium text-center text-gray-500 divide-x divide-gray-200 rounded-lg sm:flex dark:divide-gray-600 dark:text-gray-400"
           id="fullWidthTab" data-tabs-toggle="#fullWidthTabContent" role="tablist">
           <li class="w-full">
-            <button id="faq-tab" data-tabs-target="#faq" type="button" role="tab" aria-controls="faq"
+            <button id="platforms-tab" data-tabs-target="#platforms" type="button" role="tab" aria-controls="platforms"
               aria-selected="true"
               class="inline-block w-full p-4 rounded-tl-lg bg-gray-50 hover:bg-gray-100 focus:outline-none dark:bg-gray-700 dark:hover:bg-gray-600">Top
-              products</button>
+              Platforms</button>
           </li>
           <li class="w-full">
-            <button id="about-tab" data-tabs-target="#about" type="button" role="tab" aria-controls="about"
+            <button id="tracks-tab" data-tabs-target="#tracks" type="button" role="tab" aria-controls="tracks"
               aria-selected="false"
               class="inline-block w-full p-4 rounded-tr-lg bg-gray-50 hover:bg-gray-100 focus:outline-none dark:bg-gray-700 dark:hover:bg-gray-600">Top
-              Customers</button>
+              Tracks</button>
           </li>
         </ul>
         <div id="fullWidthTabContent" class="border-t border-gray-200 dark:border-gray-600">
-          <div class="hidden pt-4" id="faq" role="tabpanel" aria-labelledby="faq-tab">
+          <!-- Top Platforms Tab -->
+          <div class="pt-4" id="platforms" role="tabpanel" aria-labelledby="platforms-tab">
             <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+              {% for platform, count in top_platforms %}
               <li class="py-3 sm:py-4">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center min-w-0">
-                    <img class="flex-shrink-0 w-10 h-10"
-                      src="https://flowbite-admin-dashboard.vercel.app/images/products/iphone.png"
-                      alt="imac image">
+                    <div class="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                      </svg>
+                    </div>
                     <div class="ml-3">
                       <p class="font-medium text-gray-900 truncate dark:text-white">
-                        iPhone 14 Pro
+                        {{ platform.name }}
                       </p>
-                      <div
-                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                          <path clip-rule="evenodd" fill-rule="evenodd"
-                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
-                          </path>
-                        </svg>
-                        2.5%
-                        <span class="ml-2 text-gray-500">vs last month</span>
-                      </div>
+                      <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                        Active platform
+                      </p>
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    $445,467
+                    {{ count }} rankings
                   </div>
                 </div>
               </li>
+              {% empty %}
               <li class="py-3 sm:py-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center min-w-0">
-                    <img class="flex-shrink-0 w-10 h-10"
-                      src="https://flowbite-admin-dashboard.vercel.app/images/products/imac.png" alt="imac image">
-                    <div class="ml-3">
-                      <p class="font-medium text-gray-900 truncate dark:text-white">
-                        Apple iMac 27"
-                      </p>
-                      <div
-                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                          <path clip-rule="evenodd" fill-rule="evenodd"
-                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
-                          </path>
-                        </svg>
-                        12.5%
-                        <span class="ml-2 text-gray-500">vs last month</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    $256,982
-                  </div>
-                </div>
+                <p class="text-gray-500 dark:text-gray-400 text-center">No platform data available</p>
               </li>
-              <li class="py-3 sm:py-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center min-w-0">
-                    <img class="flex-shrink-0 w-10 h-10"
-                      src="https://flowbite-admin-dashboard.vercel.app/images/products/watch.png"
-                      alt="watch image">
-                    <div class="ml-3">
-                      <p class="font-medium text-gray-900 truncate dark:text-white">
-                        Apple Watch SE
-                      </p>
-                      <div class="flex items-center justify-end flex-1 text-sm text-red-600 dark:text-red-500">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                          <path clip-rule="evenodd" fill-rule="evenodd"
-                            d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z">
-                          </path>
-                        </svg>
-                        1.35%
-                        <span class="ml-2 text-gray-500">vs last month</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    $201,869
-                  </div>
-                </div>
-              </li>
-              <li class="py-3 sm:py-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center min-w-0">
-                    <img class="flex-shrink-0 w-10 h-10"
-                      src="https://flowbite-admin-dashboard.vercel.app/images/products/ipad.png" alt="ipad image">
-                    <div class="ml-3">
-                      <p class="font-medium text-gray-900 truncate dark:text-white">
-                        Apple iPad Air
-                      </p>
-                      <div
-                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                          <path clip-rule="evenodd" fill-rule="evenodd"
-                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
-                          </path>
-                        </svg>
-                        12.5%
-                        <span class="ml-2 text-gray-500">vs last month</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    $103,967
-                  </div>
-                </div>
-              </li>
-              <li class="py-3 sm:py-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center min-w-0">
-                    <img class="flex-shrink-0 w-10 h-10"
-                      src="https://flowbite-admin-dashboard.vercel.app/images/products/imac.png" alt="imac image">
-                    <div class="ml-3">
-                      <p class="font-medium text-gray-900 truncate dark:text-white">
-                        Apple iMac 24"
-                      </p>
-                      <div class="flex items-center justify-end flex-1 text-sm text-red-600 dark:text-red-500">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                          <path clip-rule="evenodd" fill-rule="evenodd"
-                            d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z">
-                          </path>
-                        </svg>
-                        2%
-                        <span class="ml-2 text-gray-500">vs last month</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    $98,543
-                  </div>
-                </div>
-              </li>
+              {% endfor %}
             </ul>
           </div>
-          <div class="hidden pt-4" id="about" role="tabpanel" aria-labelledby="about-tab">
+          
+          <!-- Top Tracks Tab -->
+          <div class="hidden pt-4" id="tracks" role="tabpanel" aria-labelledby="tracks-tab">
             <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+              {% for track_data in top_tracks %}
               <li class="py-3 sm:py-4">
-                <div class="flex items-center space-x-4">
-                  <div class="flex-shrink-0">
-                    <img class="w-8 h-8 rounded-full"
-                      src="https://flowbite-admin-dashboard.vercel.app/images/users/neil-sims.png"
-                      alt="Neil image">
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="font-medium text-gray-900 truncate dark:text-white">
-                      Neil Sims
-                    </p>
-                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                      email@flowbite.com
-                    </p>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center min-w-0">
+                    <div class="flex-shrink-0 w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM15.657 6.343a1 1 0 011.414 0A9.972 9.972 0 0119 12a9.972 9.972 0 01-1.929 5.657 1 1 0 11-1.414-1.414A7.971 7.971 0 0017 12a7.971 7.971 0 00-1.343-4.243 1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        <path fill-rule="evenodd" d="M13.828 8.172a1 1 0 011.414 0A5.983 5.983 0 0117 12a5.983 5.983 0 01-1.758 3.828 1 1 0 11-1.414-1.414A3.987 3.987 0 0015 12a3.987 3.987 0 00-1.172-2.828 1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                      </svg>
+                    </div>
+                    <div class="ml-3 min-w-0">
+                      <p class="font-medium text-gray-900 truncate dark:text-white">
+                        {{ track_data.track.title }}
+                      </p>
+                      <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                        by {{ track_data.track.artist|default:"Unknown Artist" }}
+                      </p>
+                    </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    $3320
+                    {{ track_data.chart_count }} charts
                   </div>
                 </div>
               </li>
+              {% empty %}
               <li class="py-3 sm:py-4">
-                <div class="flex items-center space-x-4">
-                  <div class="flex-shrink-0">
-                    <img class="w-8 h-8 rounded-full"
-                      src="https://flowbite-admin-dashboard.vercel.app/images/users/bonnie-green.png"
-                      alt="Neil image">
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="font-medium text-gray-900 truncate dark:text-white">
-                      Bonnie Green
-                    </p>
-                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                      email@flowbite.com
-                    </p>
-                  </div>
-                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    $2467
-                  </div>
-                </div>
+                <p class="text-gray-500 dark:text-gray-400 text-center">No track data available</p>
               </li>
-              <li class="py-3 sm:py-4">
-                <div class="flex items-center space-x-4">
-                  <div class="flex-shrink-0">
-                    <img class="w-8 h-8 rounded-full"
-                      src="https://flowbite-admin-dashboard.vercel.app/images/users/michael-gough.png"
-                      alt="Neil image">
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="font-medium text-gray-900 truncate dark:text-white">
-                      Michael Gough
-                    </p>
-                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                      email@flowbite.com
-                    </p>
-                  </div>
-                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    $2235
-                  </div>
-                </div>
-              </li>
-              <li class="py-3 sm:py-4">
-                <div class="flex items-center space-x-4">
-                  <div class="flex-shrink-0">
-                    <img class="w-8 h-8 rounded-full"
-                      src="https://flowbite-admin-dashboard.vercel.app/images/users/thomas-lean.png"
-                      alt="Neil image">
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="font-medium text-gray-900 truncate dark:text-white">
-                      Thomes Lean
-                    </p>
-                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                      email@flowbite.com
-                    </p>
-                  </div>
-                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    $1842
-                  </div>
-                </div>
-              </li>
-              <li class="py-3 sm:py-4">
-                <div class="flex items-center space-x-4">
-                  <div class="flex-shrink-0">
-                    <img class="w-8 h-8 rounded-full"
-                      src="https://flowbite-admin-dashboard.vercel.app/images/users/lana-byrd.png"
-                      alt="Neil image">
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="font-medium text-gray-900 truncate dark:text-white">
-                      Lana Byrd
-                    </p>
-                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                      email@flowbite.com
-                    </p>
-                  </div>
-                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    $1044
-                  </div>
-                </div>
-              </li>
+              {% endfor %}
             </ul>
           </div>
         </div>
@@ -459,76 +290,56 @@
     </div>
 
     <div class="grid w-full grid-cols-1 gap-4 mt-4 xl:grid-cols-2 2xl:grid-cols-3">
+      <!-- Total Charts -->
       <div
         class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">New products</h3>
-          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">2,340</span>
-          <p class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400">
-            <span class="flex items-center mr-1.5 text-sm text-green-500 dark:text-green-400">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true">
-                <path clip-rule="evenodd" fill-rule="evenodd"
-                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
-                </path>
-              </svg>
-              12.5%
-            </span>
-            Since last month
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Total Charts</h3>
+          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{ total_charts|default:0 }}</span>
+          <p class="text-base font-normal text-gray-500 dark:text-gray-400">
+            Music chart sources
           </p>
         </div>
-        <div class="w-full" id="new-products-chart"></div>
+        <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg dark:bg-blue-900">
+          <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+          </svg>
+        </div>
       </div>
+      
+      <!-- Total Tracks -->
       <div
         class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Users</h3>
-          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">2,340</span>
-          <p class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400">
-            <span class="flex items-center mr-1.5 text-sm text-green-500 dark:text-green-400">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true">
-                <path clip-rule="evenodd" fill-rule="evenodd"
-                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
-                </path>
-              </svg>
-              3,4%
-            </span>
-            Since last month
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Total Tracks</h3>
+          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{ total_tracks|default:0 }}</span>
+          <p class="text-base font-normal text-gray-500 dark:text-gray-400">
+            Unique songs tracked
           </p>
         </div>
-        <div class="w-full" id="week-signups-chart"></div>
+        <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg dark:bg-green-900">
+          <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM15.657 6.343a1 1 0 011.414 0A9.972 9.972 0 0119 12a9.972 9.972 0 01-1.929 5.657 1 1 0 11-1.414-1.414A7.971 7.971 0 0017 12a7.971 7.971 0 00-1.343-4.243 1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
       </div>
+      
+      <!-- Chart Health -->
       <div
         class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">Audience by age</h3>
-          <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">50+</div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: 18%"></div>
-            </div>
+          <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">Chart Health</h3>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl font-bold leading-none text-gray-900 dark:text-white">{{ chart_health_percentage|default:0 }}%</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">{{ active_charts|default:0 }}/{{ total_charts|default:0 }}</span>
           </div>
-          <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">40+</div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: 15%"></div>
-            </div>
+          <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mb-2">
+            <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{ chart_health_percentage|default:0 }}%"></div>
           </div>
-          <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">30+</div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: 60%"></div>
-            </div>
-          </div>
-          <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">20+</div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: 30%"></div>
-            </div>
-          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Charts updated this week
+          </p>
         </div>
-        <div id="traffic-channels-chart" class="w-full"></div>
       </div>
 
     </div>
@@ -1128,4 +939,156 @@
   </div>
 </main>
 
-{% endblock content %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.54.1/dist/apexcharts.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Weekly Rankings Chart Data
+    const weeklyRankingsData = [
+      {% for item in weekly_rankings_data %}
+        { 
+          date: '{{ item.date }}', 
+          day_name: '{{ item.day_name }}',
+          count: {{ item.count }},
+          platforms: {{ item.platforms_json|safe }}
+        },
+      {% endfor %}
+    ];
+    
+    console.log('WeeklyRankingsData:', weeklyRankingsData);
+    console.log('ApexCharts available:', typeof ApexCharts !== 'undefined');
+    console.log('Chart element exists:', document.querySelector("#soundcharts-main-chart") !== null);
+    
+    const chartElement = document.querySelector("#soundcharts-main-chart");
+    
+    if (typeof ApexCharts === 'undefined') {
+      console.error('ApexCharts is not loaded!');
+      if (chartElement) {
+        chartElement.innerHTML = '<div style="padding: 20px; text-align: center; color: #6B7280;">Chart library not loaded</div>';
+      }
+      return;
+    }
+    
+    if (weeklyRankingsData.length === 0) {
+      console.warn('No data available for chart');
+      if (chartElement) {
+        chartElement.innerHTML = '<div style="padding: 20px; text-align: center; color: #6B7280;">No data available</div>';
+      }
+      return;
+    }
+    
+    if (!chartElement) {
+      console.error('Chart element #soundcharts-main-chart not found!');
+      return;
+    }
+    
+    try {
+      const chart = new ApexCharts(chartElement, {
+        chart: {
+          height: 320,
+          width: "100%",
+          type: "area",
+          fontFamily: "Inter, sans-serif",
+          dropShadow: {
+            enabled: false,
+          },
+          toolbar: {
+            show: false,
+          },
+        },
+        tooltip: {
+          enabled: true,
+          shared: false,
+          followCursor: false,
+          x: {
+            show: true,
+          },
+          y: {
+            formatter: function(value, { seriesIndex, dataPointIndex, w }) {
+              // Get the day's data to show platform breakdown
+              const dayData = weeklyRankingsData[dataPointIndex];
+              let tooltip = value + ' rankings';
+              
+              if (dayData && dayData.platforms) {
+                const platforms = Object.entries(dayData.platforms)
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 3); // Show top 3 platforms
+                  
+                if (platforms.length > 0) {
+                  tooltip += '<br/><span style="font-size: 11px; color: #6B7280;">Top: ';
+                  tooltip += platforms.map(([platform, count]) => `${platform} (${count})`).join(', ');
+                  tooltip += '</span>';
+                }
+              }
+              
+              return tooltip;
+            }
+          }
+        },
+        fill: {
+          type: "gradient",
+          gradient: {
+            opacityFrom: 0.55,
+            opacityTo: 0,
+            shade: "#1C64F2",
+            gradientToColors: ["#1C64F2"],
+          },
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        stroke: {
+          width: 6,
+        },
+        grid: {
+          show: false,
+          strokeDashArray: 4,
+          padding: {
+            left: 2,
+            right: 2,
+            top: 0
+          },
+        },
+        series: [
+          {
+            name: "Rankings fetched",
+            data: weeklyRankingsData.map(item => item.count),
+            color: "#1A56DB",
+          },
+        ],
+        xaxis: {
+          categories: weeklyRankingsData.map(item => {
+            // Use day_name if available, otherwise extract from date
+            return item.day_name ? item.day_name.substring(0, 3) : new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' });
+          }),
+          labels: {
+            show: true,
+            style: {
+              colors: ['#6B7280'],
+              fontSize: '12px'
+            }
+          },
+          axisBorder: {
+            show: false,
+          },
+          axisTicks: {
+            show: false,
+          },
+        },
+        yaxis: {
+          show: false,
+        },
+      });
+      chart.render();
+      console.log('Chart rendered successfully');
+    } catch (error) {
+      console.error('Error rendering chart:', error);
+      if (chartElement) {
+        chartElement.innerHTML = '<div style="padding: 20px; text-align: center; color: #EF4444;">Error rendering chart: ' + error.message + '</div>';
+      }
+    }
+  });
+</script>
+{% endblock %}
