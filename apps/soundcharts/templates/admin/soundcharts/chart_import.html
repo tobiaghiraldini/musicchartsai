@@ -327,18 +327,23 @@
       
       // Fetch charts from API
       fetch(`{% url 'admin:soundcharts_chart_fetch' %}?${params.toString()}`)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
         .then(data => {
-          if (data.success) {
+          if (data.success === true) {
             displayCharts(data.charts);
           } else {
-            showAlert('Error fetching charts: ' + data.error, 'error');
+            showAlert('Error fetching charts: ' + (data.error || 'Unknown error'), 'error');
             document.getElementById('fetchSection').style.display = 'block';
           }
           document.getElementById('loadingSection').style.display = 'none';
         })
         .catch(error => {
-          console.error('Error:', error);
+          console.error('Fetch error:', error);
           showAlert('Error fetching charts. Please try again.', 'error');
           document.getElementById('loadingSection').style.display = 'none';
           document.getElementById('fetchSection').style.display = 'block';
@@ -349,6 +354,12 @@
       const container = document.getElementById('chartsContainer');
       const table = document.getElementById('chartsTable');
       const tbody = table.querySelector('tbody');
+      
+      if (!charts || !Array.isArray(charts)) {
+        console.error('Invalid charts data:', charts);
+        showAlert('Invalid charts data received', 'error');
+        return;
+      }
       
       // Clear existing rows
       tbody.innerHTML = '';
@@ -386,12 +397,20 @@
       // Add "Add All" button (only for non-existing charts)
       const newCharts = charts.filter(chart => !chart.already_exists);
       if (newCharts.length > 0) {
+        // Remove any existing "Add All" button first
+        const existingAddAllBtn = container.querySelector('.btn-add-all');
+        if (existingAddAllBtn) {
+          existingAddAllBtn.remove();
+        }
+        
         const addAllBtn = document.createElement('button');
         addAllBtn.type = 'button';
         addAllBtn.className = 'btn-add-all';
         addAllBtn.textContent = `Add All ${newCharts.length} New Charts`;
         addAllBtn.onclick = () => addAllCharts(newCharts);
-        container.insertBefore(addAllBtn, table);
+        
+        // Insert the button at the beginning of the container
+        container.insertBefore(addAllBtn, container.firstChild);
       }
       
       // Show success message
