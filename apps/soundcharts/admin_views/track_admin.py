@@ -125,7 +125,50 @@ class TrackAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
 
     def response_change(self, request, obj):
         """Handle custom actions in change form"""
-        if "_fetch_metadata" in request.POST:
+        if "_fetch_audience" in request.POST:
+            # Handle single track audience fetch
+            if obj.uuid:
+                try:
+                    from ..audience_processor import AudienceDataProcessor
+                    processor = AudienceDataProcessor()
+                    
+                    # Get platform from POST data or default to spotify
+                    platform = request.POST.get('platform', 'spotify')
+                    force_refresh = 'force_refresh' in request.POST
+                    
+                    result = processor.process_and_store_audience_data(
+                        obj.uuid, 
+                        platform, 
+                        force_refresh
+                    )
+                    
+                    if result['success']:
+                        obj.audience_fetched_at = timezone.now()
+                        obj.save()
+                        
+                        messages.success(
+                            request, 
+                            f"Successfully fetched audience data for '{obj.name}' on {platform}: "
+                            f"{result['records_created']} created, {result['records_updated']} updated"
+                        )
+                        logger.info(f"Successfully fetched audience data for track {obj.uuid} on {platform}")
+                    else:
+                        messages.error(
+                            request, 
+                            f"Failed to fetch audience data for '{obj.name}' on {platform}: {result['error']}"
+                        )
+                        logger.error(f"Failed to fetch audience data for track {obj.uuid} on {platform}: {result['error']}")
+                        
+                except Exception as e:
+                    messages.error(request, f"Error fetching audience data: {str(e)}")
+                    logger.error(f"Error fetching audience data for track {obj.uuid}: {e}")
+            else:
+                messages.error(request, "Track has no UUID - cannot fetch audience data")
+            
+            # Redirect to prevent form resubmission
+            return HttpResponseRedirect(request.get_full_path())
+        
+        elif "_fetch_metadata" in request.POST:
             # Handle single track metadata fetch
             if obj.uuid:
                 try:
@@ -194,6 +237,12 @@ class TrackAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
         """Add custom buttons to the change view"""
         extra_context = extra_context or {}
         extra_context["show_fetch_metadata_button"] = True
+        extra_context["show_fetch_audience_button"] = True
+        
+        # Add available platforms for audience fetching
+        from ..models import Platform
+        extra_context["available_platforms"] = Platform.objects.all().values_list('slug', 'name')
+        
         return super().change_view(request, object_id, form_url, extra_context)
 
     def changelist_view(self, request, extra_context=None):

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.urls import reverse
 from ..models import ChartRankingEntry
 
 
@@ -42,7 +43,7 @@ class ChartRankingEntryAdmin(admin.ModelAdmin):
     )
 
     def get_track_info(self, obj):
-        """Display track name and artist in a readable format"""
+        """Display track name and artist in a readable format with link to track detail"""
         if not obj.track:
             return "Unknown Track"
 
@@ -51,8 +52,14 @@ class ChartRankingEntryAdmin(admin.ModelAdmin):
             obj.track.credit_name if obj.track.credit_name else "Unknown Artist"
         )
 
+        # Create link to track change view
+        url = reverse("admin:soundcharts_track_change", args=[obj.track.pk])
+
         return format_html(
-            "<strong>{}</strong><br><small>{}</small>", track_name, artist_name
+            '<a href="{}" target="_blank"><strong>{}</strong></a><br><small>{}</small>', 
+            url,
+            track_name, 
+            artist_name
         )
 
     get_track_info.short_description = "Track & Artist"

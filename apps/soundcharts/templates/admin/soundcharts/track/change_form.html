@@ -7,6 +7,27 @@
       <input type="submit" value="{% trans 'Fetch Metadata from API' %}" name="_fetch_metadata" style="background: var(--button-bg);">
     </div>
   {% endif %}
+  
+  {% if show_fetch_audience_button %}
+    <div class="submit-row">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+        <label for="platform_select">Platform:</label>
+        <select name="platform" id="platform_select" style="padding: 5px;">
+          <option value="spotify">Spotify</option>
+          {% for slug, name in available_platforms %}
+            {% if slug != 'spotify' %}
+              <option value="{{ slug }}">{{ name }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <label style="margin-left: 15px;">
+          <input type="checkbox" name="force_refresh" style="margin-right: 5px;"> Force refresh existing data
+        </label>
+      </div>
+      <input type="submit" value="{% trans 'Fetch Audience Data from API' %}" name="_fetch_audience" style="background: var(--button-bg);">
+    </div>
+  {% endif %}
+  
   {{ block.super }}
 {% endblock %}
 
@@ -21,6 +42,15 @@
 .submit-row input[name="_fetch_metadata"]:hover {
     background: #218838 !important;
     border-color: #1e7e34 !important;
+}
+.submit-row input[name="_fetch_audience"] {
+    background: #007bff !important;
+    color: white !important;
+    border: 1px solid #007bff !important;
+}
+.submit-row input[name="_fetch_audience"]:hover {
+    background: #0056b3 !important;
+    border-color: #004085 !important;
 }
 </style>
 {% endblock %}

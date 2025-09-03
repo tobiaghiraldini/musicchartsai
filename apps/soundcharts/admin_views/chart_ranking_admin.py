@@ -28,15 +28,19 @@ class ChartRankingEntryInline(admin.TabularInline):
     max_num = 0
     
     def get_track_info(self, obj):
-        """Display track name and artist in a readable format"""
+        """Display track name and artist in a readable format with link to track detail"""
         if not obj.track:
             return "Unknown Track"
         
         track_name = obj.track.name
         artist_name = obj.track.credit_name if obj.track.credit_name else "Unknown Artist"
         
+        # Create link to track change view
+        url = reverse("admin:soundcharts_track_change", args=[obj.track.pk])
+        
         return format_html(
-            "<strong>{}</strong><br><small>{}</small>", 
+            '<a href="{}" target="_blank"><strong>{}</strong></a><br><small>{}</small>', 
+            url,
             track_name, 
             artist_name
         )
@@ -159,15 +163,19 @@ class ChartRankingEntrySummaryAdmin(admin.ModelAdmin):
         return response
     
     def get_track_info(self, obj):
-        """Display track name and artist in a readable format"""
+        """Display track name and artist in a readable format with link to track detail"""
         if not obj.track:
             return "Unknown Track"
         
         track_name = obj.track.name
         artist_name = obj.track.credit_name if obj.track.credit_name else "Unknown Artist"
         
+        # Create link to track change view
+        url = reverse("admin:soundcharts_track_change", args=[obj.track.pk])
+        
         return format_html(
-            "<strong>{}</strong><br><small>{}</small>", 
+            '<a href="{}" target="_blank"><strong>{}</strong></a><br><small>{}</small>', 
+            url,
             track_name, 
             artist_name
         )

@@ -20,8 +20,8 @@ class ChartRankingsInline(admin.TabularInline):
     """Inline for displaying chart rankings in the chart change view"""
     model = ChartRanking
     extra = 0
-    readonly_fields = ('ranking_date', 'total_entries', 'get_entries_count', 'fetched_at')
-    fields = ('ranking_date', 'total_entries', 'get_entries_count', 'fetched_at')
+    readonly_fields = ('ranking_date', 'total_entries', 'get_entries_count', 'get_ranking_link', 'fetched_at')
+    fields = ('ranking_date', 'total_entries', 'get_entries_count', 'get_ranking_link', 'fetched_at')
     can_delete = False
     ordering = ('-ranking_date',)
     
@@ -38,6 +38,20 @@ class ChartRankingsInline(admin.TabularInline):
             return f"{count} entries"
     
     get_entries_count.short_description = "Entries Count"
+    
+    def get_ranking_link(self, obj):
+        """Display a link to view the ranking details"""
+        if not obj or not obj.pk:
+            return "-"
+        
+        url = reverse("admin:soundcharts_chartranking_change", args=[obj.pk])
+        return format_html(
+            '<a href="{}" class="button" target="_blank">View Details</a>',
+            url
+        )
+    
+    get_ranking_link.short_description = "View Ranking"
+    get_ranking_link.allow_tags = True
     
     def has_add_permission(self, request, obj=None):
         return False
