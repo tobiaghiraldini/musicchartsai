@@ -4,7 +4,10 @@ from .views import (
     AudienceDataRefreshView, 
     audience_chart_data,
     AudienceDashboardView,
-    TracksWithAudienceView
+    TracksWithAudienceView,
+    PlatformListView,
+    TopArtistsView,
+    TopSongsView
 )
 
 app_name = 'soundcharts'
@@ -12,7 +15,9 @@ app_name = 'soundcharts'
 urlpatterns = [
     # Dashboard views
     path('audience/dashboard/', AudienceDashboardView.as_view(), name='audience_dashboard'),
-    
+    path('top_artists/', TopArtistsView.as_view(), name='top_artists'),
+    path('top_songs/', TopSongsView.as_view(), name='top_songs'),
+    path('platforms/', PlatformListView.as_view(), name='platform_list'),
     # API endpoints
     path('api/tracks-with-audience/', TracksWithAudienceView.as_view(), name='tracks_with_audience'),
     

@@ -51,7 +51,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5085",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5085",
-    "https://rocket-django.onrender.com",
+    "https://musicchartsai.it",
 ]
 
 # Used by DEBUG-Toolbar
@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "apps.charts",
     "apps.tasks",
     "apps.soundcharts",
+    "apps.acrcloud",
     "django_celery_results",
     "rest_framework",
     "rest_framework.authtoken",

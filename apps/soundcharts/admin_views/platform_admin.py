@@ -62,14 +62,6 @@ class PlatformAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
             {"fields": ("name", "slug")},
         ),
         (
-            "Related Charts",
-            {
-                "description": "Charts associated with this platform",
-                "fields": (),
-                "classes": ("collapse",),
-            },
-        ),
-        (
             "Timestamps",
             {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
         ),

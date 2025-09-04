@@ -5,7 +5,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 import json
 
-from .models import *
+
 from apps.soundcharts.models import ChartRanking, Chart, Track, Platform, TrackAudienceTimeSeries
 
 def index(request):

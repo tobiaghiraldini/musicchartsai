@@ -15,6 +15,61 @@ logger = logging.getLogger(__name__)
 
 
 @method_decorator(login_required, name='dispatch')
+class TopArtistsView(View):
+
+    def get(self, request):
+        """
+        Get top artists
+        """
+        return JsonResponse({
+            'success': True,
+            'artists': [
+                {
+                    'name': 'Artist 1',
+                    'slug': 'artist-1',
+                    'metric_name': 'Listeners'
+                }
+            ]
+        })
+
+@method_decorator(login_required, name='dispatch')
+class TopSongsView(View):
+    """
+    View for getting top songs
+    """
+    
+    def get(self, request):
+        """
+        Get top songs
+        """
+        return JsonResponse({
+            'success': True,
+            'songs': [
+                {
+                    'name': 'Song 1',
+                    'slug': 'song-1',
+                    'metric_name': 'Listeners'
+                }
+            ]
+        })
+
+@method_decorator(login_required, name="dispatch")
+class PlatformListView(View):
+    """
+    View for listing platforms
+    """
+    
+    def get(self, request):
+        """
+        Get all platforms
+        """
+        platforms = Platform.objects.all().values('name', 'slug', 'audience_metric_name')
+        return JsonResponse({
+            'success': True,
+            'platforms': {platforms}
+        })
+
+@method_decorator(login_required, name='dispatch')
 class AudienceChartView(View):
     """
     View for providing audience chart data

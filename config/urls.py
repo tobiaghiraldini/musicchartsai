@@ -31,6 +31,7 @@ urlpatterns = [
     path("charts/", include("apps.charts.urls")),
     path("tasks/", include("apps.tasks.urls")),
     path("soundcharts/", include("apps.soundcharts.urls")),
+    path("acrcloud/", include("apps.acrcloud.urls")),
     path('api/docs/schema', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/'      , SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path("__debug__/", include("debug_toolbar.urls")),
