@@ -39,7 +39,7 @@ class ChartRankingEntryInline(admin.TabularInline):
         url = reverse("admin:soundcharts_track_change", args=[obj.track.pk])
         
         return format_html(
-            '<a href="{}" target="_blank"><strong>{}</strong></a><br><small>{}</small>', 
+            '<a href="{}"><strong>{}</strong></a><br><small>{}</small>', 
             url,
             track_name, 
             artist_name

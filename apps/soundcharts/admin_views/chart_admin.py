@@ -46,7 +46,7 @@ class ChartRankingsInline(admin.TabularInline):
         
         url = reverse("admin:soundcharts_chartranking_change", args=[obj.pk])
         return format_html(
-            '<a href="{}" class="button" target="_blank">View Details</a>',
+            '<a href="{}" class="button">View Details</a>',
             url
         )
     
@@ -195,7 +195,7 @@ class ChartAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
 
         url = reverse("admin:soundcharts_chartranking_change", args=[latest_ranking.id])
         return format_html(
-            '<a href="{}" target="_blank">{}</a>',
+            '<a href="{}">{}</a>',
             url,
             latest_ranking.ranking_date.strftime("%Y-%m-%d"),
         )
