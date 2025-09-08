@@ -15,7 +15,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from str2bool import str2bool
 from django.contrib import messages
-
+from config.jazzmin_settings import JAZZMIN_SETTINGS as JAZZMIN_SETTINGS_SETTINGS
 load_dotenv()  # take environment variables from .env.
 # load_dotenv(".env.local")
 
@@ -288,3 +288,6 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
+
+# JAZZMIN_SETTINGS = JAZZMIN_SETTINGS_SETTINGS
