@@ -1,12 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q, Avg
+from django.db.models import Count, Avg, Max
 from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import timedelta
 import json
-
-
-from apps.soundcharts.models import ChartRanking, Chart, Track, Platform, TrackAudienceTimeSeries
+from apps.soundcharts.models import ChartRanking, Chart, Track, Platform, ChartRankingEntry
 
 def index(request):
     # Get current date and week ranges
@@ -156,3 +154,115 @@ def starter(request):
 
   context = {}
   return render(request, "pages/starter.html", context)
+
+@login_required(login_url='/users/signin/')
+def charts_list(request):
+    """
+    View for displaying the main charts table
+    Shows chart name, platform, frequency, rankings count, last chart date
+    """
+    # Get filter parameters
+    platform_filter = request.GET.get('platform', '')
+    frequency_filter = request.GET.get('frequency', '')
+    country_filter = request.GET.get('country', '')
+    
+    # Base queryset
+    charts = Chart.objects.select_related('platform').annotate(
+        rankings_count=Count('rankings'),
+        last_ranking_date=Max('rankings__ranking_date')
+    ).order_by('-last_ranking_date')
+    
+    # Apply filters
+    if platform_filter:
+        charts = charts.filter(platform__slug=platform_filter)
+    if frequency_filter:
+        charts = charts.filter(frequency=frequency_filter)
+    if country_filter:
+        charts = charts.filter(country_code=country_filter)
+    
+    # Get filter options
+    platforms = Platform.objects.all().order_by('name')
+    frequencies = Chart.objects.values_list('frequency', flat=True).distinct().order_by('frequency')
+    countries = Chart.objects.values_list('country_code', flat=True).distinct().order_by('country_code')
+    
+    context = {
+        'segment': 'charts',
+        'charts': charts,
+        'platforms': platforms,
+        'frequencies': frequencies,
+        'countries': countries,
+        'current_filters': {
+            'platform': platform_filter,
+            'frequency': frequency_filter,
+            'country': country_filter,
+        }
+    }
+    return render(request, "dashboard/charts_table.html", context)
+
+@login_required(login_url='/users/signin/')
+def chart_rankings(request, chart_id):
+    """
+    View for displaying chart rankings for a specific chart
+    Shows all rankings downloaded for that chart, ordered by date
+    """
+    chart = get_object_or_404(Chart, id=chart_id)
+    
+    # Get filter parameters
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    
+    # Base queryset - don't annotate entries_count since it's a property
+    rankings = ChartRanking.objects.filter(chart=chart).order_by('-ranking_date')
+    
+    # Apply date filters
+    if date_from:
+        rankings = rankings.filter(ranking_date__date__gte=date_from)
+    if date_to:
+        rankings = rankings.filter(ranking_date__date__lte=date_to)
+    
+    context = {
+        'segment': 'charts',
+        'chart': chart,
+        'rankings': rankings,
+        'current_filters': {
+            'date_from': date_from,
+            'date_to': date_to,
+        }
+    }
+    return render(request, "dashboard/chart_rankings_table.html", context)
+
+@login_required(login_url='/users/signin/')
+def ranking_songs(request, ranking_id):
+    """
+    View for displaying songs in a specific chart ranking
+    Shows individual songs with positions, metadata, and other data
+    """
+    ranking = get_object_or_404(ChartRanking, id=ranking_id)
+    
+    # Get filter parameters
+    position_from = request.GET.get('position_from', '')
+    position_to = request.GET.get('position_to', '')
+    track_name = request.GET.get('track_name', '')
+    
+    # Base queryset
+    entries = ChartRankingEntry.objects.filter(ranking=ranking).select_related('track').order_by('position')
+    
+    # Apply filters
+    if position_from:
+        entries = entries.filter(position__gte=position_from)
+    if position_to:
+        entries = entries.filter(position__lte=position_to)
+    if track_name:
+        entries = entries.filter(track__name__icontains=track_name)
+    
+    context = {
+        'segment': 'charts',
+        'ranking': ranking,
+        'entries': entries,
+        'current_filters': {
+            'position_from': position_from,
+            'position_to': position_to,
+            'track_name': track_name,
+        }
+    }
+    return render(request, "dashboard/ranking_songs_table.html", context)
