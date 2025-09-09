@@ -45,7 +45,7 @@ class PlatformChartsInline(admin.TabularInline):
 
 
 class PlatformAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
-    list_display = ("name", "slug", "created_at", "updated_at")
+    list_display = ("name", "slug", "get_charts_count", "created_at", "updated_at")
     list_filter = ("created_at", "updated_at")
     search_fields = ("name", "slug")
     ordering = ("name",)
@@ -68,6 +68,18 @@ class PlatformAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
     )
     
     readonly_fields = ("created_at", "updated_at")
+    
+    def get_charts_count(self, obj):
+        """Display the count of charts for this platform"""
+        count = obj.chart_set.count()
+        if count == 0:
+            return "0 charts"
+        elif count == 1:
+            return "1 chart"
+        else:
+            return f"{count} charts"
+    
+    get_charts_count.short_description = "Charts"
     
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """Override change view to add import charts button"""
