@@ -8,10 +8,13 @@ class Platform(models.Model):
     
     # Enhanced platform metadata
     platform_type = models.CharField(max_length=50, choices=[
+        ('audience', 'Audience'),
         ('streaming', 'Streaming'),
-        ('social', 'Social Media'),
+        ('song_chart', 'Song Chart'),
+        ('artist_chart', 'Artist Chart'),
+        ('album_chart', 'Album Chart'),
+        ('playlist', 'Playlist'),
         ('radio', 'Radio'),
-        ('tv', 'TV'),
         ('other', 'Other'),
     ], default='streaming', help_text="Type of platform")
     
@@ -50,6 +53,55 @@ class Artist(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @classmethod
+    def create_from_soundcharts(cls, artist_data):
+        """
+        Creates or updates artist from SoundCharts API data
+        artist_data format: {
+            "uuid": "11e81bcc-9c1c-ce38-b96b-a0369fe50396",
+            "slug": "billie-eilish",
+            "name": "Billie Eilish",
+            "appUrl": "https://app.soundcharts.com/app/artist/billie-eilish/overview",
+            "imageUrl": "https://assets.soundcharts.com/artist/c/1/c/11e81bcc-9c1c-ce38-b96b-a0369fe50396.jpg"
+        }
+        """
+        uuid = artist_data.get('uuid', '').strip()
+        name = artist_data.get('name', '').strip()
+        slug = artist_data.get('slug', '').strip()
+        app_url = artist_data.get('appUrl', '').strip()
+        image_url = artist_data.get('imageUrl', '').strip()
+        
+        if not uuid or not name:
+            return None
+        
+        # Create or get artist by UUID (most reliable identifier)
+        artist, created = cls.objects.get_or_create(
+            uuid=uuid,
+            defaults={
+                'name': name,
+                'slug': slug,
+                'appUrl': app_url,
+                'imageUrl': image_url,
+                'countryCode': '',  # Will be updated if available
+                'cityName': '',
+                'gender': '',
+                'type': '',
+                'biography': '',
+                'isni': '',
+                'ipi': '',
+            }
+        )
+        
+        # Update fields if artist already exists
+        if not created:
+            artist.name = name
+            artist.slug = slug
+            artist.appUrl = app_url
+            artist.imageUrl = image_url
+            artist.save()
+        
+        return artist
 
 
 class Album(models.Model):
@@ -74,7 +126,28 @@ class Track(models.Model):
     duration = models.IntegerField(null=True, blank=True, help_text="Track duration in seconds")
     isrc = models.CharField(max_length=255, null=True, blank=True, help_text="International Standard Recording Code")
     label = models.CharField(max_length=255, null=True, blank=True, help_text="Record label")
-    genre = models.CharField(max_length=255, null=True, blank=True, help_text="Primary genre")
+    
+    # Genre relationships
+    genres = models.ManyToManyField("Genre", related_name="tracks", blank=True, help_text="Track genres")
+    primary_genre = models.ForeignKey(
+        "Genre", 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name="primary_tracks",
+        help_text="Primary genre for this track"
+    )
+    
+    # Artist relationships
+    artists = models.ManyToManyField("Artist", related_name="tracks", blank=True, help_text="Track artists")
+    primary_artist = models.ForeignKey(
+        "Artist", 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name="primary_tracks",
+        help_text="Primary artist for this track"
+    )
     
     # Metadata fetch tracking
     metadata_fetched_at = models.DateTimeField(null=True, blank=True, help_text="When metadata was last fetched")
@@ -107,13 +180,144 @@ class Track(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=255)
-    uuid = models.CharField(max_length=255)
+    """
+    Hierarchical genre model that supports root/sub relationships from SoundCharts API
+    """
+    name = models.CharField(max_length=255, help_text="Genre name (e.g., 'alternative', 'electronic')")
+    slug = models.SlugField(max_length=255, unique=True, help_text="URL-friendly genre identifier")
+    uuid = models.CharField(max_length=255, blank=True, help_text="SoundCharts genre UUID if available")
+    
+    # Hierarchical relationships
+    parent = models.ForeignKey(
+        'self', 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        related_name='subgenres',
+        help_text="Parent genre (root genre). Null for root genres."
+    )
+    
+    # Genre metadata
+    level = models.IntegerField(default=0, help_text="Hierarchy level (0=root, 1=sub)")
+    description = models.TextField(blank=True, help_text="Optional genre description")
+    
+    # SoundCharts specific data
+    soundcharts_root = models.CharField(
+        max_length=255, 
+        blank=True, 
+        help_text="Original root genre name from SoundCharts API"
+    )
+    
+    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['level', 'name']
+        verbose_name = "Genre"
+        verbose_name_plural = "Genres"
+        indexes = [
+            models.Index(fields=['parent', 'level']),
+            models.Index(fields=['slug']),
+            models.Index(fields=['soundcharts_root']),
+        ]
+
     def __str__(self):
+        if self.parent:
+            return f"{self.parent.name} > {self.name}"
         return self.name
+    
+    @property
+    def full_path(self):
+        """Returns the full genre path (e.g., 'Electronic > House')"""
+        if self.parent:
+            return f"{self.parent.full_path} > {self.name}"
+        return self.name
+    
+    @property
+    def is_root(self):
+        """Returns True if this is a root genre"""
+        return self.parent is None
+    
+    @property
+    def is_subgenre(self):
+        """Returns True if this is a subgenre"""
+        return self.parent is not None
+    
+    def get_all_subgenres(self):
+        """Returns all subgenres recursively"""
+        subgenres = list(self.subgenres.all())
+        for subgenre in self.subgenres.all():
+            subgenres.extend(subgenre.get_all_subgenres())
+        return subgenres
+    
+    @classmethod
+    def get_root_genres(cls):
+        """Returns all root genres"""
+        return cls.objects.filter(parent__isnull=True)
+    
+    @classmethod
+    def create_from_soundcharts(cls, genre_data):
+        """
+        Creates or updates genre structure from SoundCharts API data
+        genre_data format: {"root": "electronic", "sub": ["house", "techno"]}
+        """
+        root_name = genre_data.get('root', '').strip()
+        sub_names = genre_data.get('sub', [])
+        
+        if not root_name:
+            return None
+        
+        # Create or get root genre
+        root_genre, created = cls.objects.get_or_create(
+            name=root_name,
+            parent__isnull=True,  # Ensure it's a root genre
+            defaults={
+                'slug': cls._generate_unique_slug(root_name),
+                'level': 0,
+                'soundcharts_root': root_name,
+            }
+        )
+        
+        # Create subgenres (filter out duplicates with root name)
+        subgenres = []
+        for sub_name in sub_names:
+            sub_name = sub_name.strip()
+            if sub_name and sub_name != root_name:  # Skip if same as root
+                sub_genre, created = cls.objects.get_or_create(
+                    name=sub_name,
+                    parent=root_genre,
+                    defaults={
+                        'slug': cls._generate_unique_slug(sub_name, parent=root_genre),
+                        'level': 1,
+                        'soundcharts_root': root_name,
+                    }
+                )
+                subgenres.append(sub_genre)
+        
+        return root_genre, subgenres
+    
+    @staticmethod
+    def _generate_slug(name):
+        """Generate a URL-friendly slug from genre name"""
+        import re
+        slug = re.sub(r'[^\w\s-]', '', name.lower())
+        slug = re.sub(r'[-\s]+', '-', slug)
+        return slug.strip('-')
+    
+    @classmethod
+    def _generate_unique_slug(cls, name, parent=None):
+        """Generate a unique slug for a genre, handling duplicates"""
+        base_slug = cls._generate_slug(name)
+        slug = base_slug
+        counter = 1
+        
+        # Check for existing slugs
+        while cls.objects.filter(slug=slug).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+        
+        return slug
 
 
 class Venue(models.Model):

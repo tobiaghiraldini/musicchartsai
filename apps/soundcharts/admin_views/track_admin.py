@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from django.utils import timezone
-from ..models import Track, MetadataFetchTask
+from ..models import Genre, Track, Artist, MetadataFetchTask
 from .soundcharts_admin_mixin import SoundchartsAdminMixin
 from ..tasks import fetch_track_metadata, fetch_all_tracks_metadata
 from ..service import SoundchartsService
@@ -24,12 +24,13 @@ class TrackAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
         "duration",
         "isrc",
         "label",
-        "genre",
+        "primary_artist",
+        "primary_genre",
         "metadata_fetched_at",
         "created_at",
         "updated_at",
     )
-    list_filter = ("created_at", "updated_at", "metadata_fetched_at", "genre", "label")
+    list_filter = ("created_at", "updated_at", "metadata_fetched_at", "primary_artist", "primary_genre", "label", "genres", "artists")
     search_fields = ("name", "uuid", "credit_name", "slug", "isrc")
     ordering = ("name",)
     readonly_fields = ("uuid", "metadata_fetched_at", "audience_fetched_at")
@@ -49,7 +50,10 @@ class TrackAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
                     "duration",
                     "isrc",
                     "label",
-                    "genre",
+                    "primary_artist",
+                    "artists",
+                    "primary_genre",
+                    "genres",
                 ),
                 "classes": ("collapse",),
             },
@@ -205,12 +209,93 @@ class TrackAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
                         if "label" in track_data and track_data["label"]:
                             obj.label = track_data["label"]["name"] if isinstance(track_data["label"], dict) else track_data["label"]
                         if "genres" in track_data and track_data["genres"]:
+                            # Process the genres array and create or find Genre objects and link them to the track
+                            # The genres data structure is like this:
+                            """
+                                "genres": [
+                                    {
+                                        "root": "alternative",
+                                        "sub": [
+                                        "alternative"
+                                        ]
+                                    },
+                                    {
+                                        "root": "electronic",
+                                        "sub": [
+                                        "electronic"
+                                        ]
+                                    },
+                                    {
+                                        "root": "rock",
+                                        "sub": [
+                                        "rock"
+                                        ]
+                                    }
+                                ],
+
+                            """
+
+                            # Clear existing genres and add new ones using hierarchical structure
+                            obj.genres.clear()
+                            
+                            track_genres = []
+                            primary_genre = None
+                            
                             if isinstance(track_data["genres"], list) and len(track_data["genres"]) > 0:
-                                genre = track_data["genres"][0]
-                                if isinstance(genre, dict) and "name" in genre:
-                                    obj.genre = genre["name"]
-                                elif isinstance(genre, str):
-                                    obj.genre = genre
+                                for genre_data in track_data["genres"]:
+                                    if isinstance(genre_data, dict) and "root" in genre_data:
+                                        # Create or update genre structure from SoundCharts data
+                                        result = Genre.create_from_soundcharts(genre_data)
+                                        if result:
+                                            root_genre, subgenres = result
+                                            track_genres.append(root_genre)
+                                            track_genres.extend(subgenres)
+                                            
+                                            # Set the first root genre as primary
+                                            if primary_genre is None:
+                                                primary_genre = root_genre
+                            
+                            if track_genres:
+                                obj.genres.set(track_genres)
+                                obj.primary_genre = primary_genre
+
+                        # Process artists array and create or find Artist objects and link them to the track
+                        if "artists" in track_data and track_data["artists"]:
+                            # The artists data structure is like this:
+                            """
+                                "artists": [
+                                    {
+                                        "uuid": "11e81bcc-9c1c-ce38-b96b-a0369fe50396",
+                                        "slug": "billie-eilish",
+                                        "name": "Billie Eilish",
+                                        "appUrl": "https://app.soundcharts.com/app/artist/billie-eilish/overview",
+                                        "imageUrl": "https://assets.soundcharts.com/artist/c/1/c/11e81bcc-9c1c-ce38-b96b-a0369fe50396.jpg"
+                                    }
+                                ]
+                            """
+                            
+                            # Clear existing artists and add new ones
+                            obj.artists.clear()
+                            
+                            track_artists = []
+                            primary_artist = None
+                            
+                            if isinstance(track_data["artists"], list) and len(track_data["artists"]) > 0:
+                                for artist_data in track_data["artists"]:
+                                    if isinstance(artist_data, dict) and "uuid" in artist_data and "name" in artist_data:
+                                        # Create or update artist from SoundCharts data
+                                        artist = Artist.create_from_soundcharts(artist_data)
+                                        if artist:
+                                            track_artists.append(artist)
+                                            
+                                            # Set the first artist as primary
+                                            if primary_artist is None:
+                                                primary_artist = artist
+                            
+                            if track_artists:
+                                obj.artists.set(track_artists)
+                                obj.primary_artist = primary_artist
+
                         
                         obj.metadata_fetched_at = timezone.now()
                         obj.save()
