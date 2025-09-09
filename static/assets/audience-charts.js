@@ -20,19 +20,19 @@ class AudienceChartsManager {
 
     bindEvents() {
         // Date range filter
-        document.getElementById('date-range').addEventListener('change', (e) => {
+        document.getElementById('date-range')?.addEventListener('change', (e) => {
             this.currentFilters.dateRange = parseInt(e.target.value);
             this.updateAllCharts();
         });
 
         // Platform filter
-        document.getElementById('platform-filter').addEventListener('change', (e) => {
+        document.getElementById('platform-filter')?.addEventListener('change', (e) => {
             this.currentFilters.platform = e.target.value;
             this.filterTracks();
         });
 
         // Refresh data button
-        document.getElementById('refresh-data').addEventListener('click', () => {
+        document.getElementById('refresh-data')?.addEventListener('click', () => {
             this.refreshAllData();
         });
 

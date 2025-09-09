@@ -111,19 +111,19 @@
                         <ul id="dropdown-dashboard" class="py-2 space-y-2 block">
                             <li>
                                 <a href="{% url 'charts_list' %}"
-                                    class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {% if 'dynamic_dt' in segment %} bg-gray-100 dark:bg-gray-700 {% endif %}">Music Charts</a>
+                                    class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {% if 'charts' in segment %} bg-gray-100 dark:bg-gray-700 {% endif %}">Music Charts</a>
                             </li>
                             <li>
                                 <a href="{% url 'soundcharts:audience_dashboard' %}"
-                                    class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {% if 'audience' in segment %} bg-gray-100 dark:bg-gray-700 {% endif %}">Audience Analytics</a>
+                                    class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {% if 'dashboard' in segment %} bg-gray-100 dark:bg-gray-700 {% endif %}">Audience Analytics</a>
                             </li>
                             <li>
                                 <a href="{% url 'soundcharts:top_artists' %}"
-                                    class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {% if 'dynamic_api' in segment %} bg-gray-100 dark:bg-gray-700 {% endif %}">Top Artists</a>
+                                    class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {% if 'artists' in segment %} bg-gray-100 dark:bg-gray-700 {% endif %}">Top Artists</a>
                             </li>
                             <li>
                                 <a href="{% url 'soundcharts:top_songs' %}"
-                                    class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {% if 'charts' in segment %} bg-gray-100 dark:bg-gray-700 {% endif %}">Top Songs</a>
+                                    class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {% if 'songs' in segment %} bg-gray-100 dark:bg-gray-700 {% endif %}">Top Songs</a>
                             </li>
                             <li>
                                 <a href="{% url 'tasks' %}"
