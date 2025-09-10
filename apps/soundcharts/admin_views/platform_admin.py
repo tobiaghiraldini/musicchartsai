@@ -45,7 +45,14 @@ class PlatformChartsInline(admin.TabularInline):
 
 
 class PlatformAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
-    list_display = ("name", "slug", "get_charts_count", "created_at", "updated_at")
+    list_display = (
+        "name",
+        "platform_type",
+        "audience_metric_name",
+        "get_charts_count",
+        "created_at",
+        "updated_at",
+    )
     list_filter = ("created_at", "updated_at")
     search_fields = ("name", "slug")
     ordering = ("name",)
@@ -67,7 +74,7 @@ class PlatformAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
         ),
     )
     
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at", "platform_type", "audience_metric_name", "slug")
     
     def get_charts_count(self, obj):
         """Display the count of charts for this platform"""

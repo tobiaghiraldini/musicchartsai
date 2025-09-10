@@ -63,7 +63,7 @@ INTERNAL_IPS = [
 
 INSTALLED_APPS = [
     "jazzmin",
-    "django.contrib.admin",
+    "config.admin_apps.AdminConfig",  # Custom admin with ordering
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
