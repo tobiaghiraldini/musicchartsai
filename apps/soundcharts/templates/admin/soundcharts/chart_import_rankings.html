@@ -1,9 +1,12 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls static admin_modify %}
 
-{% block extrahead %}{{ block.super }}
+{% block extrahead %}
+{{ block.super }}
 <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
 {{ media }}
+<link rel="stylesheet" type="text/css" href="{% static "assets/admin-import.css" %}">
+<script src="{% static "assets/admin-import.js" %}"></script>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -17,316 +20,93 @@
 {% endblock %}
 
 {% block content %}
-<div id="content-main">
-    <div class="module">
-        <div class="description">
-            <h2>{% trans 'Import Song Rankings for' %} {{ chart.name }}</h2>
-            <p>{% trans 'Fetch song rankings from the Soundcharts API for this chart.' %}</p>
-        </div>
+<div class="module">
+    <div class="description">
+        <h2>{% trans 'Import Song Rankings for' %} {{ chart.name }}</h2>
+        <p>{% trans 'Fetch song rankings from the Soundcharts API for this chart.' %}</p>
+    </div>
 
-        <div class="form-row">
-            <div class="field-box">
-                <label for="chart_name">{% trans 'Chart Name' %}:</label>
-                <input type="text" id="chart_name" value="{{ chart.name }}" readonly class="vTextField" style="background-color: #f8f9fa;">
-                <p class="help">{% trans 'The name of the chart to import rankings for' %}</p>
-            </div>
-            
-            <div class="field-box">
-                <label for="platform_name">{% trans 'Platform' %}:</label>
-                <input type="text" id="platform_name" value="{{ chart.platform.name|default:'Unknown' }}" readonly class="vTextField" style="background-color: #f8f9fa;">
-                <p class="help">{% trans 'The platform this chart belongs to' %}</p>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="field-box">
-                <label for="chart_slug">{% trans 'Chart Slug' %}:</label>
-                <input type="text" id="chart_slug" value="{{ chart.slug }}" readonly class="vTextField" style="background-color: #f8f9fa;">
-                <p class="help">{% trans 'The unique identifier used by the Soundcharts API' %}</p>
-            </div>
-            
-            <div class="field-box">
-                <label for="ranking_date">{% trans 'Ranking Date (Optional)' %}:</label>
-                <input type="datetime-local" id="ranking_date" class="vTextField">
-                <p class="help">{% trans 'Select a specific date for rankings. Leave empty to fetch the latest rankings.' %}</p>
-            </div>
+    <div class="form-row">
+        <div class="field-box">
+            <label for="chart_name">{% trans 'Chart Name' %}:</label>
+            <input type="text" id="chart_name" value="{{ chart.name }}" readonly class="vTextField" style="background-color: #f8f9fa;">
+            <p class="help">{% trans 'The name of the chart to import rankings for' %}</p>
         </div>
         
+        <div class="field-box">
+            <label for="platform_name">{% trans 'Platform' %}:</label>
+            <input type="text" id="platform_name" value="{{ chart.platform.name|default:'Unknown' }}" readonly class="vTextField" style="background-color: #f8f9fa;">
+            <p class="help">{% trans 'The platform this chart belongs to' %}</p>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="field-box">
+            <label for="chart_slug">{% trans 'Chart Slug' %}:</label>
+            <input type="text" id="chart_slug" value="{{ chart.slug }}" readonly class="vTextField" style="background-color: #f8f9fa;">
+            <p class="help">{% trans 'The unique identifier used by the Soundcharts API' %}</p>
+        </div>
+        
+        <div class="field-box">
+            <label for="ranking_date">{% trans 'Ranking Date (Optional)' %}:</label>
+            <input type="datetime-local" id="ranking_date" class="vTextField">
+            <p class="help">{% trans 'Select a specific date for rankings. Leave empty to fetch the latest rankings.' %}</p>
+        </div>
+    </div>
+    
+    <div class="submit-row">
+        <input type="button" value="{% trans 'Fetch Rankings from API' %}" class="default" onclick="fetchRankings()">
+        <input type="button" value="{% trans 'Clear Results' %}" onclick="clearResults()">
+    </div>
+</div>
+
+<div class="loading" id="loading" style="display: none;">
+    <div class="module">
+        <p>{% trans 'Fetching rankings from API...' %}</p>
+    </div>
+</div>
+
+<div class="results-container" id="results-container" style="display: none;">
+    <div class="module">
+        <h2>{% trans 'API Results' %}</h2>
+        
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="total-entries">0</div>
+                <div class="stat-label">{% trans 'Total Entries' %}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="ranking-date">-</div>
+                <div class="stat-label">{% trans 'Ranking Date' %}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="status">-</div>
+                <div class="stat-label">{% trans 'Status' %}</div>
+            </div>
+        </div>
+
         <div class="submit-row">
-            <input type="button" value="{% trans 'Fetch Rankings from API' %}" class="default" onclick="fetchRankings()">
-            <input type="button" value="{% trans 'Clear Results' %}" onclick="clearResults()">
+            <input type="button" value="{% trans 'Store Rankings in Database' %}" class="default" onclick="storeRankings()" id="store-btn">
+            <input type="button" value="{% trans 'View Preview' %}" onclick="togglePreview()" id="preview-btn">
         </div>
-    </div>
-
-    <div class="loading" id="loading" style="display: none;">
-        <div class="module">
-            <p>{% trans 'Fetching rankings from API...' %}</p>
-        </div>
-    </div>
-
-    <div id="alert-container"></div>
-
-    <div class="results-container" id="results-container" style="display: none;">
-        <div class="module">
-            <h2>{% trans 'API Results' %}</h2>
-            
-            <div class="stats" id="stats" style="margin-bottom: 20px;">
-                <div class="stat-item" style="display: inline-block; margin-right: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
-                    <div class="stat-number" id="total-entries" style="font-size: 24px; font-weight: bold; color: #007cba;">0</div>
-                    <div class="stat-label" style="font-size: 12px; color: #6c757d;">{% trans 'Total Entries' %}</div>
-                </div>
-                <div class="stat-item" style="display: inline-block; margin-right: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
-                    <div class="stat-number" id="ranking-date" style="font-size: 24px; font-weight: bold; color: #28a745;">-</div>
-                    <div class="stat-label" style="font-size: 12px; color: #6c757d;">{% trans 'Ranking Date' %}</div>
-                </div>
-                <div class="stat-item" style="display: inline-block; margin-right: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
-                    <div class="stat-number" id="status" style="font-size: 24px; font-weight: bold; color: #ffc107;">-</div>
-                    <div class="stat-label" style="font-size: 12px; color: #6c757d;">{% trans 'Status' %}</div>
-                </div>
-            </div>
-
-            <div class="submit-row" style="margin-bottom: 20px;">
-                <input type="button" value="{% trans 'Store Rankings in Database' %}" class="default" onclick="storeRankings()" id="store-btn">
-                <input type="button" value="{% trans 'View Preview' %}" onclick="togglePreview()" id="preview-btn">
-            </div>
-            
-            <div id="preview-container" style="display: none;">
-                <h3>{% trans 'Rankings Preview' %}</h3>
-                <table class="results-table" id="results-table" style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd; background: #f8f9fa; font-weight: bold;">{% trans 'Position' %}</th>
-                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd; background: #f8f9fa; font-weight: bold;">{% trans 'Track Name' %}</th>
-                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd; background: #f8f9fa; font-weight: bold;">{% trans 'Artist' %}</th>
-                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd; background: #f8f9fa; font-weight: bold;">{% trans 'Weeks on Chart' %}</th>
-                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd; background: #f8f9fa; font-weight: bold;">{% trans 'Position Change' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody id="results-tbody">
-                    </tbody>
-                </table>
-            </div>
+        
+        <div id="preview-container" style="display: none;">
+            <h3>{% trans 'Rankings Preview' %}</h3>
+            <table class="results-table" id="results-table">
+                <thead>
+                    <tr>
+                        <th>{% trans 'Position' %}</th>
+                        <th>{% trans 'Track Name' %}</th>
+                        <th>{% trans 'Artist' %}</th>
+                        <th>{% trans 'Weeks on Chart' %}</th>
+                        <th>{% trans 'Position Change' %}</th>
+                    </tr>
+                </thead>
+                <tbody id="results-tbody">
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<script>
-let currentRankingsData = null;
-
-function showAlert(message, type = 'info') {
-    const container = document.getElementById('alert-container');
-    const alertClass = type === 'error' ? 'errornote' : type === 'success' ? 'successnote' : 'infonote';
-    container.innerHTML = `<p class="${alertClass}">${message}</p>`;
-    setTimeout(() => {
-        container.innerHTML = '';
-    }, 5000);
-}
-
-function showLoading(show = true) {
-    const loading = document.getElementById('loading');
-    if (show) {
-        loading.style.display = 'block';
-    } else {
-        loading.style.display = 'none';
-    }
-}
-
-function fetchRankings() {
-    const rankingDate = document.getElementById('ranking_date').value;
-    
-    showLoading(true);
-    
-    const data = {};
-    if (rankingDate) {
-        data.ranking_date = rankingDate;
-    }
-    
-    fetch('{% url "admin:soundcharts_chart_fetch_rankings" chart.id %}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        showLoading(false);
-        if (data.error) {
-            showAlert(data.error, 'error');
-        } else {
-            currentRankingsData = data.data;
-            displayResults();
-        }
-    })
-    .catch(error => {
-        showLoading(false);
-        showAlert('Error fetching rankings: ' + error.message, 'error');
-    });
-}
-
-function displayResults() {
-    if (!currentRankingsData) {
-        showAlert('No rankings data available', 'error');
-        return;
-    }
-    
-    const container = document.getElementById('results-container');
-    const totalEntries = document.getElementById('total-entries');
-    const rankingDate = document.getElementById('ranking-date');
-    const status = document.getElementById('status');
-    const storeBtn = document.getElementById('store-btn');
-    
-    totalEntries.textContent = currentRankingsData.total_entries;
-    
-    // Format the ranking date
-    const date = new Date(currentRankingsData.ranking_date);
-    rankingDate.textContent = date.toLocaleDateString();
-    
-    // Set status
-    if (currentRankingsData.already_exists) {
-        status.textContent = 'Already exists';
-        status.style.color = '#28a745';
-        storeBtn.disabled = true;
-        storeBtn.value = 'Ranking Already Exists';
-    } else {
-        status.textContent = 'New';
-        status.style.color = '#007cba';
-        storeBtn.disabled = false;
-        storeBtn.value = 'Store Rankings in Database';
-    }
-    
-    container.style.display = 'block';
-}
-
-function togglePreview() {
-    const previewContainer = document.getElementById('preview-container');
-    const previewBtn = document.getElementById('preview-btn');
-    
-    if (previewContainer.style.display === 'none') {
-        showPreview();
-        previewBtn.value = '{% trans "Hide Preview" %}';
-    } else {
-        previewContainer.style.display = 'none';
-        previewBtn.value = '{% trans "View Preview" %}';
-    }
-}
-
-function showPreview() {
-    if (!currentRankingsData || !currentRankingsData.items) {
-        showAlert('No rankings data available for preview', 'error');
-        return;
-    }
-    
-    const tbody = document.getElementById('results-tbody');
-    const previewContainer = document.getElementById('preview-container');
-    
-    tbody.innerHTML = '';
-    
-    // Show top 20 entries for preview
-    const itemsToShow = currentRankingsData.items.slice(0, 20);
-    
-    itemsToShow.forEach((item, index) => {
-        const row = document.createElement('tr');
-        const songData = item.song || {};
-        
-        row.innerHTML = `
-            <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${item.position || 'N/A'}</td>
-            <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${songData.name || 'Unknown'}</td>
-            <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${songData.creditName || 'Unknown Artist'}</td>
-            <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">${item.timeOnChart || 'N/A'}</td>
-            <td style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">
-                ${formatPositionChange(item.positionEvolution)}
-            </td>
-        `;
-        
-        tbody.appendChild(row);
-    });
-    
-    if (currentRankingsData.items.length > 20) {
-        const moreRow = document.createElement('tr');
-        moreRow.innerHTML = `
-            <td colspan="5" style="padding: 12px; text-align: center; font-style: italic; color: #6c757d;">
-                ... and ${currentRankingsData.items.length - 20} more entries
-            </td>
-        `;
-        tbody.appendChild(moreRow);
-    }
-    
-    previewContainer.style.display = 'block';
-}
-
-function formatPositionChange(change) {
-    if (change === null || change === undefined) {
-        return '🆕 New';
-    } else if (change === 0) {
-        return '→ No change';
-    } else if (change > 0) {
-        return `↑ +${change}`;
-    } else {
-        return `↓ ${Math.abs(change)}`;
-    }
-}
-
-function storeRankings() {
-    if (!currentRankingsData) {
-        showAlert('No rankings data available to store', 'error');
-        return;
-    }
-    
-    if (currentRankingsData.already_exists) {
-        showAlert('These rankings already exist in the database', 'error');
-        return;
-    }
-    
-    showLoading(true);
-    
-    const data = {
-        ranking_date: currentRankingsData.ranking_date,
-        items: currentRankingsData.items
-    };
-    
-    fetch('{% url "admin:soundcharts_chart_store_rankings" chart.id %}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        showLoading(false);
-        if (data.success) {
-            showAlert(data.message, 'success');
-            // Update the status to show it's now stored
-            const status = document.getElementById('status');
-            status.textContent = 'Stored';
-            status.style.color = '#28a745';
-            
-            const storeBtn = document.getElementById('store-btn');
-            storeBtn.disabled = true;
-            storeBtn.value = 'Rankings Stored Successfully';
-            
-            // Update the current data to reflect it's now stored
-            currentRankingsData.already_exists = true;
-            currentRankingsData.existing_ranking_id = data.ranking_id;
-        } else {
-            showAlert(data.error, 'error');
-        }
-    })
-    .catch(error => {
-        showLoading(false);
-        showAlert('Error storing rankings: ' + error.message, 'error');
-    });
-}
-
-function clearResults() {
-    currentRankingsData = null;
-    document.getElementById('results-container').style.display = 'none';
-    document.getElementById('preview-container').style.display = 'none';
-    document.getElementById('alert-container').innerHTML = '';
-    document.getElementById('ranking_date').value = '';
-}
-</script>
 {% endblock %}

@@ -66,7 +66,7 @@ JAZZMIN_SETTINGS = {
     # Hide these models when generating side menu (e.g auth.user)
     "hide_models": [],
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
-    "order_with_respect_to": ["auth", "books", "books.author", "books.book"],
+    "order_with_respect_to": ["auth", "soundcharts", "charts", "users", "tasks", "acrcloud", "dyn_dt", "dyn_api", "pages"],
     # Custom links to append to app groups, keyed on app name
     "custom_links": {
         "books": [
@@ -84,6 +84,14 @@ JAZZMIN_SETTINGS = {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
+        "soundcharts": "fas fa-music",
+        "charts": "fas fa-chart-line",
+        "users": "fas fa-users",
+        "tasks": "fas fa-tasks",
+        "acrcloud": "fas fa-cloud",
+        "dyn_dt": "fas fa-table",
+        "dyn_api": "fas fa-code",
+        "pages": "fas fa-file-alt",
     },
     # Icons that are used when one is not manually specified
     "default_icon_parents": "fas fa-chevron-circle-right",
