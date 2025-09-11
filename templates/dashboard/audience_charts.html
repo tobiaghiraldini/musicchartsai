@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block content %}
+<!-- CSRF Token for AJAX requests -->
+<meta name="csrf-token" content="{{ csrf_token }}">
 
 <main>
   <div class="px-4 pt-6">

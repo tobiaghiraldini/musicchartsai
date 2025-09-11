@@ -99,18 +99,37 @@ class AudienceChartsManager {
             // Get platforms for this track
             const platforms = await this.getTrackPlatforms(trackUuid);
             
+            // Get CSRF token
+            const csrfToken = this.getCSRFToken();
+            console.log('CSRF Token length:', csrfToken.length);
+            console.log('CSRF Token preview:', csrfToken.substring(0, 10) + '...');
+            
+            if (!csrfToken) {
+                throw new Error('CSRF token not available');
+            }
+            
             // Refresh data for each platform
-            const refreshPromises = platforms.map(platform => 
-                fetch(`/soundcharts/audience/refresh/${trackUuid}/${platform.slug}/`, {
+            const refreshPromises = platforms.map(platform => {
+                const url = `/soundcharts/audience/refresh/${trackUuid}/${platform.slug}/`;
+                console.log('Refreshing data for:', url);
+                
+                return fetch(url, {
                     method: 'POST',
                     headers: {
-                        'X-CSRFToken': this.getCSRFToken(),
+                        'X-CSRFToken': csrfToken,
                         'Content-Type': 'application/json'
                     }
-                })
-            );
+                }).then(response => {
+                    console.log(`Response for ${platform.slug}:`, response.status, response.statusText);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response;
+                });
+            });
             
             await Promise.all(refreshPromises);
+            console.log('Successfully refreshed data for track:', trackUuid);
             
         } catch (error) {
             console.error(`Error refreshing data for track ${trackUuid}:`, error);
@@ -529,8 +548,21 @@ class AudienceChartsManager {
     }
 
     getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
-               document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        // Try to get CSRF token from form input first
+        const formToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        if (formToken && formToken.length > 0) {
+            return formToken;
+        }
+        
+        // Try to get CSRF token from meta tag
+        const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (metaToken && metaToken.length > 0) {
+            return metaToken;
+        }
+        
+        // If no token found, log error and return empty string
+        console.error('CSRF token not found. Make sure the template includes a CSRF token.');
+        return '';
     }
 
     showLoading() {
