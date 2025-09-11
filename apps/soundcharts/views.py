@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from .models import Track, Platform, TrackAudienceTimeSeries
+from .models import Track, Platform, TrackAudienceTimeSeries, ChartRankingEntry
 from .audience_processor import AudienceDataProcessor
 import json
 import logging
@@ -384,3 +384,73 @@ class TracksWithAudienceView(View):
                 'success': False,
                 'error': 'Internal server error'
             }, status=500)
+
+
+@method_decorator(login_required, name='dispatch')
+class SongAudienceDetailView(View):
+    """
+    View for displaying detailed audience analytics for a specific song
+    """
+    
+    def get(self, request, track_uuid):
+        """
+        Display detailed audience analytics for a specific track
+        """
+        try:
+            # Get the track
+            track = get_object_or_404(Track, uuid=track_uuid)
+            
+            # Get platforms that have audience data for this track
+            platforms = Platform.objects.filter(
+                audience_timeseries__track=track
+            ).distinct().order_by('name')
+            
+            # Get latest audience data for each platform
+            platforms_data = []
+            for platform in platforms:
+                latest_audience = TrackAudienceTimeSeries.objects.filter(
+                    track=track,
+                    platform=platform
+                ).order_by('-date').first()
+                
+                platforms_data.append({
+                    'platform': platform,
+                    'latest_audience': latest_audience,
+                    'data_points': TrackAudienceTimeSeries.objects.filter(
+                        track=track,
+                        platform=platform
+                    ).count()
+                })
+            
+            # Get recent chart rankings for this track
+            recent_rankings = ChartRankingEntry.objects.filter(
+                track=track
+            ).select_related('ranking__chart').order_by('-ranking__ranking_date')[:10]
+            
+            # Get related tracks (same artist or similar genres)
+            related_tracks = []
+            if track.primary_artist:
+                related_tracks = Track.objects.filter(
+                    primary_artist=track.primary_artist
+                ).exclude(uuid=track.uuid)[:5]
+            elif track.artists.exists():
+                related_tracks = Track.objects.filter(
+                    artists__in=track.artists.all()
+                ).exclude(uuid=track.uuid).distinct()[:5]
+            
+            context = {
+                'track': track,
+                'platforms_data': platforms_data,
+                'recent_rankings': recent_rankings,
+                'related_tracks': related_tracks,
+                'segment': 'charts',
+            }
+            
+            return render(request, 'soundcharts/song_audience_detail.html', context)
+            
+        except Exception as e:
+            logger.error(f"Error in SongAudienceDetailView: {e}")
+            return render(request, 'soundcharts/song_audience_detail.html', {
+                'error': 'Failed to load song details',
+                'segment': 'charts',
+            })

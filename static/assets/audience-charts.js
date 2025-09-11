@@ -1,5 +1,8 @@
 import ApexCharts from 'apexcharts';
 
+// Expose ApexCharts globally for other scripts to use
+window.ApexCharts = ApexCharts;
+
 // Audience Charts Manager - handles audience analytics dashboard
 class AudienceChartsManager {
     constructor() {
@@ -595,5 +598,11 @@ class AudienceChartsManager {
 
 // Initialize the audience charts manager when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if audience charts are disabled for this page
+    if (window.AUDIENCE_CHARTS_DISABLED) {
+        console.log('Audience charts disabled for this page');
+        return;
+    }
+    
     new AudienceChartsManager();
 });

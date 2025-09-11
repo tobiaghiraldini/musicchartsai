@@ -7,7 +7,8 @@ from .views import (
     TracksWithAudienceView,
     PlatformListView,
     TopArtistsView,
-    TopSongsView
+    TopSongsView,
+    SongAudienceDetailView
 )
 
 app_name = 'soundcharts'
@@ -31,4 +32,7 @@ urlpatterns = [
     # Legacy endpoint for backward compatibility
     path('audience/chart-data/<str:track_uuid>/', audience_chart_data, name='audience_chart_data_legacy'),
     path('audience/chart-data/<str:track_uuid>/<str:platform_slug>/', audience_chart_data, name='audience_chart_data_platform_legacy'),
+    
+    # Song detail page
+    path('songs/<str:track_uuid>/audience/', SongAudienceDetailView.as_view(), name='song_audience_detail'),
 ]
