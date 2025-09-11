@@ -42,13 +42,13 @@ class AdminConfig(DjangoAdminConfig):
             app_ordering = {
                 "Pages": 1,
                 "Users": 2,
-                "Charts": 3,
-                "Soundcharts": 4,
+                "Charts": 6,
+                "Soundcharts": 3,
                 "Tasks": 5,
-                "ACR Cloud": 6,
+                "ACR Cloud": 4,
                 "Dynamic DataTables": 7,
                 "Dynamic API": 8,
-                "Authentication and Authorization": 9,
+                "Authentication and Authorization": 1,
             }
             
             # Define custom ordering for models within each app
@@ -66,14 +66,14 @@ class AdminConfig(DjangoAdminConfig):
                 "Chart entries": 2,
                 
                 # Soundcharts app models
-                "Artists": 1,
-                "Tracks": 2,
-                "Albums": 3,
-                "Genres": 4,
-                "Platforms": 5,
-                "Charts": 6,
-                "Chart rankings": 7,
-                "Chart ranking entries": 8,
+                "Artists": 5,
+                "Tracks": 6,
+                "Albums": 7,
+                "Genres": 8,
+                "Platforms": 1,
+                "Charts": 2,
+                "Chart rankings": 3,
+                "Chart ranking entries": 4,
                 "Venues": 9,
                 "Metadata fetch tasks": 10,
                 
