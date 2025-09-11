@@ -61,9 +61,9 @@ class AdminConfig(DjangoAdminConfig):
                 "Users": 1,
                 "User profiles": 2,
                 
-                # Charts app models
-                "Charts": 1,
-                "Chart entries": 2,
+                # # Charts app models
+                # "Charts": 1,
+                # "Chart entries": 2,
                 
                 # Soundcharts app models
                 "Artists": 5,
