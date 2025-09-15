@@ -1,17 +1,17 @@
 {% extends "admin/change_form.html" %}
 {% load i18n admin_urls static %}
 
-{% block submit_buttons_bottom %}
+{% block extra_actions %}
   {% if show_fetch_metadata_button %}
-    <div class="submit-row">
-      <input type="submit" value="{% trans 'Fetch Metadata from API' %}" name="_fetch_metadata" style="background: var(--button-bg);">
+
+    <div class="form-group mt-2">
+      <input type="submit" value="{% trans 'Fetch Metadata from API' %}" name="_fetch_metadata" class="btn btn-info w-100">
     </div>
   {% endif %}
   
   {% if show_fetch_audience_button %}
-    <div class="submit-row">
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-        <label for="platform_select">Platform:</label>
+      <div class="form-group flex-row gap-2 mb-2">
+        <label for="platform_select">Platform:
         <select name="platform" id="platform_select" style="padding: 5px;">
           <option value="spotify">Spotify</option>
           {% for slug, name in available_platforms %}
@@ -20,12 +20,12 @@
             {% endif %}
           {% endfor %}
         </select>
+        </label>
         <label style="margin-left: 15px;">
           <input type="checkbox" name="force_refresh" style="margin-right: 5px;"> Force refresh existing data
         </label>
       </div>
-      <input type="submit" value="{% trans 'Fetch Audience Data from API' %}" name="_fetch_audience" style="background: var(--button-bg);">
-    </div>
+      <input type="submit" value="{% trans 'Fetch Audience Data from API' %}" name="_fetch_audience" class="btn btn-info w-100">
   {% endif %}
   
   {{ block.super }}

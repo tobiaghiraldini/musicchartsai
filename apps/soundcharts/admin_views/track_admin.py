@@ -128,6 +128,35 @@ class TrackAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
     
     create_bulk_metadata_task.short_description = "Create bulk metadata fetch task"
 
+    def create_bulk_audience_task(self, request, queryset):
+        """Create a bulk audience fetch task for selected tracks"""
+        if queryset.count() == 0:
+            messages.warning(request, "No tracks selected")
+            return
+        
+        try:
+            track_uuids = list(queryset.values_list('uuid', flat=True))
+            
+            # Create the task record
+            task = MetadataFetchTask.objects.create(
+                task_type='bulk_audience',
+                status='pending',
+                track_uuids=track_uuids,
+                total_tracks=len(track_uuids)
+            )
+            
+            # Start the bulk fetch task
+            from ..tasks import fetch_bulk_audience_data
+            fetch_bulk_audience_data.delay(task.id)
+            
+            messages.success(request, f"Created bulk audience fetch task for {len(track_uuids)} tracks. Task ID: {task.id}")
+            
+        except Exception as e:
+            messages.error(request, f"Error creating bulk audience task: {str(e)}")
+            logger.error(f"Error creating bulk audience task: {e}")
+    
+    create_bulk_audience_task.short_description = "Create bulk audience fetch task"
+
     def response_change(self, request, obj):
         """Handle custom actions in change form"""
         # Note: The actual import actions are now handled via AJAX in the JavaScript

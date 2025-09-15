@@ -42,29 +42,30 @@ class AdminConfig(DjangoAdminConfig):
             app_ordering = {
                 "Pages": 1,
                 "Users": 2,
+                "Tasks": 3,
+                "Soundcharts": 5,
+                "ACR Cloud": 5,
                 "Charts": 6,
-                "Soundcharts": 3,
-                "Tasks": 5,
-                "ACR Cloud": 4,
                 "Dynamic DataTables": 7,
                 "Dynamic API": 8,
                 "Authentication and Authorization": 1,
+                "Celery Results": 3,
+                "Auth Token": 4,
             }
             
             # Define custom ordering for models within each app
             model_ordering = {
                 # Pages app models
-                "Products": 1,
                 "Pages": 2,
-                
                 # Users app models
+                "Groups": 1,
                 "Users": 1,
                 "User profiles": 2,
-                
+                # Tasks app models
+                "Tasks": 3,
                 # # Charts app models
                 # "Charts": 1,
                 # "Chart entries": 2,
-                
                 # Soundcharts app models
                 "Artists": 5,
                 "Tracks": 6,
@@ -76,26 +77,19 @@ class AdminConfig(DjangoAdminConfig):
                 "Chart ranking entries": 4,
                 "Venues": 9,
                 "Metadata fetch tasks": 10,
-                
-                # Tasks app models
-                "Tasks": 1,
                 "Task results": 2,
-                
                 # ACR Cloud app models
                 "ACR Cloud": 1,
                 "ACR Cloud results": 2,
-                
                 # Dynamic DataTables app models
                 "Dynamic DataTables": 1,
                 "Dynamic DataTable entries": 2,
-                
                 # Dynamic API app models
                 "Dynamic API": 1,
                 "Dynamic API endpoints": 2,
-                
                 # Django built-in models
-                "Groups": 1,
-                "Users": 2,
+                # "Groups": 1,
+                # "Users": 2,
                 "Content types": 3,
                 "Sessions": 4,
                 "Sites": 5,

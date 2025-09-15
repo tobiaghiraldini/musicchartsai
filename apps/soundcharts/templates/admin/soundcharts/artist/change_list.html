@@ -3,11 +3,10 @@
 
 {% block object-tools-items %}
     {% if show_import_button %}
-    <li>
-        <a href="{{ import_url }}" class="addlink">
+
+        <a href="{{ import_url }}" class="addlink btn btn-info">
             {% trans 'Import from API' %}
         </a>
-    </li>
     {% endif %}
     {{ block.super }}
 {% endblock %}
