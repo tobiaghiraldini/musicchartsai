@@ -1,5 +1,5 @@
 {% extends "admin/change_list.html" %}
-{% load i18n admin_urls %}
+{% load i18n admin_urls static %}
 
 {% block object-tools-items %}
   {% if show_bulk_metadata_button %}
@@ -19,13 +19,15 @@
 
 {% block extrahead %}
 {{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "assets/admin-import.css" %}">
+<script src="{% static "assets/track-admin-alerts.js" %}"></script>
 <script>
 function createBulkMetadataTask() {
     if (confirm('{% trans "This will create a background task to fetch metadata for all tracks that need it. Continue?" %}')) {
         // Get all track UUIDs from the current page
         const checkboxes = document.querySelectorAll('input[name="_selected_action"]:checked');
         if (checkboxes.length === 0) {
-            alert('{% trans "Please select at least one track to fetch metadata for." %}');
+            showTrackAlert('{% trans "Please select at least one track to fetch metadata for." %}', 'warning');
             return;
         }
         

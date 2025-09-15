@@ -1,15 +1,16 @@
 from django.contrib import admin
 from django.contrib import messages
-from django.utils.html import format_html
-from django.urls import reverse
-from django.shortcuts import redirect
-from django.http import HttpResponseRedirect
+from django.urls import path
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from ..models import Genre, Track, Artist, MetadataFetchTask
 from .soundcharts_admin_mixin import SoundchartsAdminMixin
-from ..tasks import fetch_track_metadata, fetch_all_tracks_metadata
+from ..tasks import fetch_track_metadata
 from ..service import SoundchartsService
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -129,193 +130,8 @@ class TrackAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
 
     def response_change(self, request, obj):
         """Handle custom actions in change form"""
-        if "_fetch_audience" in request.POST:
-            # Handle single track audience fetch
-            if obj.uuid:
-                try:
-                    from ..audience_processor import AudienceDataProcessor
-                    processor = AudienceDataProcessor()
-                    
-                    # Get platform from POST data or default to spotify
-                    platform = request.POST.get('platform', 'spotify')
-                    force_refresh = 'force_refresh' in request.POST
-                    
-                    result = processor.process_and_store_audience_data(
-                        obj.uuid, 
-                        platform, 
-                        force_refresh
-                    )
-                    
-                    if result['success']:
-                        obj.audience_fetched_at = timezone.now()
-                        obj.save()
-                        
-                        messages.success(
-                            request, 
-                            f"Successfully fetched audience data for '{obj.name}' on {platform}: "
-                            f"{result['records_created']} created, {result['records_updated']} updated"
-                        )
-                        logger.info(f"Successfully fetched audience data for track {obj.uuid} on {platform}")
-                    else:
-                        messages.error(
-                            request, 
-                            f"Failed to fetch audience data for '{obj.name}' on {platform}: {result['error']}"
-                        )
-                        logger.error(f"Failed to fetch audience data for track {obj.uuid} on {platform}: {result['error']}")
-                        
-                except Exception as e:
-                    messages.error(request, f"Error fetching audience data: {str(e)}")
-                    logger.error(f"Error fetching audience data for track {obj.uuid}: {e}")
-            else:
-                messages.error(request, "Track has no UUID - cannot fetch audience data")
-            
-            # Redirect to prevent form resubmission
-            return HttpResponseRedirect(request.get_full_path())
-        
-        elif "_fetch_metadata" in request.POST:
-            # Handle single track metadata fetch
-            if obj.uuid:
-                try:
-                    # Fetch metadata synchronously for immediate feedback
-                    service = SoundchartsService()
-                    metadata = service.get_song_metadata_enhanced(obj.uuid)
-                    logger.info(f"Metadata: {metadata}")
-                    if metadata and "object" in metadata:
-                        track_data = metadata["object"]
-                        
-                        # Update track with metadata
-                        if "name" in track_data:
-                            obj.name = track_data["name"]
-                        if "slug" in track_data:
-                            obj.slug = track_data["slug"]
-                        if "creditName" in track_data:
-                            obj.credit_name = track_data["creditName"]
-                        if "imageUrl" in track_data:
-                            obj.image_url = track_data["imageUrl"]
-                        
-                        # Update enhanced metadata fields
-                        if "releaseDate" in track_data and track_data["releaseDate"]:
-                            try:
-                                from datetime import datetime
-                                release_date = datetime.strptime(track_data["releaseDate"], "%Y-%m-%d").date()
-                                obj.release_date = release_date
-                            except (ValueError, TypeError):
-                                pass
-                        
-                        if "duration" in track_data:
-                            obj.duration = track_data["duration"]
-                        if "isrc" in track_data:
-                            obj.isrc = track_data["isrc"]
-                        if "label" in track_data and track_data["label"]:
-                            obj.label = track_data["label"]["name"] if isinstance(track_data["label"], dict) else track_data["label"]
-                        if "genres" in track_data and track_data["genres"]:
-                            # Process the genres array and create or find Genre objects and link them to the track
-                            # The genres data structure is like this:
-                            """
-                                "genres": [
-                                    {
-                                        "root": "alternative",
-                                        "sub": [
-                                        "alternative"
-                                        ]
-                                    },
-                                    {
-                                        "root": "electronic",
-                                        "sub": [
-                                        "electronic"
-                                        ]
-                                    },
-                                    {
-                                        "root": "rock",
-                                        "sub": [
-                                        "rock"
-                                        ]
-                                    }
-                                ],
-
-                            """
-
-                            # Clear existing genres and add new ones using hierarchical structure
-                            obj.genres.clear()
-                            
-                            track_genres = []
-                            primary_genre = None
-                            
-                            if isinstance(track_data["genres"], list) and len(track_data["genres"]) > 0:
-                                for genre_data in track_data["genres"]:
-                                    if isinstance(genre_data, dict) and "root" in genre_data:
-                                        # Create or update genre structure from SoundCharts data
-                                        result = Genre.create_from_soundcharts(genre_data)
-                                        if result:
-                                            root_genre, subgenres = result
-                                            track_genres.append(root_genre)
-                                            track_genres.extend(subgenres)
-                                            
-                                            # Set the first root genre as primary
-                                            if primary_genre is None:
-                                                primary_genre = root_genre
-                            
-                            if track_genres:
-                                obj.genres.set(track_genres)
-                                obj.primary_genre = primary_genre
-
-                        # Process artists array and create or find Artist objects and link them to the track
-                        if "artists" in track_data and track_data["artists"]:
-                            # The artists data structure is like this:
-                            """
-                                "artists": [
-                                    {
-                                        "uuid": "11e81bcc-9c1c-ce38-b96b-a0369fe50396",
-                                        "slug": "billie-eilish",
-                                        "name": "Billie Eilish",
-                                        "appUrl": "https://app.soundcharts.com/app/artist/billie-eilish/overview",
-                                        "imageUrl": "https://assets.soundcharts.com/artist/c/1/c/11e81bcc-9c1c-ce38-b96b-a0369fe50396.jpg"
-                                    }
-                                ]
-                            """
-                            
-                            # Clear existing artists and add new ones
-                            obj.artists.clear()
-                            
-                            track_artists = []
-                            primary_artist = None
-                            
-                            if isinstance(track_data["artists"], list) and len(track_data["artists"]) > 0:
-                                for artist_data in track_data["artists"]:
-                                    if isinstance(artist_data, dict) and "uuid" in artist_data and "name" in artist_data:
-                                        # Create or update artist from SoundCharts data
-                                        artist = Artist.create_from_soundcharts(artist_data)
-                                        if artist:
-                                            track_artists.append(artist)
-                                            
-                                            # Set the first artist as primary
-                                            if primary_artist is None:
-                                                primary_artist = artist
-                            
-                            if track_artists:
-                                obj.artists.set(track_artists)
-                                obj.primary_artist = primary_artist
-
-                        
-                        obj.metadata_fetched_at = timezone.now()
-                        obj.save()
-                        
-                        messages.success(
-                            request, 
-                            f"Successfully fetched and updated metadata for '{obj.name}'"
-                        )
-                        logger.info(f"Successfully fetched metadata for track {obj.uuid}")
-                    else:
-                        messages.error(request, f"Failed to fetch metadata for '{obj.name}'")
-                        logger.error(f"Failed to fetch metadata for track {obj.uuid}")
-                        
-                except Exception as e:
-                    messages.error(request, f"Error fetching metadata: {str(e)}")
-                    logger.error(f"Error fetching metadata for track {obj.uuid}: {e}")
-            
-            # Redirect to prevent form resubmission
-            return HttpResponseRedirect(request.get_full_path())
-        
+        # Note: The actual import actions are now handled via AJAX in the JavaScript
+        # This method is kept for backward compatibility but the buttons now use AJAX
         return super().response_change(request, obj)
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
@@ -335,3 +151,237 @@ class TrackAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
         extra_context = extra_context or {}
         extra_context["show_bulk_metadata_button"] = True
         return super().changelist_view(request, extra_context)
+
+    def get_urls(self):
+        """Add custom URLs for track admin actions"""
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<int:object_id>/fetch-metadata/",
+                self.admin_site.admin_view(self.fetch_metadata_api),
+                name="soundcharts_track_fetch_metadata",
+            ),
+            path(
+                "<int:object_id>/fetch-audience/",
+                self.admin_site.admin_view(self.fetch_audience_api),
+                name="soundcharts_track_fetch_audience",
+            ),
+            path(
+                "bulk-fetch-metadata/",
+                self.admin_site.admin_view(self.bulk_fetch_metadata_api),
+                name="soundcharts_track_bulk_fetch_metadata",
+            ),
+        ]
+        return custom_urls + urls
+
+    @csrf_exempt
+    def fetch_metadata_api(self, request, object_id):
+        """API endpoint to fetch metadata for a single track"""
+        if request.method != "POST":
+            return JsonResponse({"error": "Method not allowed"}, status=405)
+
+        try:
+            track = get_object_or_404(Track, id=object_id)
+            
+            if not track.uuid:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Track has no UUID - cannot fetch metadata"
+                })
+
+            # Fetch metadata synchronously for immediate feedback
+            service = SoundchartsService()
+            metadata = service.get_song_metadata_enhanced(track.uuid)
+            
+            if metadata and "object" in metadata:
+                track_data = metadata["object"]
+                
+                # Update track with metadata
+                if "name" in track_data:
+                    track.name = track_data["name"]
+                if "slug" in track_data:
+                    track.slug = track_data["slug"]
+                if "creditName" in track_data:
+                    track.credit_name = track_data["creditName"]
+                if "imageUrl" in track_data:
+                    track.image_url = track_data["imageUrl"]
+                
+                # Update enhanced metadata fields
+                if "releaseDate" in track_data and track_data["releaseDate"]:
+                    try:
+                        from datetime import datetime
+                        release_date = datetime.strptime(track_data["releaseDate"], "%Y-%m-%d").date()
+                        track.release_date = release_date
+                    except (ValueError, TypeError):
+                        pass
+                
+                if "duration" in track_data:
+                    track.duration = track_data["duration"]
+                if "isrc" in track_data:
+                    track.isrc = track_data["isrc"]
+                if "label" in track_data and track_data["label"]:
+                    track.label = track_data["label"]["name"] if isinstance(track_data["label"], dict) else track_data["label"]
+                
+                # Process genres
+                if "genres" in track_data and track_data["genres"]:
+                    track.genres.clear()
+                    track_genres = []
+                    primary_genre = None
+                    
+                    if isinstance(track_data["genres"], list) and len(track_data["genres"]) > 0:
+                        for genre_data in track_data["genres"]:
+                            if isinstance(genre_data, dict) and "root" in genre_data:
+                                result = Genre.create_from_soundcharts(genre_data)
+                                if result:
+                                    root_genre, subgenres = result
+                                    track_genres.append(root_genre)
+                                    track_genres.extend(subgenres)
+                                    
+                                    if primary_genre is None:
+                                        primary_genre = root_genre
+                    
+                    if track_genres:
+                        track.genres.set(track_genres)
+                        track.primary_genre = primary_genre
+
+                # Process artists
+                if "artists" in track_data and track_data["artists"]:
+                    track.artists.clear()
+                    track_artists = []
+                    primary_artist = None
+                    
+                    if isinstance(track_data["artists"], list) and len(track_data["artists"]) > 0:
+                        for artist_data in track_data["artists"]:
+                            if isinstance(artist_data, dict) and "uuid" in artist_data and "name" in artist_data:
+                                artist = Artist.create_from_soundcharts(artist_data)
+                                if artist:
+                                    track_artists.append(artist)
+                                    
+                                    if primary_artist is None:
+                                        primary_artist = artist
+                    
+                    if track_artists:
+                        track.artists.set(track_artists)
+                        track.primary_artist = primary_artist
+
+                track.metadata_fetched_at = timezone.now()
+                track.save()
+                
+                logger.info(f"Successfully fetched metadata for track {track.uuid}")
+                return JsonResponse({
+                    "success": True,
+                    "message": f"Successfully fetched and updated metadata for '{track.name}'"
+                })
+            else:
+                return JsonResponse({
+                    "success": False,
+                    "error": f"Failed to fetch metadata for '{track.name}'"
+                })
+                
+        except Exception as e:
+            logger.error(f"Error fetching metadata for track {object_id}: {e}")
+            return JsonResponse({
+                "success": False,
+                "error": f"Error fetching metadata: {str(e)}"
+            }, status=500)
+
+    @csrf_exempt
+    def fetch_audience_api(self, request, object_id):
+        """API endpoint to fetch audience data for a single track"""
+        if request.method != "POST":
+            return JsonResponse({"error": "Method not allowed"}, status=405)
+
+        try:
+            track = get_object_or_404(Track, id=object_id)
+            data = json.loads(request.body)
+            platform = data.get('platform', 'spotify')
+            force_refresh = data.get('force_refresh', False)
+            
+            if not track.uuid:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Track has no UUID - cannot fetch audience data"
+                })
+
+            from ..audience_processor import AudienceDataProcessor
+            processor = AudienceDataProcessor()
+            
+            result = processor.process_and_store_audience_data(
+                track.uuid, 
+                platform, 
+                force_refresh
+            )
+            
+            if result['success']:
+                track.audience_fetched_at = timezone.now()
+                track.save()
+                
+                logger.info(f"Successfully fetched audience data for track {track.uuid} on {platform}")
+                return JsonResponse({
+                    "success": True,
+                    "message": f"Successfully fetched audience data for '{track.name}' on {platform}: "
+                              f"{result['records_created']} created, {result['records_updated']} updated"
+                })
+            else:
+                return JsonResponse({
+                    "success": False,
+                    "error": f"Failed to fetch audience data for '{track.name}' on {platform}: {result['error']}"
+                })
+                
+        except Exception as e:
+            logger.error(f"Error fetching audience data for track {object_id}: {e}")
+            return JsonResponse({
+                "success": False,
+                "error": f"Error fetching audience data: {str(e)}"
+            }, status=500)
+
+    @csrf_exempt
+    def bulk_fetch_metadata_api(self, request):
+        """API endpoint to start bulk metadata fetch for selected tracks"""
+        if request.method != "POST":
+            return JsonResponse({"error": "Method not allowed"}, status=405)
+
+        try:
+            data = json.loads(request.body)
+            track_ids = data.get('track_ids', [])
+            
+            if not track_ids:
+                return JsonResponse({
+                    "success": False,
+                    "error": "No track IDs provided"
+                })
+
+            # Get the actual track UUIDs from the track IDs
+            tracks = Track.objects.filter(id__in=track_ids).values_list('uuid', flat=True)
+            track_uuids = [uuid for uuid in tracks if uuid]  # Filter out None values
+            
+            if not track_uuids:
+                return JsonResponse({
+                    "success": False,
+                    "error": "No valid track UUIDs found for the selected tracks"
+                })
+
+            # Create the task record
+            task = MetadataFetchTask.objects.create(
+                task_type='bulk_metadata',
+                status='pending',
+                track_uuids=track_uuids,
+                total_tracks=len(track_uuids)
+            )
+            
+            # Start the bulk fetch task
+            from ..tasks import fetch_bulk_track_metadata
+            fetch_bulk_track_metadata.delay(task.id)
+            
+            logger.info(f"Created bulk metadata fetch task for {len(track_uuids)} tracks. Task ID: {task.id}")
+            return JsonResponse({
+                "success": True,
+                "message": f"Created bulk metadata fetch task for {len(track_uuids)} tracks. Task ID: {task.id}"
+            })
+            
+        except Exception as e:
+            logger.error(f"Error creating bulk metadata task: {e}")
+            return JsonResponse({
+                "success": False,
+                "error": f"Error creating bulk metadata task: {str(e)}"
+            }, status=500)
