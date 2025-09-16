@@ -6,6 +6,7 @@ from datetime import timedelta
 import json
 from apps.soundcharts.models import ChartRanking, Chart, Track, Platform, ChartRankingEntry
 
+@login_required(login_url='/users/signin/')
 def index(request):
     # Get current date and week ranges
     now = timezone.now()
@@ -154,6 +155,11 @@ def starter(request):
 
   context = {}
   return render(request, "pages/starter.html", context)
+
+@login_required(login_url='/users/signin/')
+def docs(request):
+    context = {}
+    return render(request, "pages/docs.html", context)
 
 @login_required(login_url='/users/signin/')
 def charts_list(request):

@@ -17,13 +17,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://musicchartsai.it/app.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://musicchartsai.it/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://musicchartsai.it/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="https://musicchartsai.it/favicon-16x16.png">
-    <link rel="icon" type="image/png" href="https://musicchartsai.it/favicon.ico">
-    {% comment %} <link rel="manifest" href="https://musicchartsai.it/site.webmanifest"> {% endcomment %}
-    <link rel="mask-icon" href="https://musicchartsai.it/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="stylesheet" href="{% static 'dist/main.css' %}">
+    {% block extrastyle %}{% endblock extrastyle %}
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.ico' %}">
+    {% comment %} <link rel="manifest" href="{% static 'images/site.webmanifest' %}"> {% endcomment %}
+    <link rel="mask-icon" href="{% static 'images/safari-pinned-tab.svg' %}" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="theme-color" content="#ffffff">
     <!-- Twitter -->
@@ -60,7 +61,7 @@
 
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="{% static 'dist/main.bundle.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.2/datepicker.min.js"></script>
+    {% block extra_js %}{% endblock extra_js %}
     
   </body>
 </html>
