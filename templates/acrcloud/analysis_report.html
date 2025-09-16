@@ -1,0 +1,314 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Analysis Report - {{ analysis.song.title|default:analysis.song.original_filename }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Analysis Report
+                        </h4>
+                        <small class="text-muted">{{ analysis.song.title|default:analysis.song.original_filename }} - {{ analysis.song.artist|default:"Unknown Artist" }}</small>
+                    </div>
+                    <div>
+                        <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Song
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            {% if report %}
+                <!-- Risk Assessment Overview -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h6 class="text-muted mb-2">Risk Level</h6>
+                                {% if report.risk_level == 'low' %}
+                                    <span class="badge bg-success fs-4">{{ report.get_risk_level_display }}</span>
+                                {% elif report.risk_level == 'medium' %}
+                                    <span class="badge bg-warning fs-4">{{ report.get_risk_level_display }}</span>
+                                {% elif report.risk_level == 'high' %}
+                                    <span class="badge bg-danger fs-4">{{ report.get_risk_level_display }}</span>
+                                {% elif report.risk_level == 'critical' %}
+                                    <span class="badge bg-dark fs-4">{{ report.get_risk_level_display }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h6 class="text-muted mb-2">Match Type</h6>
+                                <span class="badge bg-info fs-4">{{ report.get_match_type_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h6 class="text-muted mb-2">Confidence</h6>
+                                {% if report.confidence_score %}
+                                    <h4 class="mb-0">{{ report.confidence_score|floatformat:1 }}%</h4>
+                                {% else %}
+                                    <h4 class="mb-0 text-muted">-</h4>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h6 class="text-muted mb-2">Fraud Detected</h6>
+                                {% if report.is_fraud_detected %}
+                                    <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                                    <div class="mt-1">YES</div>
+                                {% else %}
+                                    <i class="fas fa-check-circle fa-2x text-success"></i>
+                                    <div class="mt-1">NO</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Detailed Analysis Results -->
+                <div class="row">
+                    <!-- Fingerprint Analysis -->
+                    {% if report.fingerprint_matches %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-fingerprint me-2"></i>Fingerprint Analysis
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Score:</span>
+                                            <span class="fw-bold">{{ report.fingerprint_score|default:"N/A" }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Similarity:</span>
+                                            <span class="fw-bold">{{ report.fingerprint_similarity|default:"N/A" }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <h6>Matches Found:</h6>
+                                    {% for match in report.fingerprint_matches|slice:":5" %}
+                                        <div class="border rounded p-3 mb-2">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-1">{{ match.title|default:"Unknown Title" }}</h6>
+                                                    <small class="text-muted">{{ match.artists|join:", "|default:"Unknown Artist" }}</small>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="badge bg-primary">{{ match.score|default:"N/A" }}</span>
+                                                </div>
+                                            </div>
+                                            {% if match.album %}
+                                                <small class="text-muted">Album: {{ match.album }}</small>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Cover Detection -->
+                    {% if report.cover_matches %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-music me-2"></i>Cover Detection
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Score:</span>
+                                            <span class="fw-bold">{{ report.cover_score|default:"N/A" }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Similarity:</span>
+                                            <span class="fw-bold">{{ report.cover_similarity|default:"N/A" }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <h6>Cover Matches Found:</h6>
+                                    {% for match in report.cover_matches|slice:":5" %}
+                                        <div class="border rounded p-3 mb-2">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-1">{{ match.title|default:"Unknown Title" }}</h6>
+                                                    <small class="text-muted">{{ match.artists|join:", "|default:"Unknown Artist" }}</small>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="badge bg-warning">{{ match.score|default:"N/A" }}</span>
+                                                </div>
+                                            </div>
+                                            {% if match.album %}
+                                                <small class="text-muted">Album: {{ match.album }}</small>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Lyrics Analysis -->
+                    {% if report.lyrics_matches %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-file-text me-2"></i>Lyrics Analysis
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Similarity:</span>
+                                            <span class="fw-bold">{{ report.lyrics_similarity|default:"N/A" }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <h6>Lyrics Matches Found:</h6>
+                                    {% for match in report.lyrics_matches|slice:":5" %}
+                                        <div class="border rounded p-3 mb-2">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-1">{{ match.title|default:"Unknown Title" }}</h6>
+                                                    <small class="text-muted">{{ match.artists|join:", "|default:"Unknown Artist" }}</small>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="badge bg-info">{{ match.similarity|default:"N/A" }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Metadata -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-tags me-2"></i>Detected Metadata
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td><strong>Genre:</strong></td>
+                                        <td>{{ report.detected_genre|default:"Not detected" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Language:</strong></td>
+                                        <td>{{ report.detected_language|default:"Not detected" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ISRC Code:</strong></td>
+                                        <td>{{ report.isrc_code|default:"Not available" }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary and Recommendations -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-clipboard-list me-2"></i>Summary & Recommendations
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                {% if report.summary %}
+                                    <div class="mb-4">
+                                        <h6>Analysis Summary</h6>
+                                        <p class="text-muted">{{ report.summary }}</p>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if report.recommendations %}
+                                    <div class="mb-4">
+                                        <h6>Recommendations</h6>
+                                        <div class="alert alert-info">
+                                            <p class="mb-0">{{ report.recommendations }}</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Analysis Details -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Analysis Details</h6>
+                                        <table class="table table-sm table-borderless">
+                                            <tr>
+                                                <td><strong>Analysis ID:</strong></td>
+                                                <td><code>{{ analysis.id }}</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Analysis Type:</strong></td>
+                                                <td>{{ analysis.get_analysis_type_display }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>ACRCloud File ID:</strong></td>
+                                                <td><code>{{ analysis.acrcloud_file_id|default:"N/A" }}</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Completed:</strong></td>
+                                                <td>{{ analysis.completed_at|date:"M d, Y H:i"|default:"N/A" }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Actions</h6>
+                                        <div class="d-grid gap-2">
+                                            <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="btn btn-outline-primary">
+                                                <i class="fas fa-arrow-left me-2"></i>Back to Song Details
+                                            </a>
+                                            <a href="{% url 'acrcloud:view_audios' %}" class="btn btn-outline-secondary">
+                                                <i class="fas fa-list me-2"></i>View All Songs
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                        <h5>No Report Available</h5>
+                        <p class="text-muted">The analysis report is not available yet or there was an error generating it.</p>
+                        <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Song Details
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
