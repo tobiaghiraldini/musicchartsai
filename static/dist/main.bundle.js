@@ -196,6 +196,10 @@ class AudienceChartsManager {
 
     renderTracks() {
         const container = document.getElementById('tracks-container');
+        if (!container) {
+            return; // Exit early if container doesn't exist
+        }
+        
         container.innerHTML = '';
         
         const filteredTracks = this.filterTracks();
@@ -220,6 +224,12 @@ class AudienceChartsManager {
 
     createTrackCard(track) {
         const template = document.getElementById('track-card-template');
+        if (!template) {
+            // Return a simple div if template doesn't exist
+            const card = document.createElement('div');
+            card.textContent = `${track.name} - ${track.credit_name || 'Unknown Artist'}`;
+            return card;
+        }
         const card = template.content.cloneNode(true);
         
         // Set track information
@@ -270,6 +280,12 @@ class AudienceChartsManager {
 
     createPlatformChart(track, platform) {
         const template = document.getElementById('platform-chart-template');
+        if (!template) {
+            // Return a simple div if template doesn't exist
+            const chart = document.createElement('div');
+            chart.textContent = `${platform.name}: ${platform.metric_name || 'Listeners'}`;
+            return chart;
+        }
         const chart = template.content.cloneNode(true);
         
         // Set platform information
@@ -426,7 +442,12 @@ class AudienceChartsManager {
         }
 
         // Create new chart
-        const chart = new (apexcharts__WEBPACK_IMPORTED_MODULE_0___default())(document.getElementById(chartId), options);
+        const chartElement = document.getElementById(chartId);
+        if (!chartElement) {
+            console.warn(`Chart element with ID '${chartId}' not found`);
+            return;
+        }
+        const chart = new (apexcharts__WEBPACK_IMPORTED_MODULE_0___default())(chartElement, options);
         chart.render();
         this.charts.set(chartId, chart);
     }
@@ -511,7 +532,12 @@ class AudienceChartsManager {
         }
 
         // Create new chart
-        const chart = new (apexcharts__WEBPACK_IMPORTED_MODULE_0___default())(document.getElementById(chartId), options);
+        const chartElement = document.getElementById(chartId);
+        if (!chartElement) {
+            console.warn(`Chart element with ID '${chartId}' not found`);
+            return;
+        }
+        const chart = new (apexcharts__WEBPACK_IMPORTED_MODULE_0___default())(chartElement, options);
         chart.render();
         this.charts.set(chartId, chart);
     }
@@ -608,30 +634,47 @@ class AudienceChartsManager {
     }
 
     showLoading() {
-        document.getElementById('loading-state').classList.remove('hidden');
+        const loadingElement = document.getElementById('loading-state');
+        if (loadingElement) {
+            loadingElement.classList.remove('hidden');
+        }
     }
 
     hideLoading() {
-        document.getElementById('loading-state').classList.add('hidden');
+        const loadingElement = document.getElementById('loading-state');
+        if (loadingElement) {
+            loadingElement.classList.add('hidden');
+        }
     }
 
     showError(message) {
         const errorState = document.getElementById('error-state');
         const errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = message;
-        errorState.classList.remove('hidden');
+        if (errorState && errorMessage) {
+            errorMessage.textContent = message;
+            errorState.classList.remove('hidden');
+        }
     }
 
     hideError() {
-        document.getElementById('error-state').classList.add('hidden');
+        const errorElement = document.getElementById('error-state');
+        if (errorElement) {
+            errorElement.classList.add('hidden');
+        }
     }
 
     showEmptyState() {
-        document.getElementById('empty-state').classList.remove('hidden');
+        const emptyStateElement = document.getElementById('empty-state');
+        if (emptyStateElement) {
+            emptyStateElement.classList.remove('hidden');
+        }
     }
 
     hideEmptyState() {
-        document.getElementById('empty-state').classList.add('hidden');
+        const emptyStateElement = document.getElementById('empty-state');
+        if (emptyStateElement) {
+            emptyStateElement.classList.add('hidden');
+        }
     }
 }
 
