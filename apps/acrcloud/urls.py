@@ -2,11 +2,28 @@ from django.urls import path
 from .views import (
     UploadAudioView,
     ViewAudiosView,
+    SongDetailView,
+    AnalysisReportView,
+    FilePondUploadView,
+    RetryAnalysisView,
+    DeleteSongView,
+    AnalysisStatusView,
 )
 
 app_name = "acrcloud"
 
 urlpatterns = [
-    path("upload_audio/", UploadAudioView.as_view(), name="upload_audio"),
-    path("view_audios/", ViewAudiosView.as_view(), name="view_audios"),
+    # Main views
+    path("upload/", UploadAudioView.as_view(), name="upload_audio"),
+    path("songs/", ViewAudiosView.as_view(), name="view_audios"),
+    path("song/<uuid:song_id>/", SongDetailView.as_view(), name="song_detail"),
+    path("analysis/<uuid:analysis_id>/", AnalysisReportView.as_view(), name="analysis_report"),
+    
+    # API endpoints
+    path("api/upload/", FilePondUploadView.as_view(), name="filepond_upload"),
+    path("api/song/<uuid:song_id>/status/", AnalysisStatusView.as_view(), name="analysis_status"),
+    
+    # Actions
+    path("song/<uuid:song_id>/retry/", RetryAnalysisView.as_view(), name="retry_analysis"),
+    path("song/<uuid:song_id>/delete/", DeleteSongView.as_view(), name="delete_song"),
 ]
