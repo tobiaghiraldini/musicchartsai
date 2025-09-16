@@ -19,9 +19,8 @@ class SoundchartsService:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             data = response.json()
-            print(data)
 
-            logger.info(f"Platforms API response: {data}")
+            logger.debug(f"Platforms API response: {data}")
 
             # Handle different possible response structures
             if isinstance(data, list):
@@ -145,6 +144,23 @@ class SoundchartsService:
             logger.error(f"Unexpected error getting artist metadata: {e}")
             return None
 
+    def get_artist_audience_for_platform(self, uuid, platform="spotify", date='latest'):
+        url = f"{self.api_url}/api/v2/artist/{uuid}/audience/{platform}/report/{date}"
+        try:
+            headers = {"x-app-id": self.app_id, "x-api-key": self.api_key}
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Artist audience for platform API response: {data}")
+            return data
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error getting artist audience for platform: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error getting artist audience for platform: {e}")
+            return None
+
+
     def search_artists(self, q, limit=100, offset=0):
         # Try the search endpoint first as it's more reliable
         url = f"{self.api_url}/api/v2/artist/search/{q}"
@@ -182,9 +198,7 @@ class SoundchartsService:
             logger.error(f"Unexpected error getting artists: {e}")
             return self._get_sandbox_artists()
 
-    def get_charts(
-        self, platform_code="spotify", country_code="IT", offset=0, limit=100
-    ):
+    def get_charts(self, platform_code="spotify", country_code="IT", offset=0, limit=100):
         """
         Docs:
         """

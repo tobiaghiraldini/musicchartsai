@@ -42,7 +42,6 @@ class AdminConfig(DjangoAdminConfig):
             app_ordering = {
                 "Pages": 1,
                 "Users": 2,
-                "Tasks": 3,
                 "Soundcharts": 5,
                 "ACR Cloud": 5,
                 "Charts": 6,

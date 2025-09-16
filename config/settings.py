@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 from str2bool import str2bool
 from django.contrib import messages
 from config.jazzmin_settings import JAZZMIN_SETTINGS as JAZZMIN_SETTINGS_FILE
-load_dotenv()  # take environment variables from .env.
+load_dotenv(".env")  # take environment variables from .env.
 # load_dotenv(".env.local")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,7 +38,7 @@ SOUNDCHARTS_API_URL = os.getenv(
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY", "Super_Secr3t_9999")
+SECRET_KEY = os.environ.get("SECRET_KEY", "--django-secret-key--")
 
 # Enable/Disable DEBUG Mode
 DEBUG = str2bool(os.environ.get("DEBUG"))
@@ -248,8 +248,11 @@ REST_FRAMEWORK = {
 }
 ########################################
 
-# risky
-SESSION_COOKIE_HTTPONLY = False
+# HTTPS
+SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", False)
+SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", False)
+CSRF_COOKIE_SECURE = os.environ.get("CSRF_COOKIE_SECURE", False)
+SESSION_COOKIE_HTTPONLY = os.environ.get("SESSION_COOKIE_HTTPONLY", False)
 
 MESSAGE_TAGS = {
     messages.INFO: "text-blue-800 border border-blue-300 bg-blue-50 dark:text-blue-400 dark:border-blue-800",
