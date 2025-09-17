@@ -4,115 +4,169 @@
 {% block title %}Upload Song for Analysis{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">
-                        <i class="fas fa-upload me-2"></i>Upload Song for Analysis
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-8">
-                            <form method="post" enctype="multipart/form-data" id="songUploadForm">
-                                {% csrf_token %}
-                                
-                                <!-- FilePond Upload Area -->
-                                <div class="mb-4">
-                                    <label class="form-label">Audio File *</label>
-                                    <input type="file" 
-                                           class="filepond" 
-                                           name="audio_file" 
-                                           id="audioFile"
-                                           accept="audio/*"
-                                           required>
-                                    <div class="form-text">
-                                        Supported formats: MP3, WAV, M4A, FLAC, AAC (Max 50MB)
-                                    </div>
-                                </div>
-                                
-                                <!-- Song Information -->
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="{{ form.title.id_for_label }}" class="form-label">Song Title</label>
-                                            {{ form.title }}
-                                            {% if form.title.errors %}
-                                                <div class="text-danger">{{ form.title.errors }}</div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="{{ form.artist.id_for_label }}" class="form-label">Artist</label>
-                                            {{ form.artist }}
-                                            {% if form.artist.errors %}
-                                                <div class="text-danger">{{ form.artist.errors }}</div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Submit Button -->
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                                        <i class="fas fa-upload me-2"></i>Upload & Analyze
-                                    </button>
-                                    <a href="{% url 'acrcloud:view_audios' %}" class="btn btn-secondary">
-                                        <i class="fas fa-list me-2"></i>View My Songs
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
-                        
-                        <!-- Information Panel -->
-                        <div class="col-lg-4">
-                            <div class="card bg-light">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0">
-                                        <i class="fas fa-info-circle me-2"></i>Analysis Information
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <h6>What we analyze:</h6>
-                                    <ul class="list-unstyled">
-                                        <li><i class="fas fa-fingerprint text-primary me-2"></i>Audio Fingerprinting</li>
-                                        <li><i class="fas fa-music text-primary me-2"></i>Cover Detection</li>
-                                        <li><i class="fas fa-file-text text-primary me-2"></i>Lyrics Analysis</li>
-                                        <li><i class="fas fa-shield-alt text-primary me-2"></i>Fraud Detection</li>
-                                    </ul>
-                                    
-                                    <h6 class="mt-3">Analysis Process:</h6>
-                                    <ol class="small">
-                                        <li>Upload your audio file</li>
-                                        <li>System processes with ACRCloud</li>
-                                        <li>Generate detailed report</li>
-                                        <li>View results and recommendations</li>
-                                    </ol>
-                                    
-                                    <div class="alert alert-info mt-3">
-                                        <small>
-                                            <i class="fas fa-clock me-1"></i>
-                                            Analysis typically takes 1-3 minutes depending on file size.
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+<main>
+  <div class="px-4 pt-6">
+    <!-- Header Section -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Upload Song for Analysis</h1>
+      <p class="text-gray-600 dark:text-gray-400">Upload your audio file for comprehensive fraud detection and analysis</p>
     </div>
-</div>
+
+    <div class="grid gap-6 lg:grid-cols-3">
+      <!-- Upload Form -->
+      <div class="lg:col-span-2">
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+          <div class="mb-6">
+            <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Upload Audio File</h3>
+            <span class="text-base font-normal text-gray-500 dark:text-gray-400">Select your audio file and provide optional metadata</span>
+          </div>
+
+          <form method="post" enctype="multipart/form-data" id="songUploadForm">
+            {% csrf_token %}
+            
+            <!-- FilePond Upload Area -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Audio File <span class="text-red-500">*</span>
+              </label>
+              <input type="file" 
+                     class="filepond" 
+                     name="filepond" 
+                     id="audioFile"
+                     accept="audio/*"
+                     required>
+              <!-- Hidden field to store the uploaded file path -->
+              <input type="hidden" name="uploaded_file_path" id="uploadedFilePath">
+              <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Supported formats: MP3, WAV, M4A, FLAC, AAC (Max 50MB)
+              </p>
+            </div>
+            
+            <!-- Song Information -->
+            <div class="grid gap-4 md:grid-cols-2 mb-6">
+              <div>
+                <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Song Title
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                  <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.title.errors.0 }}</p>
+                {% endif %}
+              </div>
+              <div>
+                <label for="{{ form.artist.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Artist
+                </label>
+                {{ form.artist }}
+                {% if form.artist.errors %}
+                  <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.artist.errors.0 }}</p>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="flex items-center gap-3">
+              <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed" id="submitBtn" disabled>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                Upload & Analyze
+              </button>
+              <a href="{% url 'acrcloud:view_audios' %}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                </svg>
+                View My Songs
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Information Panel -->
+      <div class="lg:col-span-1">
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+          <div class="mb-6">
+            <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Analysis Information</h3>
+            <span class="text-base font-normal text-gray-500 dark:text-gray-400">What we analyze in your audio</span>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Analysis Types:</h4>
+              <ul class="space-y-2">
+                <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                  Audio Fingerprinting
+                </li>
+                <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                  Cover Detection
+                </li>
+                <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                  Lyrics Analysis
+                </li>
+                <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                  Fraud Detection
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Process Steps:</h4>
+              <ol class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <li class="flex items-start">
+                  <span class="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full flex items-center justify-center mr-2">1</span>
+                  Upload your audio file
+                </li>
+                <li class="flex items-start">
+                  <span class="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full flex items-center justify-center mr-2">2</span>
+                  System processes with ACRCloud
+                </li>
+                <li class="flex items-start">
+                  <span class="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full flex items-center justify-center mr-2">3</span>
+                  Generate detailed report
+                </li>
+                <li class="flex items-start">
+                  <span class="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full flex items-center justify-center mr-2">4</span>
+                  View results and recommendations
+                </li>
+              </ol>
+            </div>
+            
+            <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div class="flex items-start">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                <div>
+                  <p class="text-sm font-medium text-blue-800 dark:text-blue-200">Processing Time</p>
+                  <p class="text-xs text-blue-700 dark:text-blue-300">Analysis typically takes 1-3 minutes depending on file size.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
 {% endblock %}
 
 {% block extra_js %}
 <!-- FilePond CSS -->
 <link href="https://unpkg.com/filepond/dist/filepond.min.css" rel="stylesheet">
-<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 
 <!-- FilePond JS -->
 <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
@@ -121,25 +175,57 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if FilePond is available
+    if (typeof FilePond === 'undefined') {
+        console.error('FilePond is not loaded');
+        return;
+    }
+    
     // Register FilePond plugins
-    FilePond.registerPlugin(FilePondPluginFileValidateType);
-    FilePond.registerPlugin(FilePondPluginFileValidateSize);
+    if (typeof FilePondPluginFileValidateType !== 'undefined') {
+        FilePond.registerPlugin(FilePondPluginFileValidateType);
+    }
+    if (typeof FilePondPluginFileValidateSize !== 'undefined') {
+        FilePond.registerPlugin(FilePondPluginFileValidateSize);
+    }
     
     // Create FilePond instance
     const pond = FilePond.create(document.querySelector('#audioFile'), {
         server: {
-            url: '{% url "acrcloud:filepond_upload" %}',
             process: {
-                url: './',
+                url: '{% url "acrcloud:filepond_upload" %}',
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}'
+                },
+                onload: (response) => {
+                    console.log('Upload successful:', response);
+                    try {
+                        const result = JSON.parse(response);
+                        const fileId = result.file_id || response;
+                        // Store the uploaded file path in hidden field
+                        document.getElementById('uploadedFilePath').value = fileId;
+                        console.log('File path stored:', fileId);
+                        return fileId;
+                    } catch (e) {
+                        return response;
+                    }
+                },
+                onerror: (response) => {
+                    console.error('Upload error:', response);
+                    try {
+                        const error = JSON.parse(response);
+                        alert('Upload failed: ' + (error.error || 'Unknown error'));
+                    } catch (e) {
+                        alert('Upload failed: ' + response);
+                    }
+                    return response;
                 }
             },
-            revert: './',
-            restore: './',
-            load: './',
-            fetch: './'
+            revert: {
+                url: '{% url "acrcloud:filepond_upload" %}',
+                method: 'DELETE'
+            }
         },
         acceptedFileTypes: ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/flac', 'audio/aac'],
         maxFileSize: '50MB',
@@ -166,15 +252,79 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle form submission
     document.getElementById('songUploadForm').addEventListener('submit', function(e) {
+        const uploadedFilePath = document.getElementById('uploadedFilePath').value;
+        
+        if (!uploadedFilePath) {
+            e.preventDefault();
+            alert('Please upload an audio file first.');
+            return false;
+        }
+        
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+        submitBtn.innerHTML = '<svg class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Creating song and starting analysis...';
+        
+        console.log('Submitting form with uploaded file:', uploadedFilePath);
     });
     
     // Handle FilePond errors
     pond.on('error', (error) => {
         console.error('FilePond error:', error);
-        alert('Upload error: ' + error.main);
+        // Show a more user-friendly error message
+        let errorMessage = 'Upload failed';
+        if (error && typeof error === 'object') {
+            if (error.main) errorMessage = error.main;
+            else if (error.message) errorMessage = error.message;
+            else if (error.body) errorMessage = error.body;
+            else if (error.error) errorMessage = error.error;
+        } else if (typeof error === 'string') {
+            errorMessage = error;
+        }
+        alert('Upload error: ' + errorMessage);
+    });
+    
+    // Handle FilePond warnings
+    pond.on('warning', (warning) => {
+        console.warn('FilePond warning:', warning);
+    });
+    
+    // Handle when files are added
+    pond.on('addfile', (error, file) => {
+        if (error) {
+            console.error('Error adding file:', error);
+            return;
+        }
+        console.log('File added:', file.filename);
+    });
+    
+    // Handle when files are processed
+    pond.on('processfile', (error, file) => {
+        if (error) {
+            console.error('Error processing file:', error);
+            return;
+        }
+        console.log('File processed successfully:', file.filename);
+        // Enable the submit button once file is processed
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+        }
+    });
+    
+    // Handle when files are removed
+    pond.on('removefile', (error, file) => {
+        if (error) {
+            console.error('Error removing file:', error);
+            return;
+        }
+        console.log('File removed:', file.filename);
+        // Clear the hidden field
+        document.getElementById('uploadedFilePath').value = '';
+        // Disable submit button
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+        }
     });
 });
 </script>

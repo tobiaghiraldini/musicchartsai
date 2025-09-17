@@ -196,6 +196,11 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+# File upload settings for ACRCloud
+FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50MB
+FILE_UPLOAD_PERMISSIONS = 0o644
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -273,6 +278,17 @@ DYNAMIC_DATATB = {
 DYNAMIC_API = {
     # SLUG -> Import_PATH
     "product": "apps.pages.models.Product",
+    "artist": "apps.soundcharts.models.Artist",
+    "track": "apps.soundcharts.models.Track",
+    "album": "apps.soundcharts.models.Album",
+    "genre": "apps.soundcharts.models.Genre",
+    "platform": "apps.soundcharts.models.Platform",
+    "chart": "apps.soundcharts.models.Chart",
+    "chart_ranking": "apps.soundcharts.models.ChartRanking",
+    "chart_ranking_entry": "apps.soundcharts.models.ChartRankingEntry",
+    "venue": "apps.soundcharts.models.Venue",
+    "metadata_fetch_task": "apps.soundcharts.models.MetadataFetchTask",
+    "task_result": "apps.soundcharts.models.TaskResult",
 }
 ########################################
 

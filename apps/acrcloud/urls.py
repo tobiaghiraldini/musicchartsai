@@ -8,6 +8,7 @@ from .views import (
     RetryAnalysisView,
     DeleteSongView,
     AnalysisStatusView,
+    TestUploadView,
 )
 
 app_name = "acrcloud"
@@ -21,6 +22,7 @@ urlpatterns = [
     
     # API endpoints
     path("api/upload/", FilePondUploadView.as_view(), name="filepond_upload"),
+    path("api/test-upload/", TestUploadView.as_view(), name="test_upload"),
     path("api/song/<uuid:song_id>/status/", AnalysisStatusView.as_view(), name="analysis_status"),
     
     # Actions

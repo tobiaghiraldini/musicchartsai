@@ -13,15 +13,15 @@ class SongUploadForm(forms.ModelForm):
         fields = ['title', 'artist', 'audio_file']
         widgets = {
             'title': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'text-sm border border-gray-300 rounded-lg px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white',
                 'placeholder': 'Enter song title (optional)'
             }),
             'artist': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'text-sm border border-gray-300 rounded-lg px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white',
                 'placeholder': 'Enter artist name (optional)'
             }),
             'audio_file': forms.FileInput(attrs={
-                'class': 'form-control',
+                'class': 'text-sm border border-gray-300 rounded-lg px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white',
                 'accept': 'audio/*'
             })
         }

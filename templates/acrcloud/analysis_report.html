@@ -4,311 +4,314 @@
 {% block title %}Analysis Report - {{ analysis.song.title|default:analysis.song.original_filename }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <!-- Header -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="card-title mb-0">
-                            <i class="fas fa-chart-line me-2"></i>Analysis Report
-                        </h4>
-                        <small class="text-muted">{{ analysis.song.title|default:analysis.song.original_filename }} - {{ analysis.song.artist|default:"Unknown Artist" }}</small>
-                    </div>
-                    <div>
-                        <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Song
-                        </a>
-                    </div>
-                </div>
+
+<main>
+  <div class="px-4 pt-6">
+    <!-- Header Section -->
+    <div class="mb-6">
+      <div class="flex items-center mb-4">
+        <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white mr-4">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Song
+        </a>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Analysis Report</h1>
+      </div>
+      <p class="text-gray-600 dark:text-gray-400">{{ analysis.song.title|default:analysis.song.original_filename }} - {{ analysis.song.artist|default:"Unknown Artist" }}</p>
+    </div>
+    
+    {% if report %}
+      <!-- Risk Assessment Overview -->
+      <div class="grid gap-4 md:grid-cols-4 mb-6">
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 text-center">
+          <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Risk Level</h6>
+          {% if report.risk_level == 'low' %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+              {{ report.get_risk_level_display }}
+            </span>
+          {% elif report.risk_level == 'medium' %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+              {{ report.get_risk_level_display }}
+            </span>
+          {% elif report.risk_level == 'high' %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+              {{ report.get_risk_level_display }}
+            </span>
+          {% elif report.risk_level == 'critical' %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+              {{ report.get_risk_level_display }}
+            </span>
+          {% endif %}
+        </div>
+        
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 text-center">
+          <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Match Type</h6>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+            {{ report.get_match_type_display }}
+          </span>
+        </div>
+        
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 text-center">
+          <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Confidence</h6>
+          {% if report.confidence_score %}
+            <h4 class="text-2xl font-bold text-gray-900 dark:text-white">{{ report.confidence_score|floatformat:1 }}%</h4>
+          {% else %}
+            <h4 class="text-2xl font-bold text-gray-400 dark:text-gray-500">-</h4>
+          {% endif %}
+        </div>
+        
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 text-center">
+          <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Fraud Detected</h6>
+          {% if report.is_fraud_detected %}
+            <div class="flex flex-col items-center">
+              <svg class="w-8 h-8 text-red-600 dark:text-red-400 mb-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-sm font-semibold text-red-600 dark:text-red-400">YES</span>
+            </div>
+          {% else %}
+            <div class="flex flex-col items-center">
+              <svg class="w-8 h-8 text-green-600 dark:text-green-400 mb-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-sm font-semibold text-green-600 dark:text-green-400">NO</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Detailed Analysis Results -->
+      <div class="grid gap-6 lg:grid-cols-2">
+        <!-- Fingerprint Analysis -->
+        {% if report.fingerprint_matches %}
+          <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="mb-6">
+              <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Fingerprint Analysis</h3>
+              <span class="text-base font-normal text-gray-500 dark:text-gray-400">Audio fingerprint matching results</span>
             </div>
             
-            {% if report %}
-                <!-- Risk Assessment Overview -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h6 class="text-muted mb-2">Risk Level</h6>
-                                {% if report.risk_level == 'low' %}
-                                    <span class="badge bg-success fs-4">{{ report.get_risk_level_display }}</span>
-                                {% elif report.risk_level == 'medium' %}
-                                    <span class="badge bg-warning fs-4">{{ report.get_risk_level_display }}</span>
-                                {% elif report.risk_level == 'high' %}
-                                    <span class="badge bg-danger fs-4">{{ report.get_risk_level_display }}</span>
-                                {% elif report.risk_level == 'critical' %}
-                                    <span class="badge bg-dark fs-4">{{ report.get_risk_level_display }}</span>
-                                {% endif %}
-                            </div>
-                        </div>
+            <div class="mb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Score:</span>
+                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ report.fingerprint_score|default:"N/A" }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Similarity:</span>
+                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ report.fingerprint_similarity|default:"N/A" }}</span>
+              </div>
+            </div>
+            
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Matches Found:</h4>
+            <div class="space-y-3">
+              {% for match in report.fingerprint_matches|slice:":5" %}
+                <div class="p-3 border border-gray-200 dark:border-gray-600 rounded-lg">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <h5 class="text-sm font-semibold text-gray-900 dark:text-white">{{ match.title|default:"Unknown Title" }}</h5>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">{{ match.artists|join:", "|default:"Unknown Artist" }}</p>
+                      {% if match.album %}
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Album: {{ match.album }}</p>
+                      {% endif %}
                     </div>
-                    <div class="col-md-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h6 class="text-muted mb-2">Match Type</h6>
-                                <span class="badge bg-info fs-4">{{ report.get_match_type_display }}</span>
-                            </div>
-                        </div>
+                    <div class="ml-3">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        {{ match.score|default:"N/A" }}
+                      </span>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h6 class="text-muted mb-2">Confidence</h6>
-                                {% if report.confidence_score %}
-                                    <h4 class="mb-0">{{ report.confidence_score|floatformat:1 }}%</h4>
-                                {% else %}
-                                    <h4 class="mb-0 text-muted">-</h4>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h6 class="text-muted mb-2">Fraud Detected</h6>
-                                {% if report.is_fraud_detected %}
-                                    <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
-                                    <div class="mt-1">YES</div>
-                                {% else %}
-                                    <i class="fas fa-check-circle fa-2x text-success"></i>
-                                    <div class="mt-1">NO</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
+                  </div>
                 </div>
-                
-                <!-- Detailed Analysis Results -->
-                <div class="row">
-                    <!-- Fingerprint Analysis -->
-                    {% if report.fingerprint_matches %}
-                        <div class="col-lg-6 mb-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0">
-                                        <i class="fas fa-fingerprint me-2"></i>Fingerprint Analysis
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <div class="d-flex justify-content-between">
-                                            <span>Score:</span>
-                                            <span class="fw-bold">{{ report.fingerprint_score|default:"N/A" }}</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span>Similarity:</span>
-                                            <span class="fw-bold">{{ report.fingerprint_similarity|default:"N/A" }}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <h6>Matches Found:</h6>
-                                    {% for match in report.fingerprint_matches|slice:":5" %}
-                                        <div class="border rounded p-3 mb-2">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <h6 class="mb-1">{{ match.title|default:"Unknown Title" }}</h6>
-                                                    <small class="text-muted">{{ match.artists|join:", "|default:"Unknown Artist" }}</small>
-                                                </div>
-                                                <div class="text-end">
-                                                    <span class="badge bg-primary">{{ match.score|default:"N/A" }}</span>
-                                                </div>
-                                            </div>
-                                            {% if match.album %}
-                                                <small class="text-muted">Album: {{ match.album }}</small>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-                    
-                    <!-- Cover Detection -->
-                    {% if report.cover_matches %}
-                        <div class="col-lg-6 mb-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0">
-                                        <i class="fas fa-music me-2"></i>Cover Detection
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <div class="d-flex justify-content-between">
-                                            <span>Score:</span>
-                                            <span class="fw-bold">{{ report.cover_score|default:"N/A" }}</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span>Similarity:</span>
-                                            <span class="fw-bold">{{ report.cover_similarity|default:"N/A" }}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <h6>Cover Matches Found:</h6>
-                                    {% for match in report.cover_matches|slice:":5" %}
-                                        <div class="border rounded p-3 mb-2">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <h6 class="mb-1">{{ match.title|default:"Unknown Title" }}</h6>
-                                                    <small class="text-muted">{{ match.artists|join:", "|default:"Unknown Artist" }}</small>
-                                                </div>
-                                                <div class="text-end">
-                                                    <span class="badge bg-warning">{{ match.score|default:"N/A" }}</span>
-                                                </div>
-                                            </div>
-                                            {% if match.album %}
-                                                <small class="text-muted">Album: {{ match.album }}</small>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-                    
-                    <!-- Lyrics Analysis -->
-                    {% if report.lyrics_matches %}
-                        <div class="col-lg-6 mb-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0">
-                                        <i class="fas fa-file-text me-2"></i>Lyrics Analysis
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <div class="d-flex justify-content-between">
-                                            <span>Similarity:</span>
-                                            <span class="fw-bold">{{ report.lyrics_similarity|default:"N/A" }}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <h6>Lyrics Matches Found:</h6>
-                                    {% for match in report.lyrics_matches|slice:":5" %}
-                                        <div class="border rounded p-3 mb-2">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <h6 class="mb-1">{{ match.title|default:"Unknown Title" }}</h6>
-                                                    <small class="text-muted">{{ match.artists|join:", "|default:"Unknown Artist" }}</small>
-                                                </div>
-                                                <div class="text-end">
-                                                    <span class="badge bg-info">{{ match.similarity|default:"N/A" }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-                    
-                    <!-- Metadata -->
-                    <div class="col-lg-6 mb-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="card-title mb-0">
-                                    <i class="fas fa-tags me-2"></i>Detected Metadata
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-sm table-borderless">
-                                    <tr>
-                                        <td><strong>Genre:</strong></td>
-                                        <td>{{ report.detected_genre|default:"Not detected" }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Language:</strong></td>
-                                        <td>{{ report.detected_language|default:"Not detected" }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>ISRC Code:</strong></td>
-                                        <td>{{ report.isrc_code|default:"Not available" }}</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+        
+        <!-- Cover Detection -->
+        {% if report.cover_matches %}
+          <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="mb-6">
+              <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Cover Detection</h3>
+              <span class="text-base font-normal text-gray-500 dark:text-gray-400">Cover song detection results</span>
+            </div>
+            
+            <div class="mb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Score:</span>
+                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ report.cover_score|default:"N/A" }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Similarity:</span>
+                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ report.cover_similarity|default:"N/A" }}</span>
+              </div>
+            </div>
+            
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Cover Matches Found:</h4>
+            <div class="space-y-3">
+              {% for match in report.cover_matches|slice:":5" %}
+                <div class="p-3 border border-gray-200 dark:border-gray-600 rounded-lg">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <h5 class="text-sm font-semibold text-gray-900 dark:text-white">{{ match.title|default:"Unknown Title" }}</h5>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">{{ match.artists|join:", "|default:"Unknown Artist" }}</p>
+                      {% if match.album %}
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Album: {{ match.album }}</p>
+                      {% endif %}
                     </div>
-                </div>
-                
-                <!-- Summary and Recommendations -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="card-title mb-0">
-                                    <i class="fas fa-clipboard-list me-2"></i>Summary & Recommendations
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                {% if report.summary %}
-                                    <div class="mb-4">
-                                        <h6>Analysis Summary</h6>
-                                        <p class="text-muted">{{ report.summary }}</p>
-                                    </div>
-                                {% endif %}
-                                
-                                {% if report.recommendations %}
-                                    <div class="mb-4">
-                                        <h6>Recommendations</h6>
-                                        <div class="alert alert-info">
-                                            <p class="mb-0">{{ report.recommendations }}</p>
-                                        </div>
-                                    </div>
-                                {% endif %}
-                                
-                                <!-- Analysis Details -->
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Analysis Details</h6>
-                                        <table class="table table-sm table-borderless">
-                                            <tr>
-                                                <td><strong>Analysis ID:</strong></td>
-                                                <td><code>{{ analysis.id }}</code></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Analysis Type:</strong></td>
-                                                <td>{{ analysis.get_analysis_type_display }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>ACRCloud File ID:</strong></td>
-                                                <td><code>{{ analysis.acrcloud_file_id|default:"N/A" }}</code></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Completed:</strong></td>
-                                                <td>{{ analysis.completed_at|date:"M d, Y H:i"|default:"N/A" }}</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Actions</h6>
-                                        <div class="d-grid gap-2">
-                                            <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="btn btn-outline-primary">
-                                                <i class="fas fa-arrow-left me-2"></i>Back to Song Details
-                                            </a>
-                                            <a href="{% url 'acrcloud:view_audios' %}" class="btn btn-outline-secondary">
-                                                <i class="fas fa-list me-2"></i>View All Songs
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="ml-3">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                        {{ match.score|default:"N/A" }}
+                      </span>
                     </div>
+                  </div>
                 </div>
-            {% else %}
-                <div class="card">
-                    <div class="card-body text-center py-5">
-                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                        <h5>No Report Available</h5>
-                        <p class="text-muted">The analysis report is not available yet or there was an error generating it.</p>
-                        <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="btn btn-primary">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Song Details
-                        </a>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+        
+        <!-- Lyrics Analysis -->
+        {% if report.lyrics_matches %}
+          <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="mb-6">
+              <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Lyrics Analysis</h3>
+              <span class="text-base font-normal text-gray-500 dark:text-gray-400">Lyrics similarity analysis results</span>
+            </div>
+            
+            <div class="mb-4">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Similarity:</span>
+                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ report.lyrics_similarity|default:"N/A" }}</span>
+              </div>
+            </div>
+            
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Lyrics Matches Found:</h4>
+            <div class="space-y-3">
+              {% for match in report.lyrics_matches|slice:":5" %}
+                <div class="p-3 border border-gray-200 dark:border-gray-600 rounded-lg">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <h5 class="text-sm font-semibold text-gray-900 dark:text-white">{{ match.title|default:"Unknown Title" }}</h5>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">{{ match.artists|join:", "|default:"Unknown Artist" }}</p>
                     </div>
+                    <div class="ml-3">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+                        {{ match.similarity|default:"N/A" }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-            {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+        
+        <!-- Metadata -->
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+          <div class="mb-6">
+            <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Detected Metadata</h3>
+            <span class="text-base font-normal text-gray-500 dark:text-gray-400">Audio metadata and information</span>
+          </div>
+          
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Genre:</span>
+              <span class="text-sm text-gray-900 dark:text-white">{{ report.detected_genre|default:"Not detected" }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Language:</span>
+              <span class="text-sm text-gray-900 dark:text-white">{{ report.detected_language|default:"Not detected" }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">ISRC Code:</span>
+              <span class="text-sm text-gray-900 dark:text-white">{{ report.isrc_code|default:"Not available" }}</span>
+            </div>
+          </div>
         </div>
-    </div>
-</div>
+      </div>
+      
+      <!-- Summary and Recommendations -->
+      <div class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+        <div class="mb-6">
+          <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Summary & Recommendations</h3>
+          <span class="text-base font-normal text-gray-500 dark:text-gray-400">Analysis summary and actionable recommendations</span>
+        </div>
+        
+        {% if report.summary %}
+          <div class="mb-6">
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Analysis Summary</h4>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{{ report.summary }}</p>
+          </div>
+        {% endif %}
+        
+        {% if report.recommendations %}
+          <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">Recommendations</h4>
+            <p class="text-sm text-blue-700 dark:text-blue-300">{{ report.recommendations }}</p>
+          </div>
+        {% endif %}
+        
+        <!-- Analysis Details -->
+        <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Analysis Details</h4>
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Analysis ID:</span>
+                <code class="text-xs text-gray-600 dark:text-gray-400">{{ analysis.id }}</code>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Analysis Type:</span>
+                <span class="text-sm text-gray-900 dark:text-white">{{ analysis.get_analysis_type_display }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">ACRCloud File ID:</span>
+                <code class="text-xs text-gray-600 dark:text-gray-400">{{ analysis.acrcloud_file_id|default:"N/A" }}</code>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Completed:</span>
+                <span class="text-sm text-gray-900 dark:text-white">{{ analysis.completed_at|date:"M d, Y H:i"|default:"N/A" }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Actions</h4>
+            <div class="space-y-2">
+              <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Back to Song Details
+              </a>
+              <a href="{% url 'acrcloud:view_audios' %}" class="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                </svg>
+                View All Songs
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+        <div class="text-center py-12">
+          <div class="inline-flex items-center justify-center w-16 h-16 mb-4 text-yellow-600 bg-yellow-100 rounded-full dark:bg-yellow-900 dark:text-yellow-200">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Report Available</h3>
+          <p class="text-gray-500 dark:text-gray-400 mb-6">The analysis report is not available yet or there was an error generating it.</p>
+          <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to Song Details
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</main>
 {% endblock %}
