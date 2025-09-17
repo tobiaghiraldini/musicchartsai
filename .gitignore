@@ -27,3 +27,4 @@ apps/helpers
 !/media/mapper.json
 !/media/Sales.csv
 .env*
+/media
