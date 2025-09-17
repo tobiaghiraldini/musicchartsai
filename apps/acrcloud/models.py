@@ -109,9 +109,9 @@ class AnalysisReport(models.Model):
     lyrics_similarity = models.FloatField(null=True, blank=True)
     
     # Additional metadata
-    detected_genre = models.CharField(max_length=100, blank=True)
-    detected_language = models.CharField(max_length=10, blank=True)
-    isrc_code = models.CharField(max_length=12, blank=True)
+    detected_genre = models.CharField(max_length=100, blank=True, null=True)
+    detected_language = models.CharField(max_length=10, blank=True, null=True)
+    isrc_code = models.CharField(max_length=12, blank=True, null=True)
     
     # Summary and recommendations
     summary = models.TextField(blank=True)
