@@ -150,7 +150,7 @@ class ACRCloudConfig(models.Model):
     
     name = models.CharField(max_length=100, unique=True)
     base_url = models.URLField()
-    bearer_token = models.CharField(max_length=500)
+    bearer_token = models.CharField(max_length=2000)
     container_id = models.CharField(max_length=100)
     identify_host = models.CharField(max_length=100)
     identify_access_key = models.CharField(max_length=100)
@@ -165,3 +165,25 @@ class ACRCloudConfig(models.Model):
     
     def __str__(self):
         return f"{self.name} ({'Active' if self.is_active else 'Inactive'})"
+
+
+class WebhookLog(models.Model):
+    """Model to log webhook calls for debugging and security"""
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    file_id = models.CharField(max_length=255)
+    status = models.CharField(max_length=50)
+    payload = models.JSONField()
+    source_ip = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=500, blank=True)
+    processed = models.BooleanField(default=False)
+    error_message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Webhook Log"
+        verbose_name_plural = "Webhook Logs"
+    
+    def __str__(self):
+        return f"Webhook {self.file_id} - {self.status} - {self.created_at}"

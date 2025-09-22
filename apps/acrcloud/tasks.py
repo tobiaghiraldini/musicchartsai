@@ -30,8 +30,18 @@ def analyze_song_task(self, song_id: str, config_name: str = None):
         # Initialize ACRCloud service
         service = ACRCloudService(config_name=config_name)
         
-        # Perform analysis
-        result = service.analyze_song(song_id)
+        # Build callback URL for webhook
+        from django.urls import reverse
+        from django.conf import settings
+        
+        # Get the base URL for webhooks
+        base_url = getattr(settings, 'SITE_URL', 'http://localhost:8000')
+        callback_url = f"{base_url}{reverse('acrcloud:acrcloud_webhook')}"
+        
+        logger.info(f"Using webhook callback URL: {callback_url}")
+        
+        # Start analysis with webhook callback
+        result = service.analyze_song(song_id, callback_url=callback_url)
         
         if result['success']:
             logger.info(f"Analysis completed successfully for song {song_id}")
@@ -174,6 +184,91 @@ def batch_analyze_songs(song_ids: list, config_name: str = None):
     
     logger.info(f"Queued {len(song_ids)} songs for analysis")
     return results
+
+
+@shared_task
+def process_acrcloud_webhook_task(analysis_id: str, file_id: str):
+    """
+    Process ACRCloud webhook callback and retrieve analysis results
+    
+    Args:
+        analysis_id: UUID of the Analysis model
+        file_id: ACRCloud file ID
+    """
+    try:
+        from .models import Analysis
+        from .service import ACRCloudService
+        
+        logger.info(f"Processing ACRCloud webhook for analysis {analysis_id}, file {file_id}")
+        
+        # Get the analysis record
+        analysis = Analysis.objects.get(id=analysis_id)
+        song = analysis.song
+        
+        # Initialize ACRCloud service
+        service = ACRCloudService()
+        
+        # Retrieve the file scanning results
+        file_results = service.get_file_scanning_results(file_id)
+        logger.info(f"Retrieved file scanning results for {file_id}")
+        
+        # Also get identification results for additional analysis
+        identify_results = service.identify_audio(song.audio_file, top_n=10)
+        logger.info(f"Retrieved identification results for song {song.id}")
+        
+        # Combine results
+        combined_results = {
+            'file_scanning': file_results,
+            'identification': identify_results
+        }
+        
+        # Update analysis with results
+        analysis.raw_response = combined_results
+        analysis.status = 'analyzed'
+        analysis.completed_at = timezone.now()
+        analysis.save()
+        
+        # Process results and create report
+        report_data = service._process_analysis_results(combined_results)
+        
+        # Create AnalysisReport
+        from .models import AnalysisReport
+        AnalysisReport.objects.create(
+            analysis=analysis,
+            **report_data
+        )
+        
+        # Update song status
+        song.status = 'analyzed'
+        song.save()
+        
+        logger.info(f"Webhook processing completed successfully for analysis {analysis_id}")
+        
+        # Send notification email if configured
+        from django.conf import settings
+        if hasattr(settings, 'ACRCLOUD_NOTIFICATION_EMAIL'):
+            send_analysis_complete_notification.delay(str(song.id), analysis_id)
+        
+        return {
+            'success': True,
+            'analysis_id': analysis_id,
+            'file_id': file_id
+        }
+        
+    except Exception as e:
+        logger.error(f"Webhook processing failed for analysis {analysis_id}: {str(e)}", exc_info=True)
+        
+        # Update analysis and song status to failed
+        try:
+            analysis = Analysis.objects.get(id=analysis_id)
+            analysis.status = 'failed'
+            analysis.song.status = 'failed'
+            analysis.save()
+            analysis.song.save()
+        except Analysis.DoesNotExist:
+            logger.error(f"Analysis {analysis_id} not found when updating failure status")
+        
+        raise e
 
 
 @shared_task

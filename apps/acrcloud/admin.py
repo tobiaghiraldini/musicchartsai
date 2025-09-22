@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import Song, Analysis, AnalysisReport, ACRCloudConfig
+from .models import Song, Analysis, AnalysisReport, ACRCloudConfig, WebhookLog
 
 
 @admin.register(Song)
@@ -148,6 +148,40 @@ class ACRCloudConfigAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         return super().get_queryset(request)
+
+
+@admin.register(WebhookLog)
+class WebhookLogAdmin(admin.ModelAdmin):
+    list_display = ['file_id', 'status', 'processed', 'source_ip', 'created_at']
+    list_filter = ['status', 'processed', 'created_at']
+    search_fields = ['file_id', 'source_ip']
+    readonly_fields = ['id', 'created_at', 'payload_preview']
+    
+    fieldsets = (
+        ('Webhook Information', {
+            'fields': ('id', 'file_id', 'status', 'processed', 'created_at')
+        }),
+        ('Request Details', {
+            'fields': ('source_ip', 'user_agent')
+        }),
+        ('Payload', {
+            'fields': ('payload_preview',),
+            'classes': ('collapse',)
+        }),
+        ('Error Information', {
+            'fields': ('error_message',),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def payload_preview(self, obj):
+        if obj.payload:
+            return format_html(
+                '<pre style="max-height: 200px; overflow-y: auto;">{}</pre>',
+                str(obj.payload)[:1000] + ('...' if len(str(obj.payload)) > 1000 else '')
+            )
+        return '-'
+    payload_preview.short_description = 'Payload Preview'
 
 
 # Customize admin site headers

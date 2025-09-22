@@ -2,30 +2,43 @@
 ACRCloud Service Integration
 Provides services for file scanning, identification, and fraud detection
 """
-import os
 import json
 import hmac
 import hashlib
 import base64
 import time
 import urllib.request
+import logging
 from urllib.parse import urlencode
-from typing import Dict, Any, List, Optional, Tuple
-from django.conf import settings
+from typing import Dict, Any, List, Optional
 from django.core.files.uploadedfile import UploadedFile
+from django.utils import timezone
 from .models import ACRCloudConfig, Analysis, AnalysisReport
+
+logger = logging.getLogger(__name__)
 
 
 class ACRCloudService:
     """Service class for ACRCloud API integration"""
     
-    def __init__(self, config_name: str = None):
+    def __init__(self, config_name: str = None, use_mock: bool = None):
         """
         Initialize ACRCloud service with configuration
         
         Args:
             config_name: Name of ACRCloudConfig to use. If None, uses active config.
+            use_mock: Whether to use mock service. If None, checks settings.
         """
+        if use_mock is None:
+            from django.conf import settings
+            use_mock = getattr(settings, 'ACRCLOUD_USE_MOCK', False)
+        
+        if use_mock:
+            from .mock_service import MockACRCloudService
+            self.mock_service = MockACRCloudService()
+            self.config = None
+            return
+        
         if config_name:
             self.config = ACRCloudConfig.objects.get(name=config_name, is_active=True)
         else:
@@ -72,12 +85,13 @@ class ACRCloudService:
         with urllib.request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read().decode("utf-8"))
     
-    def upload_file_for_scanning(self, audio_file: UploadedFile) -> str:
+    def upload_file_for_scanning(self, audio_file: UploadedFile, callback_url: str = None) -> str:
         """
-        Upload file to ACRCloud for file scanning
+        Upload file to ACRCloud for file scanning with webhook callback
         
         Args:
             audio_file: Django UploadedFile object
+            callback_url: URL for ACRCloud to call when processing is complete
             
         Returns:
             File ID from ACRCloud
@@ -89,14 +103,34 @@ class ACRCloudService:
         # Upload to ACRCloud File Scanning
         upload_url = f"{self.config.base_url}/api/fs-containers/{self.config.container_id}/files"
         
-        # Create multipart form data
+        # Create multipart form data with callback URL
         boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
         body = []
+        
+        # Add file
         body.append(f'--{boundary}'.encode())
         body.append(b'Content-Disposition: form-data; name="file"; filename="' + audio_file.name.encode() + b'"')
         body.append(b'Content-Type: audio/mpeg')
         body.append(b'')
         body.append(file_content)
+        
+        # Add callback URL if provided
+        if callback_url:
+            body.append(f'--{boundary}'.encode())
+            body.append(b'Content-Disposition: form-data; name="notification_url"')
+            body.append(b'')
+            body.append(callback_url.encode())
+        
+        # Add metadata (optional)
+        body.append(f'--{boundary}'.encode())
+        body.append(b'Content-Disposition: form-data; name="metadata"')
+        body.append(b'')
+        body.append(json.dumps({
+            'title': getattr(audio_file, 'title', ''),
+            'artist': getattr(audio_file, 'artist', ''),
+            'filename': audio_file.name
+        }).encode())
+        
         body.append(f'--{boundary}--'.encode())
         body.append(b'')
         
@@ -110,6 +144,7 @@ class ACRCloudService:
         
         with urllib.request.urlopen(req, timeout=120) as resp:
             response = json.loads(resp.read().decode("utf-8"))
+            logger.info(f"File uploaded to ACRCloud: {response}")
             return response.get("id")
     
     def get_file_scanning_results(self, file_id: str) -> Dict[str, Any]:
@@ -145,15 +180,16 @@ class ACRCloudService:
         url = f"https://{self.config.identify_host}/v1/identify?data_type={data_type}&top_n={top_n}"
         return self._http_post_json(url, file_content)
     
-    def analyze_song(self, song_id: str) -> Dict[str, Any]:
+    def analyze_song(self, song_id: str, callback_url: str = None) -> Dict[str, Any]:
         """
-        Perform comprehensive analysis on a song
+        Start comprehensive analysis on a song using webhook-based processing
         
         Args:
             song_id: UUID of the Song model
+            callback_url: Webhook URL for ACRCloud to call when processing is complete
             
         Returns:
-            Analysis results
+            Analysis initiation results
         """
         from .models import Song
         
@@ -162,43 +198,54 @@ class ACRCloudService:
         except Song.DoesNotExist:
             raise ValueError(f"Song with ID {song_id} not found")
         
+        # Check if we should use mock service
+        if hasattr(self, 'mock_service'):
+            logger.info("Using mock ACRCloud service for analysis")
+            return self.mock_service.analyze_song(song_id, callback_url)
+        
         # Update song status
         song.status = 'processing'
         song.save()
         
-        results = {
-            'fingerprint': None,
-            'cover': None,
-            'lyrics': None,
-            'file_scanning': None
-        }
-        
         try:
-            # 1. File Scanning Analysis
-            file_id = self.upload_file_for_scanning(song.audio_file)
+            # 1. Upload file to ACRCloud File Scanning with webhook callback
+            file_id = self.upload_file_for_scanning(song.audio_file, callback_url)
+            logger.info(f"File uploaded to ACRCloud with ID: {file_id}")
             
-            # Wait for processing (in production, use webhooks or polling)
-            time.sleep(5)
+            # 2. Create Analysis record in 'processing' status
+            analysis = Analysis.objects.create(
+                song=song,
+                analysis_type='full',
+                status='processing',
+                acrcloud_file_id=file_id,
+                raw_response={'upload_response': {'file_id': file_id, 'callback_url': callback_url}}
+            )
             
-            file_results = self.get_file_scanning_results(file_id)
-            results['file_scanning'] = file_results
+            logger.info(f"Analysis record created: {analysis.id}")
             
-            # 2. Identification API for additional analysis
-            identify_results = self.identify_audio(song.audio_file, top_n=10)
-            results['identification'] = identify_results
+            # 3. Run immediate identification analysis (this is synchronous)
+            try:
+                identify_results = self.identify_audio(song.audio_file, top_n=10)
+                logger.info(f"Identification analysis completed for song {song_id}")
+                
+                # Store identification results in the analysis
+                current_response = analysis.raw_response or {}
+                current_response['identification'] = identify_results
+                analysis.raw_response = current_response
+                analysis.save()
+                
+            except Exception as identify_error:
+                logger.warning(f"Identification analysis failed: {identify_error}")
+                # Continue without identification results
             
-            # 3. Process results and create analysis report
-            analysis = self._create_analysis_report(song, file_id, results)
-            
-            # Update song status
-            song.status = 'analyzed'
-            song.save()
+            # File scanning results will be processed via webhook when ACRCloud completes processing
             
             return {
                 'success': True,
                 'analysis_id': str(analysis.id),
                 'file_id': file_id,
-                'results': results
+                'status': 'processing',
+                'message': 'File uploaded to ACRCloud. Analysis will complete via webhook.'
             }
             
         except Exception as e:
@@ -206,10 +253,12 @@ class ACRCloudService:
             song.status = 'failed'
             song.save()
             
+            logger.error(f"Analysis initiation failed for song {song_id}: {str(e)}")
+            
             return {
                 'success': False,
                 'error': str(e),
-                'results': results
+                'status': 'failed'
             }
     
     def _create_analysis_report(self, song, file_id: str, results: Dict[str, Any]) -> Analysis:
@@ -426,5 +475,3 @@ class ACRCloudService:
             return "RECOMMENDATION: No issues detected. Content appears to be original."
 
 
-# Import timezone for the analysis creation
-from django.utils import timezone

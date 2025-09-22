@@ -10,7 +10,7 @@ from .models import Analysis, AnalysisReport
 class MockACRCloudService:
     """Mock service for testing ACRCloud integration without real API"""
     
-    def analyze_song(self, song_id: str) -> dict:
+    def analyze_song(self, song_id: str, callback_url: str = None) -> dict:
         """Mock analysis that simulates ACRCloud processing"""
         from .models import Song
         

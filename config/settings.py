@@ -201,6 +201,12 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50MB
 FILE_UPLOAD_PERMISSIONS = 0o644
 
+# Site URL for webhooks (update this for production)
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')
+
+# ACRCloud Mock Service for Development
+ACRCLOUD_USE_MOCK = os.environ.get('ACRCLOUD_USE_MOCK', 'True').lower() == 'true'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

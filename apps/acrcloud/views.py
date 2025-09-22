@@ -1,5 +1,6 @@
 import os
 import uuid
+import json
 import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
@@ -353,6 +354,105 @@ class AnalysisStatusView(View):
             })
         
         return JsonResponse(data)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ACRCloudWebhookView(View):
+    """
+    Webhook endpoint to receive ACRCloud file scanning completion callbacks
+    """
+    def post(self, request):
+        try:
+            # Get client information
+            source_ip = self.get_client_ip(request)
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            
+            # Log the incoming webhook
+            logger.info(f"ACRCloud webhook received from {source_ip} - Content-Type: {request.content_type}")
+            
+            # Parse webhook payload
+            if request.content_type == 'application/json':
+                payload = json.loads(request.body.decode('utf-8'))
+            else:
+                payload = dict(request.POST)
+            
+            logger.info(f"Webhook payload: {payload}")
+            
+            # Extract file information from webhook
+            file_id = payload.get('file_id') or payload.get('id')
+            status = payload.get('status')
+            container_id = payload.get('container_id')
+            
+            # Log webhook call
+            from .models import WebhookLog
+            webhook_log = WebhookLog.objects.create(
+                file_id=file_id or 'unknown',
+                status=status or 'unknown',
+                payload=payload,
+                source_ip=source_ip,
+                user_agent=user_agent
+            )
+            
+            if not file_id:
+                error_msg = "No file_id in webhook payload"
+                logger.error(error_msg)
+                webhook_log.error_message = error_msg
+                webhook_log.save()
+                return JsonResponse({'error': 'Missing file_id'}, status=400)
+            
+            logger.info(f"Processing webhook for file_id: {file_id}, status: {status}")
+            
+            # Find the corresponding analysis record
+            try:
+                analysis = Analysis.objects.get(acrcloud_file_id=file_id, status='processing')
+                logger.info(f"Found analysis record: {analysis.id}")
+            except Analysis.DoesNotExist:
+                logger.error(f"No processing analysis found for file_id: {file_id}")
+                return JsonResponse({'error': 'Analysis not found'}, status=404)
+            except Analysis.MultipleObjectsReturned:
+                logger.error(f"Multiple analyses found for file_id: {file_id}")
+                analysis = Analysis.objects.filter(acrcloud_file_id=file_id, status='processing').first()
+            
+            # Process the webhook based on status
+            if status == 'completed' or status == 'success':
+                # File processing completed, retrieve results
+                from .tasks import process_acrcloud_webhook_task
+                process_acrcloud_webhook_task.delay(str(analysis.id), file_id)
+                
+                logger.info(f"Queued webhook processing task for analysis: {analysis.id}")
+                return JsonResponse({'status': 'success', 'message': 'Webhook processed'})
+                
+            elif status == 'failed' or status == 'error':
+                # File processing failed
+                analysis.status = 'failed'
+                analysis.song.status = 'failed'
+                analysis.save()
+                analysis.song.save()
+                
+                logger.error(f"ACRCloud processing failed for file_id: {file_id}")
+                return JsonResponse({'status': 'success', 'message': 'Failure recorded'})
+            
+            else:
+                # Unknown status, log and continue
+                logger.warning(f"Unknown webhook status: {status} for file_id: {file_id}")
+                return JsonResponse({'status': 'success', 'message': 'Status noted'})
+                
+        except Exception as e:
+            logger.error(f"Webhook processing error: {str(e)}", exc_info=True)
+            return JsonResponse({'error': 'Webhook processing failed'}, status=500)
+    
+    def get_client_ip(self, request):
+        """Get the client IP address from request"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+    
+    def get(self, request):
+        # Health check endpoint
+        return JsonResponse({'status': 'webhook_ready', 'message': 'ACRCloud webhook endpoint is active'})
 
 
 @method_decorator(csrf_exempt, name='dispatch')

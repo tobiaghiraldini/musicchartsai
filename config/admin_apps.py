@@ -24,16 +24,16 @@ class AdminConfig(DjangoAdminConfig):
         """
         super().ready()
         
-        # Store the original get_app_list method
-        original_get_app_list = default_admin_site.get_app_list
+        # Apply custom ordering to the admin site
         
-        def custom_get_app_list(request):
+        def custom_get_app_list(request, app_label=None):
             """
             Return a sorted list of all the installed apps that have been
             registered in this site with custom ordering.
             
             Args:
-                request: The HTTP request object
+                request: The HTTP request object (can be None)
+                app_label: Optional app label to filter by
                 
             Returns:
                 list: Sorted list of apps with custom ordering
@@ -95,13 +95,41 @@ class AdminConfig(DjangoAdminConfig):
                 "Log entries": 6,
             }
             
-            app_dict = default_admin_site._build_app_dict(request)
+            # Handle case where request is None (e.g., from shell commands)
+            if request is None:
+                # Create a minimal request-like object for _build_app_dict
+                class MockUser:
+                    def has_module_perms(self, app_label):
+                        return True
+                    def has_perm(self, perm):
+                        return True
+                
+                class MockRequest:
+                    def __init__(self):
+                        self.user = MockUser()
+                        self.META = {}
+                        self.method = 'GET'
+                        self.path = '/admin/'
+                        self.GET = {}
+                        self.POST = {}
+                        self.FILES = {}
+                        self.COOKIES = {}
+                        self.session = {}
+                
+                mock_request = MockRequest()
+                app_dict = default_admin_site._build_app_dict(mock_request)
+            else:
+                app_dict = default_admin_site._build_app_dict(request)
             
-            # Sort the apps by custom ordering
-            app_list = sorted(
-                app_dict.values(), 
-                key=lambda x: app_ordering.get(x['name'], 999)
-            )
+            # If app_label is specified, filter to only that app
+            if app_label:
+                app_list = [app for app in app_dict.values() if app['app_label'] == app_label]
+            else:
+                # Sort the apps by custom ordering
+                app_list = sorted(
+                    app_dict.values(), 
+                    key=lambda x: app_ordering.get(x['name'], 999)
+                )
             
             # Sort the models within each app by custom ordering
             for app in app_list:

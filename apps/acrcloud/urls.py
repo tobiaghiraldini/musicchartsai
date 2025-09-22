@@ -8,6 +8,7 @@ from .views import (
     RetryAnalysisView,
     DeleteSongView,
     AnalysisStatusView,
+    ACRCloudWebhookView,
     TestUploadView,
 )
 
@@ -24,6 +25,9 @@ urlpatterns = [
     path("api/upload/", FilePondUploadView.as_view(), name="filepond_upload"),
     path("api/test-upload/", TestUploadView.as_view(), name="test_upload"),
     path("api/song/<uuid:song_id>/status/", AnalysisStatusView.as_view(), name="analysis_status"),
+    
+    # Webhook endpoints
+    path("webhook/file-scanning/", ACRCloudWebhookView.as_view(), name="acrcloud_webhook"),
     
     # Actions
     path("song/<uuid:song_id>/retry/", RetryAnalysisView.as_view(), name="retry_analysis"),
