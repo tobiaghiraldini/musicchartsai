@@ -380,8 +380,18 @@ class ACRCloudWebhookView(View):
             
             # Extract file information from webhook
             file_id = payload.get('file_id') or payload.get('id')
-            status = payload.get('status')
-            container_id = payload.get('container_id')
+            # ACRCloud sends 'state' field: 0=processing, 1=completed, 2=failed
+            state = payload.get('state')
+            status = payload.get('status')  # Keep for backward compatibility
+            
+            # Map state to status for processing logic
+            if state is not None:
+                if state == 1:
+                    status = 'completed'
+                elif state == 2:
+                    status = 'failed'
+                elif state == 0:
+                    status = 'processing'
             
             # Log webhook call
             from .models import WebhookLog
