@@ -3,9 +3,7 @@
 
 {% block extra_actions %}
     {% if original and original.uuid %}
-    <div class="text-lg">
-        {% trans 'Soundcharts API' %}
-    </div>
+   
     <div class="form-group mt-2">
         
         <form method="post" action="{{ request.path }}" style="display: inline;">

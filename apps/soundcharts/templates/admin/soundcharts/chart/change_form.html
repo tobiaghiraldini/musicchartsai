@@ -3,11 +3,11 @@
 
 {% block object-tools-items %}
     {% if original and original.slug %}
-    <li>
-        <a href="{% url 'admin:soundcharts_chart_import_rankings' original.id %}" class="addlink">
+    <div class="form-group mt-2">
+        <a href="{% url 'admin:soundcharts_chart_import_rankings' original.id %}" class="btn btn-info w-100">
             {% trans 'Import Song Rankings from Soundcharts' %}
         </a>
-    </li>
+    </div>
     {% endif %}
     {{ block.super }}
 {% endblock %}

@@ -3,11 +3,12 @@
 
 {% block object-tools-items %}
     {% if original and original.slug %}
-    <li>
-        <a href="{{ import_charts_url }}?platform_code={{ platform_slug }}" class="button">
+    <div class="form-group mt-2">
+
+        <a href="{{ import_charts_url }}?platform_code={{ platform_slug }}" class="btn btn-info w-100">
                 {% trans 'Import Charts' %}
             </a>
-    </li>
+    </div>
     {% endif %}
     {{ block.super }}
 {% endblock %}
