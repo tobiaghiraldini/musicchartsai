@@ -114,6 +114,12 @@ class ACRCloudService:
         body.append(b'')
         body.append(file_content)
         
+        # Add data_type (required by ACRCloud API)
+        body.append(f'--{boundary}'.encode())
+        body.append(b'Content-Disposition: form-data; name="data_type"')
+        body.append(b'')
+        body.append(b'audio')
+        
         # Add callback URL if provided
         if callback_url:
             body.append(f'--{boundary}'.encode())
@@ -145,6 +151,9 @@ class ACRCloudService:
         with urllib.request.urlopen(req, timeout=120) as resp:
             response = json.loads(resp.read().decode("utf-8"))
             logger.info(f"File uploaded to ACRCloud: {response}")
+            # Extract file ID from the response structure
+            if "data" in response and "id" in response["data"]:
+                return response["data"]["id"]
             return response.get("id")
     
     def get_file_scanning_results(self, file_id: str) -> Dict[str, Any]:
