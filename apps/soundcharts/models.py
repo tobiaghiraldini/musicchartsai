@@ -48,6 +48,14 @@ class Artist(models.Model):
     biography = models.TextField(blank=True)
     isni = models.CharField(max_length=255, blank=True)
     ipi = models.CharField(max_length=255, blank=True)
+    
+    # ACRCloud specific fields
+    acrcloud_id = models.CharField(max_length=255, blank=True, help_text="ACRCloud artist identifier")
+    musicbrainz_id = models.CharField(max_length=255, blank=True, help_text="MusicBrainz artist ID")
+    
+    # Platform-specific IDs
+    platform_ids = models.JSONField(default=dict, blank=True, help_text="Platform-specific artist IDs")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -107,6 +115,14 @@ class Artist(models.Model):
 class Album(models.Model):
     name = models.CharField(max_length=255)
     uuid = models.CharField(max_length=255)
+    
+    # ACRCloud specific fields
+    acrcloud_id = models.CharField(max_length=255, blank=True, help_text="ACRCloud album identifier")
+    musicbrainz_id = models.CharField(max_length=255, blank=True, help_text="MusicBrainz album ID")
+    
+    # Platform-specific IDs
+    platform_ids = models.JSONField(default=dict, blank=True, help_text="Platform-specific album IDs")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -152,6 +168,18 @@ class Track(models.Model):
     # Metadata fetch tracking
     metadata_fetched_at = models.DateTimeField(null=True, blank=True, help_text="When metadata was last fetched")
     audience_fetched_at = models.DateTimeField(null=True, blank=True, help_text="When audience data was last fetched")
+    
+    # ACRCloud specific fields
+    acrcloud_id = models.CharField(max_length=255, blank=True, help_text="ACRCloud track identifier")
+    acrcloud_score = models.IntegerField(null=True, blank=True, help_text="ACRCloud confidence score")
+    acrcloud_analyzed_at = models.DateTimeField(null=True, blank=True, help_text="When ACRCloud analysis was performed")
+    
+    # Enhanced external IDs
+    upc = models.CharField(max_length=255, blank=True, help_text="Universal Product Code")
+    musicbrainz_id = models.CharField(max_length=255, blank=True, help_text="MusicBrainz track ID")
+    
+    # Platform-specific IDs (stored as JSON for flexibility)
+    platform_ids = models.JSONField(default=dict, blank=True, help_text="Platform-specific track IDs")
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

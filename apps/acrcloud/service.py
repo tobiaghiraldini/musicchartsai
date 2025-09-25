@@ -9,6 +9,8 @@ import base64
 import time
 import urllib.request
 import logging
+import uuid
+from datetime import datetime
 from urllib.parse import urlencode
 from typing import Dict, Any, List, Optional
 from django.core.files.uploadedfile import UploadedFile
@@ -482,5 +484,285 @@ class ACRCloudService:
             return "RECOMMENDATION: Similar content detected. Review for potential copyright issues."
         else:
             return "RECOMMENDATION: No issues detected. Content appears to be original."
+
+
+class ACRCloudMetadataProcessor:
+    """Process ACRCloud webhook data and create/update Soundcharts models"""
+    
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+    
+    def process_webhook_results(self, analysis: 'Analysis', webhook_data: dict):
+        """Process webhook results and create metadata models"""
+        
+        results = webhook_data.get('results', {})
+        
+        # Process music matches
+        music_matches = results.get('music', [])
+        for match_data in music_matches:
+            self._process_music_match(analysis, match_data)
+        
+        # Process cover song matches
+        cover_matches = results.get('cover_songs', [])
+        for match_data in cover_matches:
+            self._process_cover_match(analysis, match_data)
+    
+    def _process_music_match(self, analysis: 'Analysis', match_data: dict):
+        """Process a music match and create/update models"""
+        
+        # Extract track information
+        track_info = match_data.get('result', {})
+        
+        # Create or update Track
+        track = self._create_or_update_track(track_info, match_data)
+        
+        # Create ACRCloud match record
+        from .models import ACRCloudTrackMatch
+        ACRCloudTrackMatch.objects.create(
+            analysis=analysis,
+            match_type='music',
+            acrcloud_id=track_info.get('acrid'),
+            score=match_data.get('score', 0),
+            offset=match_data.get('offset', 0),
+            played_duration=match_data.get('played_duration', 0),
+            track=track,
+            raw_data=match_data
+        )
+    
+    def _process_cover_match(self, analysis: 'Analysis', match_data: dict):
+        """Process a cover song match and create/update models"""
+        
+        # Extract track information
+        track_info = match_data.get('result', {})
+        
+        # Create or update Track
+        track = self._create_or_update_track(track_info, match_data)
+        
+        # Create ACRCloud match record
+        from .models import ACRCloudTrackMatch
+        ACRCloudTrackMatch.objects.create(
+            analysis=analysis,
+            match_type='cover',
+            acrcloud_id=track_info.get('acrid'),
+            score=match_data.get('score', 0),
+            offset=match_data.get('offset', 0),
+            played_duration=match_data.get('played_duration', 0),
+            track=track,
+            raw_data=match_data
+        )
+    
+    def _create_or_update_track(self, track_info: dict, match_data: dict):
+        """Create or update Track model from ACRCloud data"""
+        
+        from apps.soundcharts.models import Track, Artist, Album, Genre
+        from django.utils import timezone
+        from datetime import datetime
+        
+        # Try to find existing track by ISRC
+        isrc = track_info.get('external_ids', {}).get('isrc')
+        track = None
+        
+        if isrc:
+            track = Track.objects.filter(isrc=isrc).first()
+        
+        if not track:
+            # Create new track
+            track = Track.objects.create(
+                name=track_info.get('title', ''),
+                uuid=str(uuid.uuid4()),  # Generate new UUID
+                isrc=isrc,
+                duration=int(track_info.get('duration_ms', 0) / 1000) if track_info.get('duration_ms') else None,
+                release_date=self._parse_date(track_info.get('release_date')),
+                label=track_info.get('label', ''),
+                acrcloud_id=track_info.get('acrid'),
+                acrcloud_score=match_data.get('score'),
+                acrcloud_analyzed_at=timezone.now(),
+                upc=track_info.get('external_ids', {}).get('upc'),
+                musicbrainz_id=track_info.get('external_metadata', {}).get('musicbrainz', {}).get('track', {}).get('id'),
+                platform_ids=self._extract_platform_ids(track_info.get('external_metadata', {}))
+            )
+        else:
+            # Update existing track with ACRCloud data
+            track.acrcloud_id = track_info.get('acrid')
+            track.acrcloud_score = match_data.get('score')
+            track.acrcloud_analyzed_at = timezone.now()
+            track.upc = track_info.get('external_ids', {}).get('upc')
+            track.musicbrainz_id = track_info.get('external_metadata', {}).get('musicbrainz', {}).get('track', {}).get('id')
+            track.platform_ids = self._extract_platform_ids(track_info.get('external_metadata', {}))
+            track.save()
+        
+        # Create/update artists
+        self._create_or_update_artists(track, track_info.get('artists', []))
+        
+        # Create/update album
+        self._create_or_update_album(track, track_info.get('album', {}))
+        
+        # Create/update genres
+        self._create_or_update_genres(track, track_info.get('genres', []))
+        
+        # Create platform mappings
+        self._create_platform_mappings(track, track_info.get('external_metadata', {}))
+        
+        return track
+    
+    def _create_or_update_artists(self, track, artists_data: list):
+        """Create or update Artist models from ACRCloud data"""
+        
+        from apps.soundcharts.models import Artist
+        
+        for artist_data in artists_data:
+            artist_name = artist_data.get('name', '')
+            if not artist_name:
+                continue
+            
+            # Try to find existing artist by name
+            artist = Artist.objects.filter(name__iexact=artist_name).first()
+            
+            if not artist:
+                # Create new artist
+                artist = Artist.objects.create(
+                    uuid=str(uuid.uuid4()),
+                    name=artist_name,
+                    slug=artist_name.lower().replace(' ', '-'),
+                    appUrl='',
+                    imageUrl='',
+                    countryCode='',
+                    platform_ids=self._extract_artist_platform_ids(artist_data)
+                )
+            
+            # Add artist to track if not already associated
+            if artist not in track.artists.all():
+                track.artists.add(artist)
+    
+    def _create_or_update_album(self, track, album_data: dict):
+        """Create or update Album model from ACRCloud data"""
+        
+        from apps.soundcharts.models import Album
+        
+        album_name = album_data.get('name', '')
+        if not album_name:
+            return
+        
+        # Try to find existing album by name
+        album = Album.objects.filter(name__iexact=album_name).first()
+        
+        if not album:
+            # Create new album
+            album = Album.objects.create(
+                uuid=str(uuid.uuid4()),
+                name=album_name,
+                platform_ids=self._extract_album_platform_ids(album_data)
+            )
+    
+    def _create_or_update_genres(self, track, genres_data: list):
+        """Create or update Genre models from ACRCloud data"""
+        
+        from apps.soundcharts.models import Genre
+        
+        for genre_data in genres_data:
+            genre_name = genre_data.get('name', '')
+            if not genre_name:
+                continue
+            
+            # Try to find existing genre by name
+            genre = Genre.objects.filter(name__iexact=genre_name).first()
+            
+            if not genre:
+                # Create new genre
+                genre = Genre.objects.create(
+                    name=genre_name,
+                    slug=genre_name.lower().replace(' ', '-'),
+                    level=0  # Assume root level for ACRCloud genres
+                )
+            
+            # Add genre to track if not already associated
+            if genre not in track.genres.all():
+                track.genres.add(genre)
+    
+    def _create_platform_mappings(self, track, external_metadata: dict):
+        """Create platform mappings from external metadata"""
+        
+        from apps.soundcharts.models import Platform
+        from .models import PlatformTrackMapping
+        
+        for platform_name, data in external_metadata.items():
+            if platform_name == 'musicbrainz':
+                continue  # Skip MusicBrainz as it's not a streaming platform
+            
+            # Get or create platform
+            platform, created = Platform.objects.get_or_create(
+                platform_identifier=platform_name,
+                defaults={
+                    'name': platform_name.title(),
+                    'slug': platform_name.lower(),
+                    'platform_type': 'streaming'
+                }
+            )
+            
+            # Extract platform-specific IDs
+            track_id = None
+            artist_id = None
+            album_id = None
+            
+            if platform_name == 'spotify' and 'track' in data:
+                track_id = data['track'].get('id')
+                artist_id = data.get('artists', [{}])[0].get('id')
+                album_id = data.get('album', {}).get('id')
+            elif platform_name == 'deezer' and 'track' in data:
+                track_id = data['track'].get('id')
+                artist_id = data.get('artists', [{}])[0].get('id')
+                album_id = data.get('album', {}).get('id')
+            elif platform_name == 'youtube':
+                track_id = data.get('vid')
+            
+            if track_id:
+                # Create platform mapping
+                PlatformTrackMapping.objects.get_or_create(
+                    track=track,
+                    platform=platform,
+                    platform_track_id=track_id,
+                    defaults={
+                        'platform_artist_id': artist_id or '',
+                        'platform_album_id': album_id or ''
+                    }
+                )
+    
+    def _extract_platform_ids(self, external_metadata: dict) -> dict:
+        """Extract platform-specific IDs from external metadata"""
+        platform_ids = {}
+        
+        for platform, data in external_metadata.items():
+            if platform == 'spotify' and 'track' in data:
+                platform_ids['spotify_track_id'] = data['track'].get('id')
+                platform_ids['spotify_artist_id'] = data.get('artists', [{}])[0].get('id')
+                platform_ids['spotify_album_id'] = data.get('album', {}).get('id')
+            elif platform == 'deezer' and 'track' in data:
+                platform_ids['deezer_track_id'] = data['track'].get('id')
+                platform_ids['deezer_artist_id'] = data.get('artists', [{}])[0].get('id')
+                platform_ids['deezer_album_id'] = data.get('album', {}).get('id')
+            elif platform == 'youtube':
+                platform_ids['youtube_video_id'] = data.get('vid')
+        
+        return platform_ids
+    
+    def _extract_artist_platform_ids(self, artist_data: dict) -> dict:
+        """Extract platform-specific IDs for artist"""
+        # This would be populated from external_metadata if available
+        return {}
+    
+    def _extract_album_platform_ids(self, album_data: dict) -> dict:
+        """Extract platform-specific IDs for album"""
+        # This would be populated from external_metadata if available
+        return {}
+    
+    def _parse_date(self, date_str: str):
+        """Parse date string to Date object"""
+        if not date_str:
+            return None
+        
+        try:
+            return datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return None
 
 
