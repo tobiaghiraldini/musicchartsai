@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from apps.soundcharts.admin_views.track_audience_admin import TrackAudienceAdmin
 from .models import (
     Platform,
     Artist,
@@ -41,4 +43,4 @@ admin.site.register(ChartRankingEntrySummary, ChartRankingEntrySummaryAdmin)
 admin.site.register(MetadataFetchTask, MetadataFetchTaskAdmin)
 
 # Register TrackAudienceTimeSeries with inline admin
-admin.site.register(TrackAudienceTimeSeries)
+admin.site.register(TrackAudienceTimeSeries, TrackAudienceAdmin)
