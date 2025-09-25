@@ -28,3 +28,4 @@ apps/helpers
 !/media/Sales.csv
 .env*
 /media
+/db.sqlite3
