@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import FileExtensionValidator
 import uuid
-import json
 
 User = get_user_model()
 
@@ -187,3 +186,74 @@ class WebhookLog(models.Model):
     
     def __str__(self):
         return f"Webhook {self.file_id} - {self.status} - {self.created_at}"
+
+
+class ACRCloudTrackMatch(models.Model):
+    """Store individual track matches from ACRCloud analysis"""
+    
+    MATCH_TYPE_CHOICES = [
+        ('music', 'Music Match'),
+        ('cover', 'Cover Song'),
+        ('similar', 'Similar Song'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE, related_name='track_matches')
+    match_type = models.CharField(max_length=20, choices=MATCH_TYPE_CHOICES)
+    
+    # ACRCloud specific data
+    acrcloud_id = models.CharField(max_length=255)
+    score = models.IntegerField(help_text="ACRCloud confidence score")
+    offset = models.FloatField(help_text="Match offset in seconds")
+    played_duration = models.FloatField(help_text="Duration of matched segment")
+    
+    # Track reference (if we can match to existing Track)
+    track = models.ForeignKey('soundcharts.Track', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Raw ACRCloud data
+    raw_data = models.JSONField(help_text="Complete ACRCloud match data")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-score', 'offset']
+        verbose_name = "ACRCloud Track Match"
+        verbose_name_plural = "ACRCloud Track Matches"
+        indexes = [
+            models.Index(fields=['analysis', 'match_type']),
+            models.Index(fields=['score']),
+        ]
+    
+    def __str__(self):
+        return f"{self.get_match_type_display()} - Score: {self.score} - {self.acrcloud_id}"
+
+
+class PlatformTrackMapping(models.Model):
+    """Map tracks to platform-specific IDs"""
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    track = models.ForeignKey('soundcharts.Track', on_delete=models.CASCADE, related_name='platform_mappings')
+    platform = models.ForeignKey('soundcharts.Platform', on_delete=models.CASCADE)
+    
+    # Platform-specific identifiers
+    platform_track_id = models.CharField(max_length=255)
+    platform_artist_id = models.CharField(max_length=255, blank=True)
+    platform_album_id = models.CharField(max_length=255, blank=True)
+    
+    # Additional platform metadata
+    platform_url = models.URLField(blank=True)
+    platform_image_url = models.URLField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['track', 'platform', 'platform_track_id']
+        verbose_name = "Platform Track Mapping"
+        verbose_name_plural = "Platform Track Mappings"
+        indexes = [
+            models.Index(fields=['platform', 'platform_track_id']),
+        ]
+    
+    def __str__(self):
+        return f"{self.track.name} - {self.platform.name} ({self.platform_track_id})"

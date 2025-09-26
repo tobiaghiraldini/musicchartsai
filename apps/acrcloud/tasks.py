@@ -238,6 +238,11 @@ def process_acrcloud_webhook_task(analysis_id: str, file_id: str):
             **report_data
         )
         
+        # Process metadata and create/update Soundcharts models
+        from .service import ACRCloudMetadataProcessor
+        metadata_processor = ACRCloudMetadataProcessor()
+        metadata_processor.process_webhook_results(analysis, combined_results)
+        
         # Update song status
         song.status = 'analyzed'
         song.save()
