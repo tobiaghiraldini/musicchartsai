@@ -617,7 +617,7 @@ class TrackAudienceTimeSeries(models.Model):
     def get_chart_data(cls, track, platform, start_date=None, end_date=None, limit=None):
         """
         Get formatted data ready for charting
-        Returns data ordered by date for line charts
+        Returns data ordered by date for line charts (most recent first, then reordered for display)
         """
         queryset = cls.objects.filter(track=track, platform=platform)
         
@@ -626,11 +626,14 @@ class TrackAudienceTimeSeries(models.Model):
         if end_date:
             queryset = queryset.filter(date__lte=end_date)
         
-        # Order first, then apply limit
-        queryset = queryset.order_by('date')
+        # Order by date descending to get most recent records first
+        queryset = queryset.order_by('-date')
         
         if limit:
             queryset = queryset[:limit]
+        
+        # Reorder by date ascending for proper chart display (oldest to newest)
+        queryset = queryset.order_by('date')
         
         return queryset.values('date', 'audience_value')
     
