@@ -58,27 +58,30 @@ def debug_audience_data():
                 print(f"   Oldest date: {oldest.date} (value: {oldest.audience_value:,})")
                 
                 # Test the chart data method with limit=30
-                chart_data = list(track.get_audience_chart_data(platform, limit=30))
-                print(f"   Chart data points (limit=30): {len(chart_data)}")
-                
-                if chart_data:
-                    chart_latest = chart_data[-1]  # Last item (most recent)
-                    chart_oldest = chart_data[0]   # First item (oldest in chart)
-                    print(f"   Chart latest date: {chart_latest['date']} (value: {chart_latest['audience_value']:,})")
-                    print(f"   Chart oldest date: {chart_oldest['date']} (value: {chart_oldest['audience_value']:,})")
+                try:
+                    chart_data = list(track.get_audience_chart_data(platform, limit=30))
+                    print(f"   Chart data points (limit=30): {len(chart_data)}")
                     
-                    # Verify consistency
-                    if chart_latest['date'] == latest.date:
-                        print("   ✅ Chart shows correct latest date")
+                    if chart_data:
+                        chart_latest = chart_data[-1]  # Last item (most recent)
+                        chart_oldest = chart_data[0]   # First item (oldest in chart)
+                        print(f"   Chart latest date: {chart_latest['date']} (value: {chart_latest['audience_value']:,})")
+                        print(f"   Chart oldest date: {chart_oldest['date']} (value: {chart_oldest['audience_value']:,})")
+                        
+                        # Verify consistency
+                        if chart_latest['date'] == latest.date:
+                            print("   ✅ Chart shows correct latest date")
+                        else:
+                            print(f"   ❌ Chart latest date mismatch! Expected: {latest.date}, Got: {chart_latest['date']}")
+                        
+                        if len(chart_data) <= 30:
+                            print("   ✅ Chart data limit working correctly")
+                        else:
+                            print(f"   ❌ Chart data limit exceeded! Expected: ≤30, Got: {len(chart_data)}")
                     else:
-                        print(f"   ❌ Chart latest date mismatch! Expected: {latest.date}, Got: {chart_latest['date']}")
-                    
-                    if len(chart_data) <= 30:
-                        print("   ✅ Chart data limit working correctly")
-                    else:
-                        print(f"   ❌ Chart data limit exceeded! Expected: ≤30, Got: {len(chart_data)}")
-                else:
-                    print("   ⚠️  No chart data returned")
+                        print("   ⚠️  No chart data returned")
+                except Exception as e:
+                    print(f"   ❌ Error getting chart data: {e}")
             else:
                 print("   ⚠️  No data points found")
 
@@ -107,7 +110,11 @@ def test_specific_track(track_uuid):
             ).order_by('-date').values('date', 'audience_value')[:30])
             
             # Chart data method
-            chart_data = list(track.get_audience_chart_data(platform, limit=30))
+            try:
+                chart_data = list(track.get_audience_chart_data(platform, limit=30))
+            except Exception as e:
+                print(f"❌ Error getting chart data: {e}")
+                chart_data = []
             
             print(f"Raw data count: {len(raw_data)}")
             print(f"Chart data count: {len(chart_data)}")

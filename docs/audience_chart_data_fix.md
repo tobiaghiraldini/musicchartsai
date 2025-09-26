@@ -24,22 +24,27 @@ if limit:
 
 ## Solution Implemented
 
-Fixed the data ordering logic to:
+Fixed the data ordering logic to avoid Django's "Cannot reorder a query once a slice has been taken" error:
 
-1. **First**: Order by `'-date'` (descending) to get most recent records first
-2. **Second**: Apply the limit to get the most recent N records
-3. **Third**: Reorder by `'date'` (ascending) for proper chart display (oldest to newest)
+1. **When limit is applied**: Get the most recent N records, convert to list, then sort for display
+2. **When no limit**: Simply order by date ascending
 
 ```python
-# Order by date descending to get most recent records first
-queryset = queryset.order_by('-date')
-
 if limit:
-    queryset = queryset[:limit]
-
-# Reorder by date ascending for proper chart display (oldest to newest)
-queryset = queryset.order_by('date')
+    # Get the most recent dates first, then order for display
+    # First, get the most recent N records
+    recent_records = queryset.order_by('-date')[:limit]
+    # Convert to list to avoid queryset issues
+    recent_records = list(recent_records)
+    # Sort by date ascending for chart display
+    recent_records.sort(key=lambda x: x.date)
+    return [{'date': record.date, 'audience_value': record.audience_value} for record in recent_records]
+else:
+    # No limit, just order by date ascending
+    return queryset.order_by('date').values('date', 'audience_value')
 ```
+
+**Note**: The original approach of trying to reorder after slicing caused Django to throw an error because Django doesn't allow `order_by()` calls after applying a slice (`[:limit]`).
 
 ## Files Modified
 

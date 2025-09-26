@@ -617,7 +617,7 @@ class TrackAudienceTimeSeries(models.Model):
     def get_chart_data(cls, track, platform, start_date=None, end_date=None, limit=None):
         """
         Get formatted data ready for charting
-        Returns data ordered by date for line charts (most recent first, then reordered for display)
+        Returns data ordered by date for line charts (most recent records, ordered oldest to newest)
         """
         queryset = cls.objects.filter(track=track, platform=platform)
         
@@ -626,16 +626,18 @@ class TrackAudienceTimeSeries(models.Model):
         if end_date:
             queryset = queryset.filter(date__lte=end_date)
         
-        # Order by date descending to get most recent records first
-        queryset = queryset.order_by('-date')
-        
         if limit:
-            queryset = queryset[:limit]
-        
-        # Reorder by date ascending for proper chart display (oldest to newest)
-        queryset = queryset.order_by('date')
-        
-        return queryset.values('date', 'audience_value')
+            # Get the most recent dates first, then order for display
+            # First, get the most recent N records
+            recent_records = queryset.order_by('-date')[:limit]
+            # Convert to list to avoid queryset issues
+            recent_records = list(recent_records)
+            # Sort by date ascending for chart display
+            recent_records.sort(key=lambda x: x.date)
+            return [{'date': record.date, 'audience_value': record.audience_value} for record in recent_records]
+        else:
+            # No limit, just order by date ascending
+            return queryset.order_by('date').values('date', 'audience_value')
     
     @classmethod
     def get_platform_comparison(cls, track, platforms, start_date=None, end_date=None, limit=None):
