@@ -187,13 +187,14 @@ def batch_analyze_songs(song_ids: list, config_name: str = None):
 
 
 @shared_task
-def process_acrcloud_webhook_task(analysis_id: str, file_id: str):
+def process_acrcloud_webhook_task(analysis_id: str, file_id: str, webhook_data: dict = None):
     """
     Process ACRCloud webhook callback and retrieve analysis results
     
     Args:
         analysis_id: UUID of the Analysis model
         file_id: ACRCloud file ID
+        webhook_data: Optional webhook data to use instead of API call
     """
     try:
         from .models import Analysis
@@ -208,9 +209,14 @@ def process_acrcloud_webhook_task(analysis_id: str, file_id: str):
         # Initialize ACRCloud service
         service = ACRCloudService()
         
-        # Retrieve the file scanning results
-        file_results = service.get_file_scanning_results(file_id)
-        logger.info(f"Retrieved file scanning results for {file_id}")
+        # Use webhook data if provided, otherwise fetch from API
+        if webhook_data:
+            logger.info(f"Using webhook data for {file_id}")
+            file_results = webhook_data
+        else:
+            # Retrieve the file scanning results
+            file_results = service.get_file_scanning_results(file_id)
+            logger.info(f"Retrieved file scanning results for {file_id}")
         
         # Also get identification results for additional analysis
         identify_results = service.identify_audio(song.audio_file, top_n=10)

@@ -202,6 +202,20 @@ class AnalysisReportView(View):
         return render(request, 'acrcloud/analysis_report.html', context)
 
 
+@method_decorator(login_required, name='dispatch')
+class PatternMatchingReportView(View):
+    """
+    View for displaying detailed pattern matching report
+    """
+    def get(self, request, analysis_id):
+        analysis = get_object_or_404(Analysis, id=analysis_id, song__user=request.user)
+        
+        context = {
+            'analysis': analysis,
+        }
+        return render(request, 'acrcloud/pattern_matching_report.html', context)
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class FilePondUploadView(View):
     """
@@ -427,7 +441,15 @@ class ACRCloudWebhookView(View):
             if status == 'completed' or status == 'success':
                 # File processing completed, retrieve results
                 from .tasks import process_acrcloud_webhook_task
-                process_acrcloud_webhook_task.delay(str(analysis.id), file_id)
+                
+                # Pass webhook data directly to avoid additional API calls
+                webhook_results = payload.get('results', {})
+                if webhook_results:
+                    logger.info(f"Processing webhook with provided results data")
+                    process_acrcloud_webhook_task.delay(str(analysis.id), file_id, webhook_results)
+                else:
+                    logger.info(f"No results in webhook, will fetch from API")
+                    process_acrcloud_webhook_task.delay(str(analysis.id), file_id)
                 
                 logger.info(f"Queued webhook processing task for analysis: {analysis.id}")
                 return JsonResponse({'status': 'success', 'message': 'Webhook processed'})

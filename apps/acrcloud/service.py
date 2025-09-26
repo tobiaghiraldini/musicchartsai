@@ -495,15 +495,25 @@ class ACRCloudMetadataProcessor:
     def process_webhook_results(self, analysis: 'Analysis', webhook_data: dict):
         """Process webhook results and create metadata models"""
         
-        results = webhook_data.get('results', {})
+        # Handle different data structures
+        if 'file_scanning' in webhook_data:
+            # Combined results from task
+            results = webhook_data.get('file_scanning', {})
+        else:
+            # Direct webhook data
+            results = webhook_data.get('results', webhook_data)
+        
+        self.logger.info(f"Processing webhook results: {list(results.keys())}")
         
         # Process music matches
         music_matches = results.get('music', [])
+        self.logger.info(f"Found {len(music_matches)} music matches")
         for match_data in music_matches:
             self._process_music_match(analysis, match_data)
         
         # Process cover song matches
         cover_matches = results.get('cover_songs', [])
+        self.logger.info(f"Found {len(cover_matches)} cover matches")
         for match_data in cover_matches:
             self._process_cover_match(analysis, match_data)
     
@@ -513,21 +523,30 @@ class ACRCloudMetadataProcessor:
         # Extract track information
         track_info = match_data.get('result', {})
         
+        # Extract pattern matching details
+        pattern_matching = self._extract_pattern_matching_data(match_data, track_info)
+        
         # Create or update Track
         track = self._create_or_update_track(track_info, match_data)
         
-        # Create ACRCloud match record
+        # Create ACRCloud match record with enhanced data
         from .models import ACRCloudTrackMatch
         ACRCloudTrackMatch.objects.create(
             analysis=analysis,
             match_type='music',
             acrcloud_id=track_info.get('acrid'),
-            score=match_data.get('score', 0),
+            score=track_info.get('score', match_data.get('score', 0)),
             offset=match_data.get('offset', 0),
             played_duration=match_data.get('played_duration', 0),
             track=track,
-            raw_data=match_data
+            raw_data={
+                'match_data': match_data,
+                'track_info': track_info,
+                'pattern_matching': pattern_matching
+            }
         )
+        
+        self.logger.info(f"Created music match: {track_info.get('title', 'Unknown')} - Score: {track_info.get('score', 0)}")
     
     def _process_cover_match(self, analysis: 'Analysis', match_data: dict):
         """Process a cover song match and create/update models"""
@@ -535,21 +554,30 @@ class ACRCloudMetadataProcessor:
         # Extract track information
         track_info = match_data.get('result', {})
         
+        # Extract pattern matching details
+        pattern_matching = self._extract_pattern_matching_data(match_data, track_info)
+        
         # Create or update Track
         track = self._create_or_update_track(track_info, match_data)
         
-        # Create ACRCloud match record
+        # Create ACRCloud match record with enhanced data
         from .models import ACRCloudTrackMatch
         ACRCloudTrackMatch.objects.create(
             analysis=analysis,
             match_type='cover',
             acrcloud_id=track_info.get('acrid'),
-            score=match_data.get('score', 0),
+            score=track_info.get('score', match_data.get('score', 0)),
             offset=match_data.get('offset', 0),
             played_duration=match_data.get('played_duration', 0),
             track=track,
-            raw_data=match_data
+            raw_data={
+                'match_data': match_data,
+                'track_info': track_info,
+                'pattern_matching': pattern_matching
+            }
         )
+        
+        self.logger.info(f"Created cover match: {track_info.get('title', 'Unknown')} - Score: {track_info.get('score', 0)}")
     
     def _create_or_update_track(self, track_info: dict, match_data: dict):
         """Create or update Track model from ACRCloud data"""
@@ -577,8 +605,8 @@ class ACRCloudMetadataProcessor:
                 acrcloud_id=track_info.get('acrid'),
                 acrcloud_score=match_data.get('score'),
                 acrcloud_analyzed_at=timezone.now(),
-                upc=track_info.get('external_ids', {}).get('upc'),
-                musicbrainz_id=track_info.get('external_metadata', {}).get('musicbrainz', {}).get('track', {}).get('id'),
+                upc=track_info.get('external_ids', {}).get('upc') or '',
+                musicbrainz_id=track_info.get('external_metadata', {}).get('musicbrainz', {}).get('track', {}).get('id') or '',
                 platform_ids=self._extract_platform_ids(track_info.get('external_metadata', {}))
             )
         else:
@@ -586,8 +614,8 @@ class ACRCloudMetadataProcessor:
             track.acrcloud_id = track_info.get('acrid')
             track.acrcloud_score = match_data.get('score')
             track.acrcloud_analyzed_at = timezone.now()
-            track.upc = track_info.get('external_ids', {}).get('upc')
-            track.musicbrainz_id = track_info.get('external_metadata', {}).get('musicbrainz', {}).get('track', {}).get('id')
+            track.upc = track_info.get('external_ids', {}).get('upc') or ''
+            track.musicbrainz_id = track_info.get('external_metadata', {}).get('musicbrainz', {}).get('track', {}).get('id') or ''
             track.platform_ids = self._extract_platform_ids(track_info.get('external_metadata', {}))
             track.save()
         
@@ -754,6 +782,35 @@ class ACRCloudMetadataProcessor:
         """Extract platform-specific IDs for album"""
         # This would be populated from external_metadata if available
         return {}
+    
+    def _extract_pattern_matching_data(self, match_data: dict, track_info: dict) -> dict:
+        """Extract pattern matching and fingerprint analysis data"""
+        
+        pattern_data = {
+            'offset': match_data.get('offset', 0),
+            'played_duration': match_data.get('played_duration', 0),
+            'type': match_data.get('type', 'unknown'),
+            'score': track_info.get('score', 0),
+            'similarity': track_info.get('similarity', 0),
+            'distance': track_info.get('distance', 0),
+            'pattern_matching': track_info.get('pattern_matching', 0),
+            'risk': track_info.get('risk', 0),
+            'match_type': track_info.get('match_type', 'unknown'),
+            'result_from': track_info.get('result_from', 0),
+            'duration_ms': track_info.get('duration_ms', 0),
+            'db_begin_time_offset_ms': track_info.get('db_begin_time_offset_ms', 0),
+            'db_end_time_offset_ms': track_info.get('db_end_time_offset_ms', 0),
+            'sample_begin_time_offset_ms': track_info.get('sample_begin_time_offset_ms', 0),
+            'sample_end_time_offset_ms': track_info.get('sample_end_time_offset_ms', 0),
+        }
+        
+        # Extract time skew and frequency skew if available
+        if 'time_skew' in track_info:
+            pattern_data['time_skew'] = track_info['time_skew']
+        if 'frequency_skew' in track_info:
+            pattern_data['frequency_skew'] = track_info['frequency_skew']
+        
+        return pattern_data
     
     def _parse_date(self, date_str: str):
         """Parse date string to Date object"""
