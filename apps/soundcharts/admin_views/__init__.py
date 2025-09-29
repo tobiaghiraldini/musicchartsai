@@ -10,6 +10,7 @@ from .genre_admin import GenreAdmin
 from .chart_ranking_admin import ChartRankingAdmin, ChartRankingEntrySummaryAdmin
 from .chart_ranking_entry_admin import ChartRankingEntryAdmin
 from .metadata_fetch_task_admin import MetadataFetchTaskAdmin
+from .chart_sync_admin import ChartSyncScheduleAdmin, ChartSyncExecutionAdmin
 
 __all__ = [
     "SoundchartsAdminMixin",
@@ -18,11 +19,12 @@ __all__ = [
     "AlbumAdmin",
     "TrackAdmin",
     "VenueAdmin",
-
     "ChartAdmin",
     "GenreAdmin",
     "ChartRankingAdmin",
     "ChartRankingEntrySummaryAdmin",
     "ChartRankingEntryAdmin",
     "MetadataFetchTaskAdmin",
+    "ChartSyncScheduleAdmin",
+    "ChartSyncExecutionAdmin",
 ]

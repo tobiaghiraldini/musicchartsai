@@ -8,7 +8,11 @@ from .views import (
     PlatformListView,
     TopArtistsView,
     TopSongsView,
-    SongAudienceDetailView
+    SongAudienceDetailView,
+    ChartSyncScheduleAPIView,
+    ChartSyncScheduleDetailAPIView,
+    ChartSyncTriggerAPIView,
+    ChartSyncStatusAPIView,
 )
 
 app_name = 'soundcharts'
@@ -21,6 +25,12 @@ urlpatterns = [
     path('platforms/', PlatformListView.as_view(), name='platform_list'),
     # API endpoints
     path('api/tracks-with-audience/', TracksWithAudienceView.as_view(), name='tracks_with_audience'),
+    
+    # Chart Sync API endpoints
+    path('api/sync/schedules/', ChartSyncScheduleAPIView.as_view(), name='chart_sync_schedules'),
+    path('api/sync/schedules/<int:schedule_id>/', ChartSyncScheduleDetailAPIView.as_view(), name='chart_sync_schedule_detail'),
+    path('api/sync/trigger/', ChartSyncTriggerAPIView.as_view(), name='chart_sync_trigger'),
+    path('api/sync/status/<int:chart_id>/', ChartSyncStatusAPIView.as_view(), name='chart_sync_status'),
     
     # Audience chart data endpoints
     path('audience/chart/<str:track_uuid>/', AudienceChartView.as_view(), name='audience_chart_all_platforms'),

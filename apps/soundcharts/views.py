@@ -6,8 +6,12 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from .models import Track, Platform, TrackAudienceTimeSeries, ChartRankingEntry
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
+from django.utils import timezone
+from .models import Track, Platform, TrackAudienceTimeSeries, ChartRankingEntry, ChartSyncSchedule, ChartSyncExecution, Chart
 from .audience_processor import AudienceDataProcessor
+from .tasks import sync_chart_rankings_task
 import json
 import logging
 
@@ -400,6 +404,9 @@ class SongAudienceDetailView(View):
             # Get the track
             track = get_object_or_404(Track, uuid=track_uuid)
             
+            # Check if audience data needs to be fetched
+            _check_and_fetch_audience_data(track)
+            
             # Get platforms that have audience data for this track
             platforms = Platform.objects.filter(
                 audience_timeseries__track=track
@@ -454,3 +461,378 @@ class SongAudienceDetailView(View):
                 'error': 'Failed to load song details',
                 'segment': 'charts',
             })
+
+
+# Chart Sync API Views
+@method_decorator(staff_member_required, name='dispatch')
+class ChartSyncScheduleAPIView(View):
+    """
+    API view for managing chart sync schedules
+    """
+    
+    def get(self, request):
+        """Get all chart sync schedules"""
+        try:
+            schedules = ChartSyncSchedule.objects.select_related('chart', 'chart__platform').all()
+            
+            schedules_data = []
+            for schedule in schedules:
+                schedules_data.append({
+                    'id': schedule.id,
+                    'chart': {
+                        'id': schedule.chart.id,
+                        'name': schedule.chart.name,
+                        'platform': schedule.chart.platform.name if schedule.chart.platform else None,
+                        'frequency': schedule.chart.frequency,
+                    },
+                    'is_active': schedule.is_active,
+                    'sync_frequency': schedule.sync_frequency,
+                    'custom_interval_hours': schedule.custom_interval_hours,
+                    'last_sync_at': schedule.last_sync_at.isoformat() if schedule.last_sync_at else None,
+                    'next_sync_at': schedule.next_sync_at.isoformat() if schedule.next_sync_at else None,
+                    'total_executions': schedule.total_executions,
+                    'successful_executions': schedule.successful_executions,
+                    'failed_executions': schedule.failed_executions,
+                    'success_rate': schedule.success_rate,
+                    'is_overdue': schedule.is_overdue,
+                    'created_at': schedule.created_at.isoformat(),
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'schedules': schedules_data
+            })
+            
+        except Exception as e:
+            logger.error(f"Error getting chart sync schedules: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+    
+    def post(self, request):
+        """Create a new chart sync schedule"""
+        try:
+            data = json.loads(request.body)
+            chart_id = data.get('chart_id')
+            
+            if not chart_id:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'chart_id is required'
+                }, status=400)
+            
+            chart = get_object_or_404(Chart, id=chart_id)
+            
+            # Check if schedule already exists
+            if ChartSyncSchedule.objects.filter(chart=chart).exists():
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Chart sync schedule already exists for this chart'
+                }, status=400)
+            
+            # Create new schedule
+            schedule = ChartSyncSchedule.objects.create(
+                chart=chart,
+                created_by=request.user,
+                is_active=data.get('is_active', True),
+                sync_frequency=data.get('sync_frequency'),
+                custom_interval_hours=data.get('custom_interval_hours'),
+                sync_immediately=data.get('sync_immediately', False),
+                sync_historical_data=data.get('sync_historical_data', True),
+                fetch_track_metadata=data.get('fetch_track_metadata', True),
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'schedule': {
+                    'id': schedule.id,
+                    'chart': {
+                        'id': schedule.chart.id,
+                        'name': schedule.chart.name,
+                    },
+                    'is_active': schedule.is_active,
+                    'sync_frequency': schedule.sync_frequency,
+                    'custom_interval_hours': schedule.custom_interval_hours,
+                    'sync_immediately': schedule.sync_immediately,
+                    'sync_historical_data': schedule.sync_historical_data,
+                    'fetch_track_metadata': schedule.fetch_track_metadata,
+                    'next_sync_at': schedule.next_sync_at.isoformat() if schedule.next_sync_at else None,
+                }
+            })
+            
+        except Exception as e:
+            logger.error(f"Error creating chart sync schedule: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class ChartSyncScheduleDetailAPIView(View):
+    """
+    API view for managing individual chart sync schedules
+    """
+    
+    def get(self, request, schedule_id):
+        """Get a specific chart sync schedule"""
+        try:
+            schedule = get_object_or_404(ChartSyncSchedule, id=schedule_id)
+            
+            # Get recent executions
+            executions = ChartSyncExecution.objects.filter(
+                schedule=schedule
+            ).order_by('-started_at')[:10]
+            
+            executions_data = []
+            for execution in executions:
+                executions_data.append({
+                    'id': execution.id,
+                    'status': execution.status,
+                    'started_at': execution.started_at.isoformat(),
+                    'completed_at': execution.completed_at.isoformat() if execution.completed_at else None,
+                    'duration': execution.duration,
+                    'rankings_created': execution.rankings_created,
+                    'rankings_updated': execution.rankings_updated,
+                    'tracks_created': execution.tracks_created,
+                    'tracks_updated': execution.tracks_updated,
+                    'error_message': execution.error_message,
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'schedule': {
+                    'id': schedule.id,
+                    'chart': {
+                        'id': schedule.chart.id,
+                        'name': schedule.chart.name,
+                        'platform': schedule.chart.platform.name if schedule.chart.platform else None,
+                        'frequency': schedule.chart.frequency,
+                    },
+                    'is_active': schedule.is_active,
+                    'sync_frequency': schedule.sync_frequency,
+                    'custom_interval_hours': schedule.custom_interval_hours,
+                    'last_sync_at': schedule.last_sync_at.isoformat() if schedule.last_sync_at else None,
+                    'next_sync_at': schedule.next_sync_at.isoformat() if schedule.next_sync_at else None,
+                    'total_executions': schedule.total_executions,
+                    'successful_executions': schedule.successful_executions,
+                    'failed_executions': schedule.failed_executions,
+                    'success_rate': schedule.success_rate,
+                    'is_overdue': schedule.is_overdue,
+                    'created_at': schedule.created_at.isoformat(),
+                    'executions': executions_data,
+                }
+            })
+            
+        except Exception as e:
+            logger.error(f"Error getting chart sync schedule {schedule_id}: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+    
+    def put(self, request, schedule_id):
+        """Update a chart sync schedule"""
+        try:
+            schedule = get_object_or_404(ChartSyncSchedule, id=schedule_id)
+            data = json.loads(request.body)
+            
+            # Update fields
+            if 'is_active' in data:
+                schedule.is_active = data['is_active']
+            if 'sync_frequency' in data:
+                schedule.sync_frequency = data['sync_frequency']
+            if 'custom_interval_hours' in data:
+                schedule.custom_interval_hours = data['custom_interval_hours']
+            
+            schedule.save()
+            
+            return JsonResponse({
+                'success': True,
+                'schedule': {
+                    'id': schedule.id,
+                    'is_active': schedule.is_active,
+                    'sync_frequency': schedule.sync_frequency,
+                    'custom_interval_hours': schedule.custom_interval_hours,
+                    'next_sync_at': schedule.next_sync_at.isoformat() if schedule.next_sync_at else None,
+                }
+            })
+            
+        except Exception as e:
+            logger.error(f"Error updating chart sync schedule {schedule_id}: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+    
+    def delete(self, request, schedule_id):
+        """Delete a chart sync schedule"""
+        try:
+            schedule = get_object_or_404(ChartSyncSchedule, id=schedule_id)
+            chart_name = schedule.chart.name
+            schedule.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Chart sync schedule for "{chart_name}" deleted successfully'
+            })
+            
+        except Exception as e:
+            logger.error(f"Error deleting chart sync schedule {schedule_id}: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class ChartSyncTriggerAPIView(View):
+    """
+    API view for triggering manual chart syncs
+    """
+    
+    def post(self, request):
+        """Trigger manual sync for a chart"""
+        try:
+            data = json.loads(request.body)
+            chart_id = data.get('chart_id')
+            
+            if not chart_id:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'chart_id is required'
+                }, status=400)
+            
+            chart = get_object_or_404(Chart, id=chart_id)
+            
+            try:
+                schedule = ChartSyncSchedule.objects.get(chart=chart)
+            except ChartSyncSchedule.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Chart sync schedule not found for this chart'
+                }, status=404)
+            
+            if not schedule.is_active:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Chart sync schedule is not active'
+                }, status=400)
+            
+            # Create execution record
+            execution = ChartSyncExecution.objects.create(
+                schedule=schedule,
+                status='pending'
+            )
+            
+            # Queue the sync task
+            task = sync_chart_rankings_task.delay(schedule.id, execution.id)
+            execution.celery_task_id = task.id
+            execution.status = 'running'
+            execution.save()
+            
+            return JsonResponse({
+                'success': True,
+                'execution': {
+                    'id': execution.id,
+                    'status': execution.status,
+                    'celery_task_id': execution.celery_task_id,
+                    'started_at': execution.started_at.isoformat(),
+                },
+                'message': f'Manual sync triggered for chart "{chart.name}"'
+            })
+            
+        except Exception as e:
+            logger.error(f"Error triggering manual sync: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class ChartSyncStatusAPIView(View):
+    """
+    API view for getting chart sync status
+    """
+    
+    def get(self, request, chart_id):
+        """Get sync status for a specific chart"""
+        try:
+            chart = get_object_or_404(Chart, id=chart_id)
+            
+            try:
+                schedule = ChartSyncSchedule.objects.get(chart=chart)
+                
+                # Get latest execution
+                latest_execution = ChartSyncExecution.objects.filter(
+                    schedule=schedule
+                ).order_by('-started_at').first()
+                
+                return JsonResponse({
+                    'success': True,
+                    'status': {
+                        'has_schedule': True,
+                        'is_active': schedule.is_active,
+                        'sync_frequency': schedule.sync_frequency,
+                        'last_sync_at': schedule.last_sync_at.isoformat() if schedule.last_sync_at else None,
+                        'next_sync_at': schedule.next_sync_at.isoformat() if schedule.next_sync_at else None,
+                        'total_executions': schedule.total_executions,
+                        'success_rate': schedule.success_rate,
+                        'is_overdue': schedule.is_overdue,
+                        'latest_execution': {
+                            'id': latest_execution.id,
+                            'status': latest_execution.status,
+                            'started_at': latest_execution.started_at.isoformat(),
+                            'completed_at': latest_execution.completed_at.isoformat() if latest_execution.completed_at else None,
+                            'error_message': latest_execution.error_message,
+                        } if latest_execution else None,
+                    }
+                })
+                
+            except ChartSyncSchedule.DoesNotExist:
+                return JsonResponse({
+                    'success': True,
+                    'status': {
+                        'has_schedule': False,
+                        'is_active': False,
+                    }
+                })
+            
+        except Exception as e:
+            logger.error(f"Error getting chart sync status for chart {chart_id}: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+
+def _check_and_fetch_audience_data(track):
+    """
+    Check if audience data needs to be fetched and trigger fetch if needed
+    """
+    from datetime import timedelta
+    from django.utils import timezone
+    from .tasks import fetch_track_audience_data
+    
+    # Check if audience data is stale or missing
+    should_fetch = False
+    
+    if not track.audience_fetched_at:
+        # Never fetched audience data
+        should_fetch = True
+    else:
+        # Check if audience data is older than 7 days
+        cutoff_date = timezone.now() - timedelta(days=7)
+        if track.audience_fetched_at < cutoff_date:
+            should_fetch = True
+    
+    # Check if track has any audience data at all
+    if not TrackAudienceTimeSeries.objects.filter(track=track).exists():
+        should_fetch = True
+    
+    if should_fetch:
+        # Queue audience data fetch task
+        fetch_track_audience_data.delay(track.uuid)
+        logger.info(f"Queued audience data fetch for track {track.uuid}")

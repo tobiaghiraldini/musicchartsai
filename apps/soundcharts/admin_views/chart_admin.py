@@ -106,6 +106,7 @@ class ChartAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
         # "get_data_insights",
         "get_data_recommendations",
         "get_data_alerts",
+        "get_sync_status",
         # "created_at",
         # "updated_at",
     )
@@ -114,7 +115,7 @@ class ChartAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
     ordering = ("name",)
     readonly_fields = ("slug", "get_rankings_summary")
     inlines = [ChartRankingsInline]
-    actions = ["view_chart_rankings"]
+    actions = ["view_chart_rankings", "add_to_sync_schedule", "remove_from_sync_schedule", "trigger_manual_sync"]
     fieldsets = (
         (
             "Chart Information",
@@ -1395,6 +1396,146 @@ Ranking History Summary:
             return "✅ No Alerts"
 
     get_data_alerts.short_description = "Alerts"
+
+    def get_sync_status(self, obj):
+        """Display sync schedule status for this chart"""
+        from ..models import ChartSyncSchedule
+        
+        try:
+            schedule = ChartSyncSchedule.objects.get(chart=obj)
+            if schedule.is_active:
+                if schedule.is_overdue:
+                    return format_html(
+                        '<span style="color: red;">⚠ Overdue</span> | '
+                        '<a href="{}" style="color: blue;">Manage</a>',
+                        reverse('admin:soundcharts_chartsyncschedule_change', args=[schedule.id])
+                    )
+                else:
+                    return format_html(
+                        '<span style="color: green;">✓ Active</span> | '
+                        '<a href="{}" style="color: blue;">Manage</a>',
+                        reverse('admin:soundcharts_chartsyncschedule_change', args=[schedule.id])
+                    )
+            else:
+                return format_html(
+                    '<span style="color: orange;">⏸ Inactive</span> | '
+                    '<a href="{}" style="color: blue;">Manage</a>',
+                    reverse('admin:soundcharts_chartsyncschedule_change', args=[schedule.id])
+                )
+        except ChartSyncSchedule.DoesNotExist:
+            return format_html(
+                '<span style="color: gray;">Not Scheduled</span> | '
+                '<a href="{}" style="color: blue;">Add to Sync</a>',
+                reverse('admin:soundcharts_chartsyncschedule_add_chart', args=[obj.id])
+            )
+    
+    get_sync_status.short_description = "Sync Status"
+    get_sync_status.admin_order_field = 'sync_schedules__is_active'
+
+    def add_to_sync_schedule(self, request, queryset):
+        """Add selected charts to sync schedule"""
+        from ..models import ChartSyncSchedule
+        
+        count = 0
+        for chart in queryset:
+            schedule, created = ChartSyncSchedule.objects.get_or_create(
+                chart=chart,
+                defaults={
+                    'created_by': request.user,
+                    'is_active': True,
+                    'sync_immediately': False,  # Default to scheduled sync
+                    'sync_historical_data': True,
+                    'fetch_track_metadata': True,
+                }
+            )
+            if created:
+                count += 1
+        
+        if count > 0:
+            self.message_user(
+                request,
+                f"Successfully added {count} chart(s) to sync schedule. "
+                f"Charts will sync according to their frequency schedule. "
+                f"Use 'Trigger Manual Sync' action to start immediate sync.",
+                messages.SUCCESS
+            )
+        else:
+            self.message_user(
+                request,
+                "Selected charts are already in sync schedule.",
+                messages.INFO
+            )
+    
+    add_to_sync_schedule.short_description = "Add to Sync Schedule"
+
+    def remove_from_sync_schedule(self, request, queryset):
+        """Remove selected charts from sync schedule"""
+        from ..models import ChartSyncSchedule
+        
+        count = 0
+        for chart in queryset:
+            try:
+                schedule = ChartSyncSchedule.objects.get(chart=chart)
+                schedule.delete()
+                count += 1
+            except ChartSyncSchedule.DoesNotExist:
+                pass
+        
+        if count > 0:
+            self.message_user(
+                request,
+                f"Successfully removed {count} chart(s) from sync schedule.",
+                messages.SUCCESS
+            )
+        else:
+            self.message_user(
+                request,
+                "Selected charts are not in sync schedule.",
+                messages.INFO
+            )
+    
+    remove_from_sync_schedule.short_description = "Remove from Sync Schedule"
+
+    def trigger_manual_sync(self, request, queryset):
+        """Trigger manual sync for selected charts"""
+        from ..models import ChartSyncSchedule, ChartSyncExecution
+        from ..tasks import sync_chart_rankings_task
+        
+        count = 0
+        for chart in queryset:
+            try:
+                schedule = ChartSyncSchedule.objects.get(chart=chart)
+                if schedule.is_active:
+                    # Create execution record
+                    execution = ChartSyncExecution.objects.create(
+                        schedule=schedule,
+                        status='pending'
+                    )
+                    
+                    # Queue the sync task
+                    task = sync_chart_rankings_task.delay(schedule.id, execution.id)
+                    execution.celery_task_id = task.id
+                    execution.status = 'running'
+                    execution.save()
+                    
+                    count += 1
+            except ChartSyncSchedule.DoesNotExist:
+                pass
+        
+        if count > 0:
+            self.message_user(
+                request,
+                f"Successfully triggered sync for {count} chart(s).",
+                messages.SUCCESS
+            )
+        else:
+            self.message_user(
+                request,
+                "No active sync schedules found for selected charts.",
+                messages.WARNING
+            )
+    
+    trigger_manual_sync.short_description = "Trigger Manual Sync"
 
     def get_urls(self):
         """Add custom URLs for chart ranking import"""

@@ -248,7 +248,22 @@ class SoundchartsService:
         datetime 2020-10-06T18:00:01+00:00
         """
         # /api/v2.14/chart/song/{slug}/ranking/{datetime}
-        atom_datetime = f"{datetime}:00+00:00" if datetime else "latest"
+        if datetime:
+            # Handle datetime objects properly
+            if hasattr(datetime, 'strftime'):
+                # It's a datetime object, format it properly
+                atom_datetime = datetime.strftime('%Y-%m-%dT%H:%M:%S%z')
+                # Ensure timezone format is correct (replace +0000 with +00:00)
+                if atom_datetime.endswith('+0000'):
+                    atom_datetime = atom_datetime[:-5] + '+00:00'
+                elif atom_datetime.endswith('-0000'):
+                    atom_datetime = atom_datetime[:-5] + '+00:00'
+            else:
+                # It's a string, use as is
+                atom_datetime = str(datetime)
+        else:
+            atom_datetime = "latest"
+            
         url = f"{self.api_url}/api/v2.14/chart/song/{platform_slug}/ranking/{atom_datetime}"
 
         try:

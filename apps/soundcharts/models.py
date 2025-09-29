@@ -773,3 +773,299 @@ class ChartRankingEntrySummary(ChartRankingEntry):
         proxy = True
         verbose_name = 'Chart Entry Summary'
         verbose_name_plural = 'Chart Entries Summary'
+
+
+class ChartSyncSchedule(models.Model):
+    """
+    Manages scheduled chart synchronization tasks with Soundcharts API
+    """
+    SYNC_FREQUENCY_CHOICES = [
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly'),
+        ('custom', 'Custom Interval'),
+    ]
+    
+    chart = models.ForeignKey(
+        Chart, 
+        on_delete=models.CASCADE, 
+        related_name="sync_schedules",
+        help_text="Chart to sync"
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Whether this sync schedule is active"
+    )
+    sync_frequency = models.CharField(
+        max_length=50, 
+        choices=SYNC_FREQUENCY_CHOICES,
+        help_text="How often to sync this chart"
+    )
+    custom_interval_hours = models.IntegerField(
+        null=True, 
+        blank=True,
+        help_text="Custom interval in hours (only used if sync_frequency is 'custom')"
+    )
+    last_sync_at = models.DateTimeField(
+        null=True, 
+        blank=True,
+        help_text="When this chart was last synced"
+    )
+    next_sync_at = models.DateTimeField(
+        null=True, 
+        blank=True,
+        help_text="When this chart should be synced next"
+    )
+    
+    # Sync statistics
+    total_executions = models.IntegerField(
+        default=0,
+        help_text="Total number of sync executions"
+    )
+    successful_executions = models.IntegerField(
+        default=0,
+        help_text="Number of successful sync executions"
+    )
+    failed_executions = models.IntegerField(
+        default=0,
+        help_text="Number of failed sync executions"
+    )
+    
+    # Sync options
+    sync_immediately = models.BooleanField(
+        default=False,
+        help_text="Whether to start sync immediately when schedule is created"
+    )
+    sync_historical_data = models.BooleanField(
+        default=True,
+        help_text="Whether to sync all historical data based on chart frequency"
+    )
+    fetch_track_metadata = models.BooleanField(
+        default=True,
+        help_text="Whether to fetch track metadata during chart sync"
+    )
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        'auth.User', 
+        on_delete=models.SET_NULL, 
+        null=True,
+        help_text="User who created this sync schedule"
+    )
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Chart Sync Schedule"
+        verbose_name_plural = "Chart Sync Schedules"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['chart'],
+                name='unique_chart_sync_schedule'
+            )
+        ]
+    
+    def __str__(self):
+        return f"{self.chart.name} - {self.get_sync_frequency_display()}"
+    
+    def save(self, *args, **kwargs):
+        # Set sync_frequency from chart frequency if not already set
+        if not self.sync_frequency and self.chart:
+            chart_freq = self.chart.frequency.lower()
+            if chart_freq in ['daily', 'weekly', 'monthly']:
+                self.sync_frequency = chart_freq
+            else:
+                self.sync_frequency = 'weekly'  # default fallback
+        
+        # Calculate next_sync_at if not set
+        if self.is_active and not self.next_sync_at:
+            self.calculate_next_sync()
+        
+        super().save(*args, **kwargs)
+        
+        # Trigger immediate sync if requested
+        if self.sync_immediately and self.is_active:
+            self._trigger_immediate_sync()
+    
+    def _trigger_immediate_sync(self):
+        """Trigger immediate sync for this schedule"""
+        # Import here to avoid circular imports
+        from .tasks import sync_chart_rankings_task
+        
+        # Create execution record
+        execution = ChartSyncExecution.objects.create(
+            schedule=self,
+            status='pending'
+        )
+        
+        # Queue the sync task
+        task = sync_chart_rankings_task.delay(self.id, execution.id)
+        execution.celery_task_id = task.id
+        execution.status = 'running'
+        execution.save()
+        
+        # Reset the immediate sync flag
+        self.sync_immediately = False
+        self.save(update_fields=['sync_immediately'])
+    
+    def calculate_next_sync(self):
+        """Calculate when the next sync should occur"""
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        now = timezone.now()
+        
+        if self.sync_frequency == 'daily':
+            self.next_sync_at = now + timedelta(days=1)
+        elif self.sync_frequency == 'weekly':
+            self.next_sync_at = now + timedelta(weeks=1)
+        elif self.sync_frequency == 'monthly':
+            self.next_sync_at = now + timedelta(days=30)
+        elif self.sync_frequency == 'custom' and self.custom_interval_hours:
+            self.next_sync_at = now + timedelta(hours=self.custom_interval_hours)
+        else:
+            self.next_sync_at = now + timedelta(weeks=1)  # fallback
+    
+    @property
+    def success_rate(self):
+        """Returns success rate as percentage"""
+        if self.total_executions == 0:
+            return 0
+        return int((self.successful_executions / self.total_executions) * 100)
+    
+    @property
+    def is_overdue(self):
+        """Returns True if sync is overdue"""
+        from django.utils import timezone
+        return self.next_sync_at and self.next_sync_at < timezone.now()
+
+
+class ChartSyncExecution(models.Model):
+    """
+    Tracks individual chart sync executions
+    """
+    EXECUTION_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('running', 'Running'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    schedule = models.ForeignKey(
+        ChartSyncSchedule, 
+        on_delete=models.CASCADE, 
+        related_name="executions",
+        help_text="The sync schedule this execution belongs to"
+    )
+    status = models.CharField(
+        max_length=20, 
+        choices=EXECUTION_STATUS_CHOICES, 
+        default='pending',
+        help_text="Current status of this execution"
+    )
+    
+    # Execution details
+    started_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="When this execution started"
+    )
+    completed_at = models.DateTimeField(
+        null=True, 
+        blank=True,
+        help_text="When this execution completed"
+    )
+    error_message = models.TextField(
+        blank=True,
+        help_text="Error message if execution failed"
+    )
+    
+    # Results
+    rankings_created = models.IntegerField(
+        default=0,
+        help_text="Number of chart rankings created in this execution"
+    )
+    rankings_updated = models.IntegerField(
+        default=0,
+        help_text="Number of chart rankings updated in this execution"
+    )
+    tracks_created = models.IntegerField(
+        default=0,
+        help_text="Number of tracks created in this execution"
+    )
+    tracks_updated = models.IntegerField(
+        default=0,
+        help_text="Number of tracks updated in this execution"
+    )
+    
+    # Celery task tracking
+    celery_task_id = models.CharField(
+        max_length=255, 
+        null=True,
+        blank=True,
+        help_text="Celery task ID for this execution"
+    )
+    
+    # Retry information
+    retry_count = models.IntegerField(
+        default=0,
+        help_text="Number of retry attempts"
+    )
+    max_retries = models.IntegerField(
+        default=3,
+        help_text="Maximum number of retries allowed"
+    )
+    
+    class Meta:
+        ordering = ['-started_at']
+        verbose_name = "Chart Sync Execution"
+        verbose_name_plural = "Chart Sync Executions"
+    
+    def __str__(self):
+        return f"{self.schedule.chart.name} - {self.status} - {self.started_at.strftime('%Y-%m-%d %H:%M')}"
+    
+    @property
+    def duration(self):
+        """Returns execution duration in seconds"""
+        if self.completed_at and self.started_at:
+            return (self.completed_at - self.started_at).total_seconds()
+        return None
+    
+    @property
+    def is_successful(self):
+        """Returns True if execution was successful"""
+        return self.status == 'completed'
+    
+    def mark_completed(self, rankings_created=0, rankings_updated=0, tracks_created=0, tracks_updated=0):
+        """Mark execution as completed with results"""
+        from django.utils import timezone
+        
+        self.status = 'completed'
+        self.completed_at = timezone.now()
+        self.rankings_created = rankings_created
+        self.rankings_updated = rankings_updated
+        self.tracks_created = tracks_created
+        self.tracks_updated = tracks_updated
+        self.save()
+        
+        # Update schedule statistics
+        self.schedule.total_executions += 1
+        self.schedule.successful_executions += 1
+        self.schedule.last_sync_at = self.completed_at
+        self.schedule.calculate_next_sync()
+        self.schedule.save()
+    
+    def mark_failed(self, error_message=""):
+        """Mark execution as failed with error message"""
+        from django.utils import timezone
+        
+        self.status = 'failed'
+        self.completed_at = timezone.now()
+        self.error_message = error_message
+        self.save()
+        
+        # Update schedule statistics
+        self.schedule.total_executions += 1
+        self.schedule.failed_executions += 1
+        self.schedule.save()

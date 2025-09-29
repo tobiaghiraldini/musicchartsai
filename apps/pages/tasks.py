@@ -3,7 +3,7 @@ import datetime
 from os import listdir
 from os.path import isfile, join
 
-from .celery import app
+from celery import shared_task
 from celery.contrib.abortable import AbortableTask
 from django_celery_results.models import TaskResult
 
@@ -54,7 +54,7 @@ def write_to_log_file(logs, script_name):
     
     return log_file_path
 
-@app.task(bind=True, base=AbortableTask)
+@shared_task(bind=True, base=AbortableTask)
 def execute_script(self, data: dict):
     """
     This task executes scripts found in settings.CELERY_SCRIPTS_DIR and logs are later generated and stored in settings.CELERY_LOGS_DIR
