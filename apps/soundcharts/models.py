@@ -887,6 +887,10 @@ class ChartSyncSchedule(models.Model):
         # Trigger immediate sync if requested
         if self.sync_immediately and self.is_active:
             self._trigger_immediate_sync()
+        
+        # Ensure the periodic task is scheduled (only on creation)
+        if not self.pk:  # New instance
+            self._ensure_periodic_task_scheduled()
     
     def _trigger_immediate_sync(self):
         """Trigger immediate sync for this schedule"""
@@ -908,6 +912,26 @@ class ChartSyncSchedule(models.Model):
         # Reset the immediate sync flag
         self.sync_immediately = False
         self.save(update_fields=['sync_immediately'])
+    
+    def _ensure_periodic_task_scheduled(self):
+        """Ensure the periodic task is scheduled in Celery Beat"""
+        try:
+            from celery import current_app
+            from celery.schedules import crontab
+            
+            # Check if the periodic task is already scheduled
+            beat_schedule = current_app.conf.beat_schedule or {}
+            if 'process-chart-sync-schedules' not in beat_schedule:
+                # Schedule the periodic task
+                current_app.conf.beat_schedule.update({
+                    'process-chart-sync-schedules': {
+                        'task': 'apps.soundcharts.tasks.process_scheduled_chart_syncs',
+                        'schedule': 300.0,  # Every 5 minutes
+                    },
+                })
+                logger.info("Scheduled periodic chart sync task")
+        except Exception as e:
+            logger.warning(f"Could not schedule periodic task: {e}")
     
     def calculate_next_sync(self):
         """Calculate when the next sync should occur"""

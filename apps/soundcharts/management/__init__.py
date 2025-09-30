@@ -1,1 +1,1 @@
-# Management package for soundcharts app
+# Management commands for soundcharts app

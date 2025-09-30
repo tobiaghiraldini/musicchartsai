@@ -164,6 +164,57 @@ Dedicated admin interface for managing sync schedules:
 
 ## Celery Tasks
 
+### Automatic Task Execution
+The system includes multiple mechanisms to ensure scheduled tasks are executed:
+
+1. **Celery Beat Configuration** (Primary Method)
+   - Configured in `config/settings.py` with `CELERY_BEAT_SCHEDULE`
+   - Runs `process_scheduled_chart_syncs` every 5 minutes
+   - Automatically finds and processes due schedules
+
+2. **Django Management Command** (Backup Method)
+   - Command: `python manage.py process_chart_syncs`
+   - Can be run manually or via cron
+   - Useful for debugging or manual execution
+
+3. **Model-Level Scheduling** (Automatic Setup)
+   - When a new `ChartSyncSchedule` is created, it ensures the periodic task is scheduled
+   - Prevents missing periodic task configuration
+
+### Starting the System
+To run the complete chart sync system:
+
+```bash
+# Terminal 1: Start Celery Worker
+celery -A config worker -l info
+
+# Terminal 2: Start Celery Beat (for periodic tasks)
+celery -A config beat -l info
+
+# Terminal 3: Start Django (if not already running)
+python manage.py runserver
+```
+
+### Configuration Details
+
+**Celery Beat Schedule:**
+```python
+CELERY_BEAT_SCHEDULE = {
+    'process-chart-sync-schedules': {
+        'task': 'apps.soundcharts.tasks.process_scheduled_chart_syncs',
+        'schedule': 300.0,  # Run every 5 minutes
+    },
+}
+```
+
+**Task Flow:**
+1. Celery Beat runs `process_scheduled_chart_syncs` every 5 minutes
+2. Task queries for active schedules where `next_sync_at <= now`
+3. For each due schedule, creates a `ChartSyncExecution` record
+4. Queues `sync_chart_rankings_task` with the execution ID
+5. Updates execution status and Celery task ID
+6. Worker processes the sync task asynchronously
+
 ### sync_chart_rankings_task
 
 Main task for syncing chart rankings.
@@ -196,8 +247,9 @@ Periodic task to process due sync schedules.
 4. Updates next sync times
 
 **Scheduling:**
-- Should be run regularly (e.g., every hour)
-- Can be scheduled via Celery Beat or cron
+- **Automatically scheduled** via Celery Beat every 5 minutes
+- Can also be run manually via Django management command
+- Ensures continuous monitoring of due schedules
 
 ## API Endpoints
 

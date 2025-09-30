@@ -233,6 +233,14 @@ CELERY_RESULT_EXPIRES = 60 * 60 * 24 * 30  # Results expire after 1 month
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+
+# Celery Beat Configuration for Periodic Tasks
+CELERY_BEAT_SCHEDULE = {
+    'process-chart-sync-schedules': {
+        'task': 'apps.soundcharts.tasks.process_scheduled_chart_syncs',
+        'schedule': 300.0,  # Run every 5 minutes
+    },
+}
 ########################################
 
 
