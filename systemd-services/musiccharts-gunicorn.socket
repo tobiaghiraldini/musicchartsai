@@ -1,0 +1,10 @@
+[Unit]
+Description=Music Charts AI Gunicorn socket
+
+[Socket]
+ListenStream=/run/musiccharts-gunicorn.sock
+SocketUser=www-data
+SocketMode=600
+
+[Install]
+WantedBy=sockets.target

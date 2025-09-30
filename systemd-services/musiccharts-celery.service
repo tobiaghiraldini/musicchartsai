@@ -1,0 +1,18 @@
+[Unit]
+Description=Music Charts AI Celery Worker
+After=network.target
+
+[Service]
+Type=forking
+User=musiccharts
+Group=musiccharts
+EnvironmentFile=/opt/musiccharts/app/.env
+WorkingDirectory=/opt/musiccharts/app
+ExecStart=/opt/musiccharts/venv/bin/celery -A config worker --loglevel=info --logfile=/var/log/musiccharts/celery-worker.log --pidfile=/var/run/musiccharts-celery.pid --detach
+ExecStop=/bin/kill -s TERM $MAINPID
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

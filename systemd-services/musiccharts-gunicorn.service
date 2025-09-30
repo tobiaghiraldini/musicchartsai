@@ -1,0 +1,20 @@
+[Unit]
+Description=Music Charts AI Gunicorn daemon
+Requires=musiccharts-gunicorn.socket
+After=network.target
+
+[Service]
+Type=notify
+User=musiccharts
+Group=musiccharts
+RuntimeDirectory=musiccharts
+WorkingDirectory=/opt/musiccharts/app
+Environment=PATH=/opt/musiccharts/venv/bin
+Environment=DJANGO_SETTINGS_MODULE=config.settings
+ExecStart=/opt/musiccharts/venv/bin/gunicorn --config gunicorn-prod.conf.py config.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
