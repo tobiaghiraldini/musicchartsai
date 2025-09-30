@@ -1,0 +1,133 @@
+site_name: MusicChartsAI Documentation
+site_description: Comprehensive documentation for MusicChartsAI platform
+site_url: https://musicchartsai.com/docs
+repo_url: https://github.com/your-repo/musicchartsai
+repo_name: MusicChartsAI
+
+docs_dir: docs_site
+site_dir: site
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.share
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search:
+      lang: en
+  - mermaid2
+  - swagger-ui-tag
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.mark
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.details
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quick-start.md
+    - Configuration: getting-started/configuration.md
+  - Features:
+    - Overview: features/overview.md
+    - Soundcharts Integration: features/soundcharts-integration.md
+    - ACRCloud Analysis: features/acrcloud-analysis.md
+    - Dynamic Tables & API: features/dynamic-tables-api.md
+    - Chart Management: features/chart-management.md
+    - User Management: features/user-management.md
+    - Background Tasks: features/background-tasks.md
+  - API Reference:
+    - Overview: api/overview.md
+    - External APIs: api/external-apis.md
+    - Internal APIs: api/internal-apis.md
+    - Authentication: api/authentication.md
+  - Admin Guide:
+    - Dashboard Overview: admin/dashboard-overview.md
+    - Data Management: admin/data-management.md
+    - Task Monitoring: admin/task-monitoring.md
+    - User Administration: admin/user-administration.md
+  - Deployment:
+    - Production Setup: deployment/production-setup.md
+    - Docker Deployment: deployment/docker-deployment.md
+    - CI/CD Pipeline: deployment/ci-cd-pipeline.md
+    - Environment Configuration: deployment/environment-configuration.md
+  - Development:
+    - Architecture: development/architecture.md
+    - Contributing: development/contributing.md
+    - Testing: development/testing.md
+    - Troubleshooting: development/troubleshooting.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/your-repo/musicchartsai
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/musicchartsai
+  version:
+    provider: mike

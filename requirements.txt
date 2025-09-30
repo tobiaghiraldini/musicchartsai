@@ -67,3 +67,8 @@ urllib3==2.5.0
 vine==5.1.0
 wcwidth==0.2.13
 whitenoise==6.5.0
+mkdocs==1.6.1
+mkdocs-get-deps==0.2.0
+mkdocs-material==9.6.20
+mkdocs-mermaid2-plugin==1.2.2
+mkdocs-swagger-ui-tag==0.7.2

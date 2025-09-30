@@ -157,11 +157,6 @@ def starter(request):
   return render(request, "pages/starter.html", context)
 
 @login_required(login_url='/users/signin/')
-def docs(request):
-    context = {}
-    return render(request, "pages/docs.html", context)
-
-@login_required(login_url='/users/signin/')
 def charts_list(request):
     """
     View for displaying the main charts table

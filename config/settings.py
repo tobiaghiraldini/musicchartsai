@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     "apps.tasks",
     "apps.soundcharts",
     "apps.acrcloud",
+    "apps.documentation",
     "django_celery_results",
     "rest_framework",
     "rest_framework.authtoken",
