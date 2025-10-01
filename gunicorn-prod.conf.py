@@ -24,8 +24,8 @@ max_requests = 1000
 max_requests_jitter = 50
 
 # Logging
-accesslog = "/var/log/musiccharts/gunicorn-access.log"
-errorlog = "/var/log/musiccharts/gunicorn-error.log"
+accesslog = "-"  # Log to stdout for now
+errorlog = "-"   # Log to stderr for now
 loglevel = "info"
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
 
@@ -34,9 +34,9 @@ proc_name = "musiccharts-gunicorn"
 
 # Server mechanics
 daemon = False
-pidfile = "/var/run/musiccharts-gunicorn.pid"
-user = "musiccharts"
-group = "musiccharts"
+# pidfile = "/var/run/musiccharts-gunicorn.pid"  # Comment out for now
+# user = "musiccharts"  # Comment out for now
+# group = "musiccharts"  # Comment out for now
 tmp_upload_dir = None
 
 # SSL (if needed - uncomment and configure paths)
@@ -56,7 +56,7 @@ enable_stdio_inheritance = True
 
 # Worker timeout settings
 graceful_timeout = 30
-worker_tmp_dir = "/dev/shm"
+# worker_tmp_dir = "/dev/shm"  # Comment out for now
 
 # Security settings
 limit_request_line = 4094
