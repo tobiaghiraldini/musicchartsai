@@ -30,4 +30,4 @@ apps/helpers
 .env*
 /media
 /db.sqlite3
-celerybeat-schedule-*
+celerybeat-schedule*
