@@ -643,24 +643,32 @@ class ACRCloudMetadataProcessor:
             if not artist_name:
                 continue
             
-            # Try to find existing artist by name
-            artist = Artist.objects.filter(name__iexact=artist_name).first()
-            
-            if not artist:
-                # Create new artist
-                artist = Artist.objects.create(
-                    uuid=str(uuid.uuid4()),
-                    name=artist_name,
-                    slug=artist_name.lower().replace(' ', '-'),
-                    appUrl='',
-                    imageUrl='',
-                    countryCode='',
-                    platform_ids=self._extract_artist_platform_ids(artist_data)
-                )
-            
-            # Add artist to track if not already associated
-            if artist not in track.artists.all():
-                track.artists.add(artist)
+            try:
+                # Try to find existing artist by name
+                artist = Artist.objects.filter(name__iexact=artist_name).first()
+                
+                if not artist:
+                    # Create new artist
+                    artist = Artist.objects.create(
+                        uuid=str(uuid.uuid4()),
+                        name=artist_name,
+                        slug=artist_name.lower().replace(' ', '-'),
+                        appUrl='',
+                        imageUrl='',
+                        countryCode='',
+                        platform_ids=self._extract_artist_platform_ids(artist_data)
+                    )
+                    self.logger.info(f"Created new artist: {artist_name}")
+                else:
+                    self.logger.debug(f"Using existing artist: {artist_name}")
+                
+                # Add artist to track if not already associated
+                if artist not in track.artists.all():
+                    track.artists.add(artist)
+                    
+            except Exception as e:
+                self.logger.error(f"Failed to create/get artist {artist_name}: {str(e)}")
+                continue
     
     def _create_or_update_album(self, track, album_data: dict):
         """Create or update Album model from ACRCloud data"""
@@ -671,16 +679,24 @@ class ACRCloudMetadataProcessor:
         if not album_name:
             return
         
-        # Try to find existing album by name
-        album = Album.objects.filter(name__iexact=album_name).first()
-        
-        if not album:
-            # Create new album
-            album = Album.objects.create(
-                uuid=str(uuid.uuid4()),
-                name=album_name,
-                platform_ids=self._extract_album_platform_ids(album_data)
-            )
+        try:
+            # Try to find existing album by name
+            album = Album.objects.filter(name__iexact=album_name).first()
+            
+            if not album:
+                # Create new album
+                album = Album.objects.create(
+                    uuid=str(uuid.uuid4()),
+                    name=album_name,
+                    platform_ids=self._extract_album_platform_ids(album_data)
+                )
+                self.logger.info(f"Created new album: {album_name}")
+            else:
+                self.logger.debug(f"Using existing album: {album_name}")
+                
+        except Exception as e:
+            self.logger.error(f"Failed to create/get album {album_name}: {str(e)}")
+            return
     
     def _create_or_update_genres(self, track, genres_data: list):
         """Create or update Genre models from ACRCloud data"""
@@ -692,20 +708,28 @@ class ACRCloudMetadataProcessor:
             if not genre_name:
                 continue
             
-            # Try to find existing genre by name
-            genre = Genre.objects.filter(name__iexact=genre_name).first()
-            
-            if not genre:
-                # Create new genre
-                genre = Genre.objects.create(
-                    name=genre_name,
-                    slug=genre_name.lower().replace(' ', '-'),
-                    level=0  # Assume root level for ACRCloud genres
-                )
-            
-            # Add genre to track if not already associated
-            if genre not in track.genres.all():
-                track.genres.add(genre)
+            try:
+                # Try to find existing genre by name
+                genre = Genre.objects.filter(name__iexact=genre_name).first()
+                
+                if not genre:
+                    # Create new genre
+                    genre = Genre.objects.create(
+                        name=genre_name,
+                        slug=genre_name.lower().replace(' ', '-'),
+                        level=0  # Assume root level for ACRCloud genres
+                    )
+                    self.logger.info(f"Created new genre: {genre_name}")
+                else:
+                    self.logger.debug(f"Using existing genre: {genre_name}")
+                
+                # Add genre to track if not already associated
+                if genre not in track.genres.all():
+                    track.genres.add(genre)
+                    
+            except Exception as e:
+                self.logger.error(f"Failed to create/get genre {genre_name}: {str(e)}")
+                continue
     
     def _create_platform_mappings(self, track, external_metadata: dict):
         """Create platform mappings from external metadata"""
@@ -717,15 +741,26 @@ class ACRCloudMetadataProcessor:
             if platform_name == 'musicbrainz':
                 continue  # Skip MusicBrainz as it's not a streaming platform
             
-            # Get or create platform
-            platform, created = Platform.objects.get_or_create(
-                platform_identifier=platform_name,
-                defaults={
-                    'name': platform_name.title(),
-                    'slug': platform_name.lower(),
-                    'platform_type': 'streaming'
-                }
-            )
+            try:
+                # Get or create platform using slug as the unique identifier
+                platform_slug = platform_name.lower()
+                platform, created = Platform.objects.get_or_create(
+                    slug=platform_slug,
+                    defaults={
+                        'name': platform_name.title(),
+                        'platform_identifier': platform_name,
+                        'platform_type': 'streaming'
+                    }
+                )
+                
+                if created:
+                    self.logger.info(f"Created new platform: {platform_name} (slug: {platform_slug})")
+                else:
+                    self.logger.debug(f"Using existing platform: {platform_name} (slug: {platform_slug})")
+                    
+            except Exception as e:
+                self.logger.error(f"Failed to create/get platform {platform_name}: {str(e)}")
+                continue  # Skip this platform and continue with others
             
             # Extract platform-specific IDs
             track_id = None
@@ -744,16 +779,21 @@ class ACRCloudMetadataProcessor:
                 track_id = data.get('vid')
             
             if track_id:
-                # Create platform mapping
-                PlatformTrackMapping.objects.get_or_create(
-                    track=track,
-                    platform=platform,
-                    platform_track_id=track_id,
-                    defaults={
-                        'platform_artist_id': artist_id or '',
-                        'platform_album_id': album_id or ''
-                    }
-                )
+                try:
+                    # Create platform mapping
+                    PlatformTrackMapping.objects.get_or_create(
+                        track=track,
+                        platform=platform,
+                        platform_track_id=track_id,
+                        defaults={
+                            'platform_artist_id': artist_id or '',
+                            'platform_album_id': album_id or ''
+                        }
+                    )
+                    self.logger.debug(f"Created platform mapping for {platform_name}: {track_id}")
+                except Exception as e:
+                    self.logger.error(f"Failed to create platform mapping for {platform_name}: {str(e)}")
+                    continue
     
     def _extract_platform_ids(self, external_metadata: dict) -> dict:
         """Extract platform-specific IDs from external metadata"""
