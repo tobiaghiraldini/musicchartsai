@@ -129,5 +129,5 @@ extra:
       link: https://github.com/your-repo/musicchartsai
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/musicchartsai
-  version:
-    provider: mike
+  # version:
+   # provider: mike
