@@ -34,9 +34,22 @@ def get_result_field(result, field: str):
     :param field str: Field to return from result object
     :rtype: str
     """
-    result = json.loads(result.result)
-    if result:
-        return result.get(field)
+    try:
+        # Check if result.result is already a dict or other object
+        if isinstance(result.result, dict):
+            return result.result.get(field)
+        
+        # Try to parse as JSON if it's a string
+        if isinstance(result.result, str):
+            parsed_result = json.loads(result.result)
+            if isinstance(parsed_result, dict):
+                return parsed_result.get(field)
+        
+        # If result.result is a boolean or other non-dict type, return None
+        return None
+    except (json.JSONDecodeError, AttributeError, TypeError):
+        # If JSON parsing fails or other errors occur, return None
+        return None
 
 register.filter("get_result_field", get_result_field)
 
