@@ -119,6 +119,10 @@ nav:
     - Environment Configuration: deployment/environment-configuration.md
   - Development:
     - Architecture: development/architecture.md
+    - Features Overview: development/features-overview.md
+    - Data Models: development/data-models.md
+    - Admin Customization: development/admin-customization.md
+    - API & Frontend Integration: development/api-frontend-integration.md
     - Contributing: development/contributing.md
     - Testing: development/testing.md
     - Troubleshooting: development/troubleshooting.md

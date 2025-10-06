@@ -83,10 +83,6 @@
       
     </div>
     
-      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
-        
-      </div>
-    
     
       
 
@@ -1288,6 +1284,98 @@
   
   
     <li class="md-nav__item">
+      <a href="../features-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Features Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../admin-customization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Admin Customization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-frontend-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API & Frontend Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../contributing/" class="md-nav__link">
         
   
@@ -1343,6 +1431,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1354,6 +1455,526 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gunicorn-configuration-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gunicorn Configuration Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Gunicorn Configuration Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-gunicorn-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Gunicorn Errors
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Gunicorn Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#permission-denied-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permission Denied Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#worker-process-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      Worker Process Failures
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gunicorn-configuration-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gunicorn Configuration Comparison
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging-gunicorn-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging Gunicorn Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging Gunicorn Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-test-with-minimal-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Test with Minimal Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-add-workers-gradually" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Add Workers Gradually
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-test-configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Test Configuration File
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#static-files-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Static Files Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Static Files Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#static-files-not-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Static Files Not Loading
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#content-security-policy-csp-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Content Security Policy (CSP) Issues
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-files-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Static Files Verification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tailwind-css-build-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tailwind CSS Build Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-connection-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Connection Problems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#celery-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Celery Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Celery Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#service-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Service Architecture Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#celery-worker-not-starting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Celery Worker Not Starting
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Service Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Service Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-queue-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Task Queue Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-integration-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Integration Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Integration Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#acrcloud-api-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      ACRCloud API Problems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soundcharts-api-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      SoundCharts API Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontend Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontend Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datatables-not-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      DataTables Not Loading
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flowbite-components-not-working" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flowbite Components Not Working
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#slow-database-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Slow Database Queries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#csrf-token-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      CSRF Token Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sslhttps-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      SSL/HTTPS Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monitoring and Debugging
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Monitoring and Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#log-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Log Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health Checks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Production Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Production Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment Issues
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Help
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Help">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#debug-information-to-collect" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debug Information to Collect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#useful-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Useful Commands
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#support-channels" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support Channels
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1387,6 +2008,515 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gunicorn-configuration-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gunicorn Configuration Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Gunicorn Configuration Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-gunicorn-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Gunicorn Errors
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Gunicorn Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#permission-denied-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permission Denied Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#worker-process-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      Worker Process Failures
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gunicorn-configuration-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gunicorn Configuration Comparison
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging-gunicorn-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging Gunicorn Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging Gunicorn Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-test-with-minimal-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Test with Minimal Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-add-workers-gradually" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Add Workers Gradually
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-test-configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Test Configuration File
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#static-files-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Static Files Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Static Files Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#static-files-not-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Static Files Not Loading
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#content-security-policy-csp-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Content Security Policy (CSP) Issues
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-files-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Static Files Verification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tailwind-css-build-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tailwind CSS Build Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-connection-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Connection Problems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#celery-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Celery Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Celery Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#service-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Service Architecture Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#celery-worker-not-starting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Celery Worker Not Starting
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Service Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Service Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-queue-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Task Queue Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-integration-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Integration Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Integration Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#acrcloud-api-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      ACRCloud API Problems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soundcharts-api-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      SoundCharts API Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontend Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontend Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datatables-not-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      DataTables Not Loading
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flowbite-components-not-working" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flowbite Components Not Working
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#slow-database-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Slow Database Queries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#csrf-token-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      CSRF Token Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sslhttps-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      SSL/HTTPS Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monitoring and Debugging
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Monitoring and Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#log-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Log Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health Checks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Production Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Production Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment Issues
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Help
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Help">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#debug-information-to-collect" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debug Information to Collect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#useful-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Useful Commands
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#support-channels" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support Channels
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1405,6 +2535,817 @@
 
 
 <h1 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This comprehensive troubleshooting guide covers common issues, solutions, and debugging techniques for MusicChartsAI. The guide is organized by component and includes step-by-step solutions for development and production environments.</p>
+<h2 id="gunicorn-configuration-issues">Gunicorn Configuration Issues<a class="headerlink" href="#gunicorn-configuration-issues" title="Permanent link">&para;</a></h2>
+<h3 id="common-gunicorn-errors">Common Gunicorn Errors<a class="headerlink" href="#common-gunicorn-errors" title="Permanent link">&para;</a></h3>
+<h4 id="permission-denied-errors">Permission Denied Errors<a class="headerlink" href="#permission-denied-errors" title="Permanent link">&para;</a></h4>
+<p><strong>Problem</strong>: Gunicorn fails to start due to permission issues with log files, PID files, or user/group settings.</p>
+<p><strong>Symptoms</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>PermissionError: [Errno 13] Permission denied: &#39;/var/log/musiccharts/gunicorn-error.log&#39;
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>OSError: [Errno 13] Permission denied: &#39;/var/run/musiccharts-gunicorn.pid&#39;
+</span></code></pre></div></p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Use Simple Configuration (Recommended for Development)</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gunicorn<span class="w"> </span>--config<span class="w"> </span>gunicorn-simple.conf.py<span class="w"> </span>config.wsgi:application
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Fix Permissions for Production Config</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Create log directory</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>sudo<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/var/log/musiccharts
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>sudo<span class="w"> </span>chown<span class="w"> </span><span class="nv">$USER</span>:<span class="nv">$USER</span><span class="w"> </span>/var/log/musiccharts
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>sudo<span class="w"> </span>chmod<span class="w"> </span><span class="m">755</span><span class="w"> </span>/var/log/musiccharts
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1"># Create PID directory</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>sudo<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/var/run
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>sudo<span class="w"> </span>chown<span class="w"> </span><span class="nv">$USER</span>:<span class="nv">$USER</span><span class="w"> </span>/var/run
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Use Command Line Arguments</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gunicorn<span class="w"> </span>--workers<span class="o">=</span><span class="m">2</span><span class="w"> </span>--bind<span class="o">=</span><span class="m">0</span>.0.0.0:8080<span class="w"> </span>config.wsgi:application
+</span></code></pre></div></p>
+</li>
+</ol>
+<h4 id="worker-process-failures">Worker Process Failures<a class="headerlink" href="#worker-process-failures" title="Permanent link">&para;</a></h4>
+<p><strong>Problem</strong>: Gunicorn workers die unexpectedly.</p>
+<p><strong>Symptoms</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>[ERROR] Worker (pid:1234) was sent SIGABRT signal!
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>[ERROR] Worker (pid:1234) did not respond to heartbeats
+</span></code></pre></div></p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Reduce Worker Count</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>gunicorn<span class="w"> </span>--workers<span class="o">=</span><span class="m">1</span><span class="w"> </span>--bind<span class="o">=</span><span class="m">127</span>.0.0.1:8080<span class="w"> </span>config.wsgi:application
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check Django Settings</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>check<span class="w"> </span>--deploy
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>python<span class="w"> </span>manage.py<span class="w"> </span>check
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Test Django Directly</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>runserver<span class="w"> </span><span class="m">127</span>.0.0.1:8080
+</span></code></pre></div></p>
+</li>
+</ol>
+<h3 id="gunicorn-configuration-comparison">Gunicorn Configuration Comparison<a class="headerlink" href="#gunicorn-configuration-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Command Line</th>
+<th>Simple Config</th>
+<th>Production Config</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Workers</td>
+<td>2</td>
+<td>2</td>
+<td>CPU cores * 2 + 1</td>
+</tr>
+<tr>
+<td>Bind</td>
+<td>0.0.0.0:8080</td>
+<td>127.0.0.1:8080</td>
+<td>127.0.0.1:8080</td>
+</tr>
+<tr>
+<td>Logging</td>
+<td>Default</td>
+<td>Console</td>
+<td>File-based</td>
+</tr>
+<tr>
+<td>User/Group</td>
+<td>Current user</td>
+<td>Current user</td>
+<td>musiccharts</td>
+</tr>
+<tr>
+<td>PID File</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="debugging-gunicorn-issues">Debugging Gunicorn Issues<a class="headerlink" href="#debugging-gunicorn-issues" title="Permanent link">&para;</a></h3>
+<h4 id="step-1-test-with-minimal-configuration">Step 1: Test with Minimal Configuration<a class="headerlink" href="#step-1-test-with-minimal-configuration" title="Permanent link">&para;</a></h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>gunicorn<span class="w"> </span>--bind<span class="o">=</span><span class="m">127</span>.0.0.1:8080<span class="w"> </span>config.wsgi:application
+</span></code></pre></div>
+<h4 id="step-2-add-workers-gradually">Step 2: Add Workers Gradually<a class="headerlink" href="#step-2-add-workers-gradually" title="Permanent link">&para;</a></h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>gunicorn<span class="w"> </span>--workers<span class="o">=</span><span class="m">1</span><span class="w"> </span>--bind<span class="o">=</span><span class="m">127</span>.0.0.1:8080<span class="w"> </span>config.wsgi:application
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>gunicorn<span class="w"> </span>--workers<span class="o">=</span><span class="m">2</span><span class="w"> </span>--bind<span class="o">=</span><span class="m">127</span>.0.0.1:8080<span class="w"> </span>config.wsgi:application
+</span></code></pre></div>
+<h4 id="step-3-test-configuration-file">Step 3: Test Configuration File<a class="headerlink" href="#step-3-test-configuration-file" title="Permanent link">&para;</a></h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Check if config file is valid Python</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>python<span class="w"> </span>gunicorn-simple.conf.py
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Test with verbose logging</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>gunicorn<span class="w"> </span>--config<span class="w"> </span>gunicorn-simple.conf.py<span class="w"> </span>--log-level<span class="w"> </span>debug<span class="w"> </span>config.wsgi:application
+</span></code></pre></div>
+<h2 id="static-files-issues">Static Files Issues<a class="headerlink" href="#static-files-issues" title="Permanent link">&para;</a></h2>
+<h3 id="static-files-not-loading">Static Files Not Loading<a class="headerlink" href="#static-files-not-loading" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: CSS, JavaScript, and other static files are not loading properly.</p>
+<p><strong>Symptoms</strong>:
+- Styling not applied
+- JavaScript errors in browser console
+- 404 errors for static files
+- Files served as <code>text/html</code> instead of proper MIME types</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Collect Static Files</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>collectstatic<span class="w"> </span>--noinput<span class="w"> </span>--clear
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check Static Files Configuration</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># settings.py</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">STATIC_URL</span> <span class="o">=</span> <span class="s1">&#39;/static/&#39;</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">STATIC_ROOT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s1">&#39;staticfiles&#39;</span><span class="p">)</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="n">STATICFILES_DIRS</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s1">&#39;static&#39;</span><span class="p">),</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">]</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Fix File Permissions</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Set proper ownership (replace &#39;youruser&#39; with actual user)</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>sudo<span class="w"> </span>chown<span class="w"> </span>-R<span class="w"> </span>youruser:www-data<span class="w"> </span>/path/to/staticfiles/
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>sudo<span class="w"> </span>chown<span class="w"> </span>-R<span class="w"> </span>youruser:www-data<span class="w"> </span>/path/to/media/
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="c1"># Set proper permissions</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>sudo<span class="w"> </span>chmod<span class="w"> </span>-R<span class="w"> </span><span class="m">755</span><span class="w"> </span>/path/to/staticfiles/
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>sudo<span class="w"> </span>chmod<span class="w"> </span>-R<span class="w"> </span><span class="m">755</span><span class="w"> </span>/path/to/media/
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="c1"># Ensure Apache can read the files</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>sudo<span class="w"> </span>chmod<span class="w"> </span>-R<span class="w"> </span><span class="m">644</span><span class="w"> </span>/path/to/staticfiles/*
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check Apache/Nginx Configuration</strong>:
+<div class="language-apache highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c"># Apache configuration with MIME types</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="nb">Alias</span><span class="w"> </span><span class="sx">/static/</span><span class="w"> </span><span class="sx">/path/to/staticfiles/</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="nt">&lt;Directory</span><span class="w"> </span><span class="s">/path/to/staticfiles</span><span class="nt">&gt;</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="nb">Require</span><span class="w"> </span><span class="k">all</span><span class="w"> </span>granted
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="c"># Ensure proper MIME types</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="nb">AddType</span><span class="w"> </span>text/css<span class="w"> </span>.css
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">    </span><span class="nb">AddType</span><span class="w"> </span>application/javascript<span class="w"> </span>.js
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="nt">&lt;/Directory&gt;</span>
+</span></code></pre></div></p>
+</li>
+</ol>
+<div class="language-nginx highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Nginx configuration</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">location</span><span class="w"> </span><span class="s">/static/</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="kn">alias</span><span class="w"> </span><span class="s">/path/to/staticfiles/</span><span class="p">;</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="kn">expires</span><span class="w"> </span><span class="s">30d</span><span class="p">;</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="kn">add_header</span><span class="w"> </span><span class="s">Cache-Control</span><span class="w"> </span><span class="s">&quot;public,</span><span class="w"> </span><span class="s">immutable&quot;</span><span class="p">;</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="content-security-policy-csp-issues">Content Security Policy (CSP) Issues<a class="headerlink" href="#content-security-policy-csp-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: CSP blocks external resources like Google Fonts, GitHub buttons, or FilePond components.</p>
+<p><strong>Symptoms</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Refused to load the script &#39;https://unpkg.com/filepond.min.js&#39;
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>Refused to load the stylesheet &#39;https://fonts.googleapis.com/css&#39;
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>Refused to connect to &#39;https://api.github.com&#39;
+</span></code></pre></div></p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Update CSP Configuration</strong>:
+<div class="language-apache highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c"># Apache CSP header with all required domains</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nb">Header</span><span class="w"> </span>always<span class="w"> </span>set<span class="w"> </span>Content-Security-Policy<span class="w"> </span><span class="s2">&quot;default-src &#39;self&#39;; script-src &#39;self&#39; &#39;unsafe-inline&#39; &#39;unsafe-eval&#39; https://buttons.github.io https://cdn.jsdelivr.net https://unpkg.com; style-src &#39;self&#39; &#39;unsafe-inline&#39; https://fonts.googleapis.com https://unpkg.com; font-src &#39;self&#39; data: https://fonts.gstatic.com; img-src &#39;self&#39; data: https:; connect-src &#39;self&#39; https://api.github.com;&quot;</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Test CSP Configuration</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Test Apache configuration</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>sudo<span class="w"> </span>apache2ctl<span class="w"> </span>configtest
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># If test passes, restart Apache</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>apache2
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1"># Clear browser cache or use incognito mode</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Alternative: Host Resources Locally</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Download external resources locally</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>/path/to/static/vendor/filepond
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="nb">cd</span><span class="w"> </span>/path/to/static/vendor/filepond
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="c1"># Download FilePond files</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>wget<span class="w"> </span>https://unpkg.com/filepond/dist/filepond.min.css
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>wget<span class="w"> </span>https://unpkg.com/filepond/dist/filepond.min.js
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>wget<span class="w"> </span>https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.min.js
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>wget<span class="w"> </span>https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.min.js
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Development CSP (More Permissive)</strong>:
+<div class="language-apache highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c"># For development only - more permissive CSP</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nb">Header</span><span class="w"> </span>always<span class="w"> </span>set<span class="w"> </span>Content-Security-Policy<span class="w"> </span><span class="s2">&quot;default-src &#39;self&#39; &#39;unsafe-inline&#39; &#39;unsafe-eval&#39; https: data: blob:; script-src &#39;self&#39; &#39;unsafe-inline&#39; &#39;unsafe-eval&#39; https:; style-src &#39;self&#39; &#39;unsafe-inline&#39; https:; font-src &#39;self&#39; data: https:; img-src &#39;self&#39; data: https:; connect-src &#39;self&#39; https:;&quot;</span>
+</span></code></pre></div></p>
+</li>
+</ol>
+<h3 id="static-files-verification">Static Files Verification<a class="headerlink" href="#static-files-verification" title="Permanent link">&para;</a></h3>
+<p><strong>Test Static Files Directly</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># Test if static files are accessible</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>curl<span class="w"> </span>-I<span class="w"> </span>https://yourdomain.com/static/dist/main.css
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>curl<span class="w"> </span>-I<span class="w"> </span>https://yourdomain.com/static/images/logo.png
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="c1"># Check file sizes</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>du<span class="w"> </span>-sh<span class="w"> </span>/path/to/staticfiles/
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="c1"># Verify specific files exist</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>ls<span class="w"> </span>-la<span class="w"> </span>/path/to/staticfiles/dist/main.css
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>ls<span class="w"> </span>-la<span class="w"> </span>/path/to/staticfiles/dist/main.bundle.js
+</span></code></pre></div></p>
+<p><strong>Check Apache Error Logs</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># Monitor Apache error logs</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>sudo<span class="w"> </span>tail<span class="w"> </span>-f<span class="w"> </span>/var/log/apache2/error.log
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># Check specific site error log</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>sudo<span class="w"> </span>tail<span class="w"> </span>-f<span class="w"> </span>/path/to/site/error.log
+</span></code></pre></div></p>
+<p><strong>Browser Testing</strong>:
+1. Open browser developer tools (F12)
+2. Go to Network tab
+3. Reload the page
+4. Check if static files load with 200 status codes
+5. Verify no 403 or 404 errors for static files</p>
+<h3 id="tailwind-css-build-issues">Tailwind CSS Build Issues<a class="headerlink" href="#tailwind-css-build-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: Tailwind CSS styles not being generated or applied.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Install Node.js Dependencies</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>npm<span class="w"> </span>install
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>npm<span class="w"> </span>run<span class="w"> </span>build
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check Webpack Configuration</strong>:
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1">// webpack.config.js</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span><span class="nx">entry</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;./static/assets/index.js&#39;</span><span class="p">,</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="w">    </span><span class="nx">output</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="w">        </span><span class="nx">filename</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;[name].bundle.js&#39;</span><span class="p">,</span>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="w">        </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;./static/dist&#39;</span><span class="p">),</span>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="p">};</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check Tailwind Configuration</strong>:
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1">// tailwind.config.js</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">  </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span><span class="s1">&#39;./templates/**/*.html&#39;</span><span class="p">,</span>
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w">    </span><span class="s1">&#39;./static/**/*.js&#39;</span><span class="p">,</span>
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="w">    </span><span class="s1">&#39;./node_modules/flowbite/**/*.js&#39;</span>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="w">  </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="w">    </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;flowbite/plugin&#39;</span><span class="p">)</span>
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="p">}</span>
+</span></code></pre></div></p>
+</li>
+</ol>
+<h2 id="database-issues">Database Issues<a class="headerlink" href="#database-issues" title="Permanent link">&para;</a></h2>
+<h3 id="database-connection-problems">Database Connection Problems<a class="headerlink" href="#database-connection-problems" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: Django cannot connect to the database.</p>
+<p><strong>Symptoms</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>django.db.utils.OperationalError: could not connect to server
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>psycopg2.OperationalError: FATAL: password authentication failed
+</span></code></pre></div></p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Check Database Settings</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="c1"># settings.py</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="n">DATABASES</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>        <span class="s1">&#39;ENGINE&#39;</span><span class="p">:</span> <span class="s1">&#39;django.db.backends.postgresql&#39;</span><span class="p">,</span>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>        <span class="s1">&#39;NAME&#39;</span><span class="p">:</span> <span class="s1">&#39;musiccharts_db&#39;</span><span class="p">,</span>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>        <span class="s1">&#39;USER&#39;</span><span class="p">:</span> <span class="s1">&#39;musiccharts_user&#39;</span><span class="p">,</span>
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>        <span class="s1">&#39;PASSWORD&#39;</span><span class="p">:</span> <span class="s1">&#39;your_password&#39;</span><span class="p">,</span>
+</span><span id="__span-27-8"><a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>        <span class="s1">&#39;HOST&#39;</span><span class="p">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+</span><span id="__span-27-9"><a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>        <span class="s1">&#39;PORT&#39;</span><span class="p">:</span> <span class="s1">&#39;5432&#39;</span><span class="p">,</span>
+</span><span id="__span-27-10"><a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>    <span class="p">}</span>
+</span><span id="__span-27-11"><a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="p">}</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Test Database Connection</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>dbshell
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>psql<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> </span>-U<span class="w"> </span>musiccharts_user<span class="w"> </span>-d<span class="w"> </span>musiccharts_db
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check PostgreSQL Status</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>postgresql
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>postgresql
+</span></code></pre></div></p>
+</li>
+</ol>
+<h3 id="migration-issues">Migration Issues<a class="headerlink" href="#migration-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: Database migrations fail or are inconsistent.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Check Migration Status</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>showmigrations
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Create New Migrations</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>makemigrations
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>python<span class="w"> </span>manage.py<span class="w"> </span>makemigrations<span class="w"> </span>app_name
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Apply Migrations</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>migrate
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>app_name
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Reset Migrations (Development Only)</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="c1"># WARNING: This will delete all data</span>
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>app_name<span class="w"> </span>zero
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>python<span class="w"> </span>manage.py<span class="w"> </span>makemigrations<span class="w"> </span>app_name
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>app_name
+</span></code></pre></div></p>
+</li>
+</ol>
+<h2 id="celery-issues">Celery Issues<a class="headerlink" href="#celery-issues" title="Permanent link">&para;</a></h2>
+<h3 id="service-architecture-overview">Service Architecture Overview<a class="headerlink" href="#service-architecture-overview" title="Permanent link">&para;</a></h3>
+<p><strong>Important</strong>: MusicChartsAI requires <strong>3 separate services</strong> to run properly:</p>
+<ol>
+<li><strong>Gunicorn</strong> - Web server (handles HTTP requests)</li>
+<li><strong>Celery Worker</strong> - Background task processor  </li>
+<li><strong>Celery Beat</strong> - Task scheduler</li>
+</ol>
+<p><strong>❌ What NOT to Do</strong>: DO NOT add Celery to the Gunicorn configuration file. They are completely separate services.</p>
+<h3 id="celery-worker-not-starting">Celery Worker Not Starting<a class="headerlink" href="#celery-worker-not-starting" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: Celery workers fail to start or process tasks.</p>
+<p><strong>Symptoms</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>ModuleNotFoundError: No module named &#39;apps.acrcloud&#39;
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>celery.exceptions.NotRegistered: &#39;apps.soundcharts.tasks.sync_chart_rankings_task&#39;
+</span></code></pre></div></p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Check Celery Configuration</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="c1"># settings.py</span>
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="n">CELERY_BROKER_URL</span> <span class="o">=</span> <span class="s1">&#39;redis://localhost:6379/0&#39;</span>
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="n">CELERY_RESULT_BACKEND</span> <span class="o">=</span> <span class="s1">&#39;redis://localhost:6379/0&#39;</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Install Redis</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>redis-server
+</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>redis
+</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>redis
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Test Redis Connection</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>redis-cli<span class="w"> </span>ping
+</span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="c1"># Should return: PONG</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Start Celery Worker</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>worker<span class="w"> </span>-l<span class="w"> </span>info
+</span></code></pre></div></p>
+</li>
+</ol>
+<h3 id="service-management">Service Management<a class="headerlink" href="#service-management" title="Permanent link">&para;</a></h3>
+<p><strong>Option 1: Manual Commands (For Testing)</strong></p>
+<p><strong>Terminal 1 - Gunicorn:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/your/app
+</span><span id="__span-39-2"><a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>gunicorn<span class="w"> </span>--config<span class="w"> </span>gunicorn-simple.conf.py<span class="w"> </span>config.wsgi:application
+</span></code></pre></div></p>
+<p><strong>Terminal 2 - Celery Worker:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/your/app
+</span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>worker<span class="w"> </span>--loglevel<span class="o">=</span>info
+</span></code></pre></div></p>
+<p><strong>Terminal 3 - Celery Beat:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/your/app
+</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>beat<span class="w"> </span>--loglevel<span class="o">=</span>info
+</span></code></pre></div></p>
+<p><strong>Option 2: Background Processes</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/your/app
+</span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>
+</span><span id="__span-42-3"><a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a><span class="c1"># Start all services in background</span>
+</span><span id="__span-42-4"><a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>gunicorn<span class="w"> </span>--config<span class="w"> </span>gunicorn-simple.conf.py<span class="w"> </span>config.wsgi:application<span class="w"> </span>&gt;<span class="w"> </span>logs/gunicorn.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">&amp;</span>
+</span><span id="__span-42-5"><a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>worker<span class="w"> </span>--loglevel<span class="o">=</span>info<span class="w"> </span>&gt;<span class="w"> </span>logs/celery-worker.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">&amp;</span>
+</span><span id="__span-42-6"><a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>beat<span class="w"> </span>--loglevel<span class="o">=</span>info<span class="w"> </span>&gt;<span class="w"> </span>logs/celery-beat.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">&amp;</span>
+</span><span id="__span-42-7"><a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a>
+</span><span id="__span-42-8"><a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a><span class="c1"># Check if they&#39;re running</span>
+</span><span id="__span-42-9"><a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a>ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;(gunicorn|celery)&quot;</span>
+</span></code></pre></div></p>
+<p><strong>Option 3: Production with Systemd</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="c1"># Enable and start services</span>
+</span><span id="__span-43-2"><a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>musiccharts-gunicorn
+</span><span id="__span-43-3"><a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>musiccharts-celery
+</span><span id="__span-43-4"><a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>musiccharts-celerybeat
+</span><span id="__span-43-5"><a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a>
+</span><span id="__span-43-6"><a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>musiccharts-gunicorn
+</span><span id="__span-43-7"><a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>musiccharts-celery
+</span><span id="__span-43-8"><a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>musiccharts-celerybeat
+</span><span id="__span-43-9"><a id="__codelineno-43-9" name="__codelineno-43-9" href="#__codelineno-43-9"></a>
+</span><span id="__span-43-10"><a id="__codelineno-43-10" name="__codelineno-43-10" href="#__codelineno-43-10"></a><span class="c1"># Check status</span>
+</span><span id="__span-43-11"><a id="__codelineno-43-11" name="__codelineno-43-11" href="#__codelineno-43-11"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>musiccharts-gunicorn
+</span><span id="__span-43-12"><a id="__codelineno-43-12" name="__codelineno-43-12" href="#__codelineno-43-12"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>musiccharts-celery
+</span><span id="__span-43-13"><a id="__codelineno-43-13" name="__codelineno-43-13" href="#__codelineno-43-13"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>musiccharts-celerybeat
+</span></code></pre></div></p>
+<h3 id="service-monitoring">Service Monitoring<a class="headerlink" href="#service-monitoring" title="Permanent link">&para;</a></h3>
+<p><strong>Check Service Status</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="c1"># Check all processes</span>
+</span><span id="__span-44-2"><a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;(gunicorn|celery)&quot;</span>
+</span><span id="__span-44-3"><a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>
+</span><span id="__span-44-4"><a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a><span class="c1"># Check specific service</span>
+</span><span id="__span-44-5"><a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;gunicorn.*config.wsgi&quot;</span>
+</span><span id="__span-44-6"><a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;celery.*worker&quot;</span>
+</span><span id="__span-44-7"><a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;celery.*beat&quot;</span>
+</span></code></pre></div></p>
+<p><strong>View Logs</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="c1"># View log files directly</span>
+</span><span id="__span-45-2"><a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>tail<span class="w"> </span>-f<span class="w"> </span>logs/gunicorn.log
+</span><span id="__span-45-3"><a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>tail<span class="w"> </span>-f<span class="w"> </span>logs/celery-worker.log
+</span><span id="__span-45-4"><a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a>tail<span class="w"> </span>-f<span class="w"> </span>logs/celery-beat.log
+</span><span id="__span-45-5"><a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a>
+</span><span id="__span-45-6"><a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a><span class="c1"># Or with systemd</span>
+</span><span id="__span-45-7"><a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a>sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>musiccharts-gunicorn<span class="w"> </span>-f
+</span><span id="__span-45-8"><a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a>sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>musiccharts-celery<span class="w"> </span>-f
+</span><span id="__span-45-9"><a id="__codelineno-45-9" name="__codelineno-45-9" href="#__codelineno-45-9"></a>sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>musiccharts-celerybeat<span class="w"> </span>-f
+</span></code></pre></div></p>
+<p><strong>Test Celery Connection</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="c1"># Test Redis connection</span>
+</span><span id="__span-46-2"><a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>redis-cli<span class="w"> </span>ping
+</span><span id="__span-46-3"><a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>
+</span><span id="__span-46-4"><a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="c1"># Test Celery worker</span>
+</span><span id="__span-46-5"><a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>inspect<span class="w"> </span>active
+</span><span id="__span-46-6"><a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a>
+</span><span id="__span-46-7"><a id="__codelineno-46-7" name="__codelineno-46-7" href="#__codelineno-46-7"></a><span class="c1"># Test Celery beat</span>
+</span><span id="__span-46-8"><a id="__codelineno-46-8" name="__codelineno-46-8" href="#__codelineno-46-8"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>inspect<span class="w"> </span>scheduled
+</span></code></pre></div></p>
+<h3 id="task-queue-issues">Task Queue Issues<a class="headerlink" href="#task-queue-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: Tasks are not being processed or are stuck in the queue.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Check Celery Status</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>inspect<span class="w"> </span>active
+</span><span id="__span-47-2"><a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>inspect<span class="w"> </span>scheduled
+</span><span id="__span-47-3"><a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>inspect<span class="w"> </span>stats
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Purge Task Queue</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>purge
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Monitor Task Execution</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>events
+</span></code></pre></div></p>
+</li>
+</ol>
+<h2 id="api-integration-issues">API Integration Issues<a class="headerlink" href="#api-integration-issues" title="Permanent link">&para;</a></h2>
+<h3 id="acrcloud-api-problems">ACRCloud API Problems<a class="headerlink" href="#acrcloud-api-problems" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: ACRCloud API calls fail or return errors.</p>
+<p><strong>Symptoms</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>401 Unauthorized
+</span><span id="__span-50-2"><a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a>403 Forbidden
+</span><span id="__span-50-3"><a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>API quota exceeded
+</span></code></pre></div></p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Check API Credentials</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-51-1"><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="c1"># Verify credentials in Django admin</span>
+</span><span id="__span-51-2"><a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a><span class="c1"># Go to /admin/acrcloud/acrcloudconfig/</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Test API Connection</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-52-1"><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>shell
+</span><span id="__span-52-2"><a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>&gt;&gt;&gt;<span class="w"> </span>from<span class="w"> </span>apps.acrcloud.service<span class="w"> </span>import<span class="w"> </span>ACRCloudService
+</span><span id="__span-52-3"><a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a>&gt;&gt;&gt;<span class="w"> </span><span class="nv">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>ACRCloudService<span class="o">()</span>
+</span><span id="__span-52-4"><a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a>&gt;&gt;&gt;<span class="w"> </span><span class="c1"># Test API call</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check API Quotas</strong>:</p>
+</li>
+<li>Log into ACRCloud console</li>
+<li>Check usage and quotas</li>
+<li>Upgrade plan if needed</li>
+</ol>
+<h3 id="soundcharts-api-issues">SoundCharts API Issues<a class="headerlink" href="#soundcharts-api-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: SoundCharts API integration fails.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Verify API Keys</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-53-1"><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="c1"># Check in Django settings</span>
+</span><span id="__span-53-2"><a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a><span class="n">SOUNDCHARTS_APP_ID</span> <span class="o">=</span> <span class="s1">&#39;your_app_id&#39;</span>
+</span><span id="__span-53-3"><a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a><span class="n">SOUNDCHARTS_API_KEY</span> <span class="o">=</span> <span class="s1">&#39;your_api_key&#39;</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Test API Endpoints</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-54-1"><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer your_token&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-54-2"><a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a><span class="w">     </span><span class="s2">&quot;https://api.soundcharts.com/api/v2/track/...&quot;</span>
+</span></code></pre></div></p>
+</li>
+</ol>
+<h2 id="frontend-issues">Frontend Issues<a class="headerlink" href="#frontend-issues" title="Permanent link">&para;</a></h2>
+<h3 id="datatables-not-loading">DataTables Not Loading<a class="headerlink" href="#datatables-not-loading" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: DataTables component fails to load or display data.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Check JavaScript Console</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-55-1"><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a><span class="c1"># Open browser developer tools</span>
+</span><span id="__span-55-2"><a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a><span class="c1"># Check for JavaScript errors</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Verify API Endpoints</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-56-1"><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a><span class="c1"># Test API endpoints</span>
+</span><span id="__span-56-2"><a id="__codelineno-56-2" name="__codelineno-56-2" href="#__codelineno-56-2"></a>curl<span class="w"> </span>http://localhost:8000/api/product/
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check DataTables Configuration</strong>:
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-57-1"><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a><span class="c1">// Ensure jQuery and DataTables are loaded</span>
+</span><span id="__span-57-2"><a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a><span class="c1">// Check data format matches expected structure</span>
+</span></code></pre></div></p>
+</li>
+</ol>
+<h3 id="flowbite-components-not-working">Flowbite Components Not Working<a class="headerlink" href="#flowbite-components-not-working" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: Flowbite components (modals, dropdowns, etc.) not functioning.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Include Flowbite JavaScript</strong>:
+<div class="language-html highlight"><pre><span></span><code><span id="__span-58-1"><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a><span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://unpkg.com/flowbite@1.8.1/dist/flowbite.min.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check Component HTML</strong>:
+<div class="language-html highlight"><pre><span></span><code><span id="__span-59-1"><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a><span class="cm">&lt;!-- Ensure proper data attributes --&gt;</span>
+</span><span id="__span-59-2"><a id="__codelineno-59-2" name="__codelineno-59-2" href="#__codelineno-59-2"></a><span class="p">&lt;</span><span class="nt">button</span> <span class="na">data-modal-target</span><span class="o">=</span><span class="s">&quot;modal&quot;</span> <span class="na">data-modal-toggle</span><span class="o">=</span><span class="s">&quot;modal&quot;</span><span class="p">&gt;</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Initialize Components</strong>:
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-60-1"><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a><span class="c1">// Initialize Flowbite components</span>
+</span><span id="__span-60-2"><a id="__codelineno-60-2" name="__codelineno-60-2" href="#__codelineno-60-2"></a><span class="k">import</span><span class="w"> </span><span class="s1">&#39;flowbite/dist/flowbite.js&#39;</span><span class="p">;</span>
+</span></code></pre></div></p>
+</li>
+</ol>
+<h2 id="performance-issues">Performance Issues<a class="headerlink" href="#performance-issues" title="Permanent link">&para;</a></h2>
+<h3 id="slow-database-queries">Slow Database Queries<a class="headerlink" href="#slow-database-queries" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: Application is slow due to inefficient database queries.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Enable Django Debug Toolbar</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-61-1"><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a><span class="c1"># settings.py (development only)</span>
+</span><span id="__span-61-2"><a id="__codelineno-61-2" name="__codelineno-61-2" href="#__codelineno-61-2"></a><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-61-3"><a id="__codelineno-61-3" name="__codelineno-61-3" href="#__codelineno-61-3"></a>    <span class="s1">&#39;debug_toolbar&#39;</span><span class="p">,</span>
+</span><span id="__span-61-4"><a id="__codelineno-61-4" name="__codelineno-61-4" href="#__codelineno-61-4"></a><span class="p">]</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Optimize Queries</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-62-1"><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a><span class="c1"># Use select_related and prefetch_related</span>
+</span><span id="__span-62-2"><a id="__codelineno-62-2" name="__codelineno-62-2" href="#__codelineno-62-2"></a><span class="n">queryset</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;foreign_key&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;many_to_many&#39;</span><span class="p">)</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Add Database Indexes</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-63-1"><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a><span class="c1"># models.py</span>
+</span><span id="__span-63-2"><a id="__codelineno-63-2" name="__codelineno-63-2" href="#__codelineno-63-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="__span-63-3"><a id="__codelineno-63-3" name="__codelineno-63-3" href="#__codelineno-63-3"></a>    <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-63-4"><a id="__codelineno-63-4" name="__codelineno-63-4" href="#__codelineno-63-4"></a>        <span class="n">models</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;field1&#39;</span><span class="p">,</span> <span class="s1">&#39;field2&#39;</span><span class="p">]),</span>
+</span><span id="__span-63-5"><a id="__codelineno-63-5" name="__codelineno-63-5" href="#__codelineno-63-5"></a>    <span class="p">]</span>
+</span></code></pre></div></p>
+</li>
+</ol>
+<h3 id="memory-issues">Memory Issues<a class="headerlink" href="#memory-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: Application consumes too much memory.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Monitor Memory Usage</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-64-1"><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a><span class="c1"># Check process memory usage</span>
+</span><span id="__span-64-2"><a id="__codelineno-64-2" name="__codelineno-64-2" href="#__codelineno-64-2"></a>ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>python
+</span><span id="__span-64-3"><a id="__codelineno-64-3" name="__codelineno-64-3" href="#__codelineno-64-3"></a>htop
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Optimize Celery Workers</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-65-1"><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a><span class="c1"># settings.py</span>
+</span><span id="__span-65-2"><a id="__codelineno-65-2" name="__codelineno-65-2" href="#__codelineno-65-2"></a><span class="n">CELERY_WORKER_CONCURRENCY</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span id="__span-65-3"><a id="__codelineno-65-3" name="__codelineno-65-3" href="#__codelineno-65-3"></a><span class="n">CELERY_WORKER_MAX_TASKS_PER_CHILD</span> <span class="o">=</span> <span class="mi">1000</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Implement Caching</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-66-1"><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a><span class="c1"># Use Redis caching</span>
+</span><span id="__span-66-2"><a id="__codelineno-66-2" name="__codelineno-66-2" href="#__codelineno-66-2"></a><span class="n">CACHES</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-66-3"><a id="__codelineno-66-3" name="__codelineno-66-3" href="#__codelineno-66-3"></a>    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-66-4"><a id="__codelineno-66-4" name="__codelineno-66-4" href="#__codelineno-66-4"></a>        <span class="s1">&#39;BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;django_redis.cache.RedisCache&#39;</span><span class="p">,</span>
+</span><span id="__span-66-5"><a id="__codelineno-66-5" name="__codelineno-66-5" href="#__codelineno-66-5"></a>        <span class="s1">&#39;LOCATION&#39;</span><span class="p">:</span> <span class="s1">&#39;redis://127.0.0.1:6379/1&#39;</span><span class="p">,</span>
+</span><span id="__span-66-6"><a id="__codelineno-66-6" name="__codelineno-66-6" href="#__codelineno-66-6"></a>    <span class="p">}</span>
+</span><span id="__span-66-7"><a id="__codelineno-66-7" name="__codelineno-66-7" href="#__codelineno-66-7"></a><span class="p">}</span>
+</span></code></pre></div></p>
+</li>
+</ol>
+<h2 id="security-issues">Security Issues<a class="headerlink" href="#security-issues" title="Permanent link">&para;</a></h2>
+<h3 id="csrf-token-errors">CSRF Token Errors<a class="headerlink" href="#csrf-token-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: CSRF token validation fails.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Include CSRF Token in Forms</strong>:
+<div class="language-html highlight"><pre><span></span><code><span id="__span-67-1"><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>{% csrf_token %}
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Configure CSRF Settings</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-68-1"><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a><span class="c1"># settings.py</span>
+</span><span id="__span-68-2"><a id="__codelineno-68-2" name="__codelineno-68-2" href="#__codelineno-68-2"></a><span class="n">CSRF_COOKIE_SECURE</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># HTTPS only</span>
+</span><span id="__span-68-3"><a id="__codelineno-68-3" name="__codelineno-68-3" href="#__codelineno-68-3"></a><span class="n">CSRF_COOKIE_HTTPONLY</span> <span class="o">=</span> <span class="kc">True</span>
+</span></code></pre></div></p>
+</li>
+</ol>
+<h3 id="sslhttps-issues">SSL/HTTPS Issues<a class="headerlink" href="#sslhttps-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: SSL certificate problems or mixed content warnings.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Check SSL Configuration</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-69-1"><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a><span class="c1"># Test SSL certificate</span>
+</span><span id="__span-69-2"><a id="__codelineno-69-2" name="__codelineno-69-2" href="#__codelineno-69-2"></a>openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>yourdomain.com:443
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Configure Secure Settings</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-70-1"><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a><span class="c1"># settings.py</span>
+</span><span id="__span-70-2"><a id="__codelineno-70-2" name="__codelineno-70-2" href="#__codelineno-70-2"></a><span class="n">SECURE_SSL_REDIRECT</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="__span-70-3"><a id="__codelineno-70-3" name="__codelineno-70-3" href="#__codelineno-70-3"></a><span class="n">SESSION_COOKIE_SECURE</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="__span-70-4"><a id="__codelineno-70-4" name="__codelineno-70-4" href="#__codelineno-70-4"></a><span class="n">CSRF_COOKIE_SECURE</span> <span class="o">=</span> <span class="kc">True</span>
+</span></code></pre></div></p>
+</li>
+</ol>
+<h2 id="monitoring-and-debugging">Monitoring and Debugging<a class="headerlink" href="#monitoring-and-debugging" title="Permanent link">&para;</a></h2>
+<h3 id="log-analysis">Log Analysis<a class="headerlink" href="#log-analysis" title="Permanent link">&para;</a></h3>
+<p><strong>Enable Comprehensive Logging</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-71-1"><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a><span class="c1"># settings.py</span>
+</span><span id="__span-71-2"><a id="__codelineno-71-2" name="__codelineno-71-2" href="#__codelineno-71-2"></a><span class="n">LOGGING</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-71-3"><a id="__codelineno-71-3" name="__codelineno-71-3" href="#__codelineno-71-3"></a>    <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-71-4"><a id="__codelineno-71-4" name="__codelineno-71-4" href="#__codelineno-71-4"></a>    <span class="s1">&#39;disable_existing_loggers&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-71-5"><a id="__codelineno-71-5" name="__codelineno-71-5" href="#__codelineno-71-5"></a>    <span class="s1">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-71-6"><a id="__codelineno-71-6" name="__codelineno-71-6" href="#__codelineno-71-6"></a>        <span class="s1">&#39;file&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-71-7"><a id="__codelineno-71-7" name="__codelineno-71-7" href="#__codelineno-71-7"></a>            <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;INFO&#39;</span><span class="p">,</span>
+</span><span id="__span-71-8"><a id="__codelineno-71-8" name="__codelineno-71-8" href="#__codelineno-71-8"></a>            <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;logging.FileHandler&#39;</span><span class="p">,</span>
+</span><span id="__span-71-9"><a id="__codelineno-71-9" name="__codelineno-71-9" href="#__codelineno-71-9"></a>            <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;debug.log&#39;</span><span class="p">,</span>
+</span><span id="__span-71-10"><a id="__codelineno-71-10" name="__codelineno-71-10" href="#__codelineno-71-10"></a>        <span class="p">},</span>
+</span><span id="__span-71-11"><a id="__codelineno-71-11" name="__codelineno-71-11" href="#__codelineno-71-11"></a>        <span class="s1">&#39;console&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-71-12"><a id="__codelineno-71-12" name="__codelineno-71-12" href="#__codelineno-71-12"></a>            <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span>
+</span><span id="__span-71-13"><a id="__codelineno-71-13" name="__codelineno-71-13" href="#__codelineno-71-13"></a>            <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;logging.StreamHandler&#39;</span><span class="p">,</span>
+</span><span id="__span-71-14"><a id="__codelineno-71-14" name="__codelineno-71-14" href="#__codelineno-71-14"></a>        <span class="p">},</span>
+</span><span id="__span-71-15"><a id="__codelineno-71-15" name="__codelineno-71-15" href="#__codelineno-71-15"></a>    <span class="p">},</span>
+</span><span id="__span-71-16"><a id="__codelineno-71-16" name="__codelineno-71-16" href="#__codelineno-71-16"></a>    <span class="s1">&#39;loggers&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-71-17"><a id="__codelineno-71-17" name="__codelineno-71-17" href="#__codelineno-71-17"></a>        <span class="s1">&#39;django&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-71-18"><a id="__codelineno-71-18" name="__codelineno-71-18" href="#__codelineno-71-18"></a>            <span class="s1">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="s1">&#39;console&#39;</span><span class="p">],</span>
+</span><span id="__span-71-19"><a id="__codelineno-71-19" name="__codelineno-71-19" href="#__codelineno-71-19"></a>            <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;INFO&#39;</span><span class="p">,</span>
+</span><span id="__span-71-20"><a id="__codelineno-71-20" name="__codelineno-71-20" href="#__codelineno-71-20"></a>            <span class="s1">&#39;propagate&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-71-21"><a id="__codelineno-71-21" name="__codelineno-71-21" href="#__codelineno-71-21"></a>        <span class="p">},</span>
+</span><span id="__span-71-22"><a id="__codelineno-71-22" name="__codelineno-71-22" href="#__codelineno-71-22"></a>        <span class="s1">&#39;apps&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-71-23"><a id="__codelineno-71-23" name="__codelineno-71-23" href="#__codelineno-71-23"></a>            <span class="s1">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="s1">&#39;console&#39;</span><span class="p">],</span>
+</span><span id="__span-71-24"><a id="__codelineno-71-24" name="__codelineno-71-24" href="#__codelineno-71-24"></a>            <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span>
+</span><span id="__span-71-25"><a id="__codelineno-71-25" name="__codelineno-71-25" href="#__codelineno-71-25"></a>            <span class="s1">&#39;propagate&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-71-26"><a id="__codelineno-71-26" name="__codelineno-71-26" href="#__codelineno-71-26"></a>        <span class="p">},</span>
+</span><span id="__span-71-27"><a id="__codelineno-71-27" name="__codelineno-71-27" href="#__codelineno-71-27"></a>    <span class="p">},</span>
+</span><span id="__span-71-28"><a id="__codelineno-71-28" name="__codelineno-71-28" href="#__codelineno-71-28"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
+<p><strong>Implement Health Check Endpoint</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-72-1"><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a><span class="c1"># views.py</span>
+</span><span id="__span-72-2"><a id="__codelineno-72-2" name="__codelineno-72-2" href="#__codelineno-72-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">JsonResponse</span>
+</span><span id="__span-72-3"><a id="__codelineno-72-3" name="__codelineno-72-3" href="#__codelineno-72-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">connection</span>
+</span><span id="__span-72-4"><a id="__codelineno-72-4" name="__codelineno-72-4" href="#__codelineno-72-4"></a>
+</span><span id="__span-72-5"><a id="__codelineno-72-5" name="__codelineno-72-5" href="#__codelineno-72-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">health_check</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+</span><span id="__span-72-6"><a id="__codelineno-72-6" name="__codelineno-72-6" href="#__codelineno-72-6"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-72-7"><a id="__codelineno-72-7" name="__codelineno-72-7" href="#__codelineno-72-7"></a>        <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
+</span><span id="__span-72-8"><a id="__codelineno-72-8" name="__codelineno-72-8" href="#__codelineno-72-8"></a>            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT 1&quot;</span><span class="p">)</span>
+</span><span id="__span-72-9"><a id="__codelineno-72-9" name="__codelineno-72-9" href="#__codelineno-72-9"></a>        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;healthy&#39;</span><span class="p">})</span>
+</span><span id="__span-72-10"><a id="__codelineno-72-10" name="__codelineno-72-10" href="#__codelineno-72-10"></a>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-72-11"><a id="__codelineno-72-11" name="__codelineno-72-11" href="#__codelineno-72-11"></a>        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;unhealthy&#39;</span><span class="p">,</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)},</span> <span class="n">status</span><span class="o">=</span><span class="mi">503</span><span class="p">)</span>
+</span></code></pre></div></p>
+<h2 id="production-troubleshooting">Production Troubleshooting<a class="headerlink" href="#production-troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="deployment-issues">Deployment Issues<a class="headerlink" href="#deployment-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: Application fails to deploy or start in production.</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>
+<p><strong>Check Environment Variables</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-73-1"><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a><span class="c1"># Verify all required environment variables are set</span>
+</span><span id="__span-73-2"><a id="__codelineno-73-2" name="__codelineno-73-2" href="#__codelineno-73-2"></a><span class="nb">echo</span><span class="w"> </span><span class="nv">$DATABASE_URL</span>
+</span><span id="__span-73-3"><a id="__codelineno-73-3" name="__codelineno-73-3" href="#__codelineno-73-3"></a><span class="nb">echo</span><span class="w"> </span><span class="nv">$SECRET_KEY</span>
+</span><span id="__span-73-4"><a id="__codelineno-73-4" name="__codelineno-73-4" href="#__codelineno-73-4"></a><span class="nb">echo</span><span class="w"> </span><span class="nv">$DEBUG</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check File Permissions</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-74-1"><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a><span class="c1"># Ensure proper ownership</span>
+</span><span id="__span-74-2"><a id="__codelineno-74-2" name="__codelineno-74-2" href="#__codelineno-74-2"></a>sudo<span class="w"> </span>chown<span class="w"> </span>-R<span class="w"> </span>www-data:www-data<span class="w"> </span>/path/to/app
+</span><span id="__span-74-3"><a id="__codelineno-74-3" name="__codelineno-74-3" href="#__codelineno-74-3"></a>sudo<span class="w"> </span>chmod<span class="w"> </span>-R<span class="w"> </span><span class="m">755</span><span class="w"> </span>/path/to/app
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>Check Service Status</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-75-1"><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a><span class="c1"># Check all services</span>
+</span><span id="__span-75-2"><a id="__codelineno-75-2" name="__codelineno-75-2" href="#__codelineno-75-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>gunicorn
+</span><span id="__span-75-3"><a id="__codelineno-75-3" name="__codelineno-75-3" href="#__codelineno-75-3"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>celery
+</span><span id="__span-75-4"><a id="__codelineno-75-4" name="__codelineno-75-4" href="#__codelineno-75-4"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>nginx
+</span><span id="__span-75-5"><a id="__codelineno-75-5" name="__codelineno-75-5" href="#__codelineno-75-5"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>postgresql
+</span></code></pre></div></p>
+</li>
+</ol>
+<h3 id="performance-monitoring">Performance Monitoring<a class="headerlink" href="#performance-monitoring" title="Permanent link">&para;</a></h3>
+<p><strong>Set Up Monitoring</strong>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-76-1"><a id="__codelineno-76-1" name="__codelineno-76-1" href="#__codelineno-76-1"></a><span class="c1"># Install monitoring tools</span>
+</span><span id="__span-76-2"><a id="__codelineno-76-2" name="__codelineno-76-2" href="#__codelineno-76-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>htop<span class="w"> </span>iotop<span class="w"> </span>nethogs
+</span><span id="__span-76-3"><a id="__codelineno-76-3" name="__codelineno-76-3" href="#__codelineno-76-3"></a>
+</span><span id="__span-76-4"><a id="__codelineno-76-4" name="__codelineno-76-4" href="#__codelineno-76-4"></a><span class="c1"># Monitor system resources</span>
+</span><span id="__span-76-5"><a id="__codelineno-76-5" name="__codelineno-76-5" href="#__codelineno-76-5"></a>htop
+</span><span id="__span-76-6"><a id="__codelineno-76-6" name="__codelineno-76-6" href="#__codelineno-76-6"></a>iotop
+</span><span id="__span-76-7"><a id="__codelineno-76-7" name="__codelineno-76-7" href="#__codelineno-76-7"></a>nethogs
+</span></code></pre></div></p>
+<h2 id="getting-help">Getting Help<a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h2>
+<h3 id="debug-information-to-collect">Debug Information to Collect<a class="headerlink" href="#debug-information-to-collect" title="Permanent link">&para;</a></h3>
+<p>When reporting issues, include:</p>
+<ol>
+<li><strong>Error Messages</strong>: Complete error messages and stack traces</li>
+<li><strong>Environment</strong>: OS, Python version, Django version</li>
+<li><strong>Configuration</strong>: Relevant settings.py configurations</li>
+<li><strong>Logs</strong>: Application and system logs</li>
+<li><strong>Steps to Reproduce</strong>: Detailed steps to reproduce the issue</li>
+</ol>
+<h3 id="useful-commands">Useful Commands<a class="headerlink" href="#useful-commands" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-77-1"><a id="__codelineno-77-1" name="__codelineno-77-1" href="#__codelineno-77-1"></a><span class="c1"># Check Django configuration</span>
+</span><span id="__span-77-2"><a id="__codelineno-77-2" name="__codelineno-77-2" href="#__codelineno-77-2"></a>python<span class="w"> </span>manage.py<span class="w"> </span>check<span class="w"> </span>--deploy
+</span><span id="__span-77-3"><a id="__codelineno-77-3" name="__codelineno-77-3" href="#__codelineno-77-3"></a>
+</span><span id="__span-77-4"><a id="__codelineno-77-4" name="__codelineno-77-4" href="#__codelineno-77-4"></a><span class="c1"># Check database</span>
+</span><span id="__span-77-5"><a id="__codelineno-77-5" name="__codelineno-77-5" href="#__codelineno-77-5"></a>python<span class="w"> </span>manage.py<span class="w"> </span>dbshell
+</span><span id="__span-77-6"><a id="__codelineno-77-6" name="__codelineno-77-6" href="#__codelineno-77-6"></a>
+</span><span id="__span-77-7"><a id="__codelineno-77-7" name="__codelineno-77-7" href="#__codelineno-77-7"></a><span class="c1"># Check migrations</span>
+</span><span id="__span-77-8"><a id="__codelineno-77-8" name="__codelineno-77-8" href="#__codelineno-77-8"></a>python<span class="w"> </span>manage.py<span class="w"> </span>showmigrations
+</span><span id="__span-77-9"><a id="__codelineno-77-9" name="__codelineno-77-9" href="#__codelineno-77-9"></a>
+</span><span id="__span-77-10"><a id="__codelineno-77-10" name="__codelineno-77-10" href="#__codelineno-77-10"></a><span class="c1"># Check static files</span>
+</span><span id="__span-77-11"><a id="__codelineno-77-11" name="__codelineno-77-11" href="#__codelineno-77-11"></a>python<span class="w"> </span>manage.py<span class="w"> </span>collectstatic<span class="w"> </span>--dry-run
+</span><span id="__span-77-12"><a id="__codelineno-77-12" name="__codelineno-77-12" href="#__codelineno-77-12"></a>
+</span><span id="__span-77-13"><a id="__codelineno-77-13" name="__codelineno-77-13" href="#__codelineno-77-13"></a><span class="c1"># Check Celery</span>
+</span><span id="__span-77-14"><a id="__codelineno-77-14" name="__codelineno-77-14" href="#__codelineno-77-14"></a>celery<span class="w"> </span>-A<span class="w"> </span>config<span class="w"> </span>inspect<span class="w"> </span>active
+</span><span id="__span-77-15"><a id="__codelineno-77-15" name="__codelineno-77-15" href="#__codelineno-77-15"></a>
+</span><span id="__span-77-16"><a id="__codelineno-77-16" name="__codelineno-77-16" href="#__codelineno-77-16"></a><span class="c1"># Check Redis</span>
+</span><span id="__span-77-17"><a id="__codelineno-77-17" name="__codelineno-77-17" href="#__codelineno-77-17"></a>redis-cli<span class="w"> </span>ping
+</span><span id="__span-77-18"><a id="__codelineno-77-18" name="__codelineno-77-18" href="#__codelineno-77-18"></a>
+</span><span id="__span-77-19"><a id="__codelineno-77-19" name="__codelineno-77-19" href="#__codelineno-77-19"></a><span class="c1"># Check system resources</span>
+</span><span id="__span-77-20"><a id="__codelineno-77-20" name="__codelineno-77-20" href="#__codelineno-77-20"></a>free<span class="w"> </span>-h
+</span><span id="__span-77-21"><a id="__codelineno-77-21" name="__codelineno-77-21" href="#__codelineno-77-21"></a>df<span class="w"> </span>-h
+</span><span id="__span-77-22"><a id="__codelineno-77-22" name="__codelineno-77-22" href="#__codelineno-77-22"></a>ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>python
+</span></code></pre></div>
+<h3 id="support-channels">Support Channels<a class="headerlink" href="#support-channels" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Documentation</strong>: Check this troubleshooting guide first</li>
+<li><strong>GitHub Issues</strong>: Report bugs and feature requests</li>
+<li><strong>Community Forums</strong>: Ask questions and get help</li>
+<li><strong>Professional Support</strong>: Contact for commercial support</li>
+</ol>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>This troubleshooting guide covers the most common issues you may encounter with MusicChartsAI. For issues not covered here, check the logs, enable debug mode, and gather as much information as possible before seeking additional help.</p>
+<p>Remember to always test solutions in a development environment before applying them to production systems.</p>
 
 
 
@@ -1486,7 +3427,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
