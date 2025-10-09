@@ -1,0 +1,251 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Enhanced Analysis Report - {{ analysis.song.title|default:analysis.song.original_filename }}{% endblock %}
+
+{% block content %}
+
+<main>
+  <div class="px-4 pt-6">
+    <!-- Header Section -->
+    <div class="mb-6">
+      <div class="flex items-center mb-4">
+        <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white mr-4">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Song
+        </a>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Enhanced Analysis Report</h1>
+      </div>
+      <p class="text-gray-600 dark:text-gray-400">{{ analysis.song.title|default:analysis.song.original_filename }} - {{ analysis.song.artist|default:"Unknown Artist" }}</p>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="grid gap-4 md:grid-cols-4 mb-6">
+      <!-- Total Matches -->
+      <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 text-center">
+        <div class="inline-flex items-center justify-center w-12 h-12 mb-2 text-blue-600 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+          </svg>
+        </div>
+        <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-1">Total Matches</h6>
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ analysis.track_matches.count }}</div>
+      </div>
+      
+      <!-- Music Matches -->
+      <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 text-center">
+        <div class="inline-flex items-center justify-center w-12 h-12 mb-2 text-green-600 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-1">Music Matches</h6>
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">
+          {{ music_matches_count }}
+        </div>
+      </div>
+      
+      <!-- Cover Matches -->
+      <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 text-center">
+        <div class="inline-flex items-center justify-center w-12 h-12 mb-2 text-yellow-600 bg-yellow-100 rounded-full dark:bg-yellow-900 dark:text-yellow-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+          </svg>
+        </div>
+        <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-1">Cover Matches</h6>
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">
+          {{ cover_matches_count }}
+        </div>
+      </div>
+      
+      <!-- Highest Score -->
+      <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 text-center">
+        <div class="inline-flex items-center justify-center w-12 h-12 mb-2 text-red-600 bg-red-100 rounded-full dark:bg-red-900 dark:text-red-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+          </svg>
+        </div>
+        <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-1">Highest Score</h6>
+        <div class="text-2xl font-bold 
+          {% with top_match=analysis.track_matches.first %}
+            {% if top_match.score >= 80 %}text-red-600 dark:text-red-400
+            {% elif top_match.score >= 50 %}text-yellow-600 dark:text-yellow-400
+            {% else %}text-green-600 dark:text-green-400{% endif %}
+          {% endwith %}">
+          {% with top_match=analysis.track_matches.first %}
+            {% if top_match %}{{ top_match.score }}%{% else %}-{% endif %}
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Filter/Navigation Tabs -->
+    <div class="mb-6">
+      <div class="border-b border-gray-200 dark:border-gray-700">
+        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+          <a href="#all-matches" class="border-blue-500 text-blue-600 dark:text-blue-400 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            All Matches ({{ analysis.track_matches.count }})
+          </a>
+          <a href="#music-matches" class="border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Music Matches ({{ music_matches_count }})
+          </a>
+          <a href="#cover-matches" class="border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Cover Matches ({{ cover_matches_count }})
+          </a>
+        </nav>
+      </div>
+    </div>
+    
+    <!-- All Matches Section -->
+    <div id="all-matches" class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+          <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          All Matches - Detailed Analysis
+        </h2>
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+          Sorted by score (highest first)
+        </div>
+      </div>
+      
+      {% if analysis.track_matches.exists %}
+        <div class="space-y-4">
+          {% for match in analysis.track_matches.all %}
+            <div class="relative">
+              <!-- Match Number Badge -->
+              <div class="absolute -left-2 -top-2 z-10">
+                <span class="inline-flex items-center justify-center w-8 h-8 text-xs font-bold text-white bg-blue-600 rounded-full border-2 border-white dark:border-gray-800">
+                  {{ forloop.counter }}
+                </span>
+              </div>
+              
+              <!-- Include the detailed match card component -->
+              {% include "acrcloud/components/match_detail_card.html" with match=match %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="p-12 text-center bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div class="inline-flex items-center justify-center w-16 h-16 mb-4 text-gray-400 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-500">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Matches Found</h3>
+          <p class="text-gray-500 dark:text-gray-400">This song did not match any tracks in the ACRCloud database.</p>
+        </div>
+      {% endif %}
+    </div>
+    
+    <!-- Analysis Metadata -->
+    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 mb-6">
+      <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Analysis Information</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded">
+          <span class="font-medium text-gray-700 dark:text-gray-300">Analysis ID:</span>
+          <code class="text-xs text-gray-600 dark:text-gray-400">{{ analysis.id }}</code>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded">
+          <span class="font-medium text-gray-700 dark:text-gray-300">Analysis Type:</span>
+          <span class="text-gray-900 dark:text-white">{{ analysis.get_analysis_type_display }}</span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded">
+          <span class="font-medium text-gray-700 dark:text-gray-300">Status:</span>
+          <span class="text-gray-900 dark:text-white">{{ analysis.get_status_display }}</span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded">
+          <span class="font-medium text-gray-700 dark:text-gray-300">Created:</span>
+          <span class="text-gray-900 dark:text-white">{{ analysis.created_at|date:"M d, Y H:i" }}</span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded">
+          <span class="font-medium text-gray-700 dark:text-gray-300">Completed:</span>
+          <span class="text-gray-900 dark:text-white">{{ analysis.completed_at|date:"M d, Y H:i"|default:"In Progress" }}</span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded">
+          <span class="font-medium text-gray-700 dark:text-gray-300">ACRCloud File ID:</span>
+          <code class="text-xs text-gray-600 dark:text-gray-400">{{ analysis.acrcloud_file_id|default:"N/A" }}</code>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="flex gap-3 mb-6">
+      <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" 
+         class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Back to Song Details
+      </a>
+      
+      <a href="{% url 'acrcloud:pattern_matching_report' analysis.id %}" 
+         class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Pattern Matching Table View
+      </a>
+      
+      <button onclick="window.print()" 
+              class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+        </svg>
+        Print Report
+      </button>
+    </div>
+    
+    <!-- Export Options -->
+    <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">Export and Integration</h4>
+          <p class="text-sm text-blue-700 dark:text-blue-300 mb-2">
+            You can export this analysis data or integrate it with your music charts system.
+          </p>
+          <div class="flex gap-2">
+            <button class="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+              Export as CSV
+            </button>
+            <button class="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+              Export as JSON
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+  /* Hide navigation and action buttons when printing */
+  nav, button, .no-print {
+    display: none !important;
+  }
+  
+  /* Optimize for print */
+  .dark\:bg-gray-800,
+  .dark\:border-gray-700 {
+    background-color: white !important;
+    border-color: #e5e7eb !important;
+  }
+  
+  /* Page breaks */
+  .match-card {
+    page-break-inside: avoid;
+  }
+}
+</style>
+{% endblock %}

@@ -1,282 +1,529 @@
 {% extends "layouts/base.html" %}
 {% load static %}
+{% load acrcloud_filters %}
 
-{% block title %}ACRCloud Analysis Report{% endblock %}
+{% block title %}ACRCloud Pattern Matching Report{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* JSON Viewer Styles */
+.expandable-json {
+  margin-top: 15px;
+}
+
+.json-toggle {
+  cursor: pointer;
+  user-select: none;
+  padding: 12px 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: left;
+}
+
+.json-toggle:hover {
+  background: #2563eb;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.json-toggle .icon {
+  transition: transform 0.3s;
+}
+
+.json-toggle.expanded .icon {
+  transform: rotate(90deg);
+}
+
+.json-content {
+  display: none;
+  margin-top: 10px;
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.json-content.show {
+  display: block;
+  animation: slideDown 0.3s ease-out;
+  height: 500px;
+  overflow: auto;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.json-content pre {
+  margin: 0;
+  color: #d4d4d4;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.json-content code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* JSON syntax highlighting */
+.json-key {
+  color: #9cdcfe;
+}
+
+.json-string {
+  color: #ce9178;
+}
+
+.json-number {
+  color: #b5cea8;
+}
+
+.json-boolean {
+  color: #569cd6;
+}
+
+.json-null {
+  color: #569cd6;
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-line me-2"></i>
-                        ACRCloud Analysis Report
-                    </h3>
-                    <div class="card-tools">
-                        <a href="{% url 'acrcloud:song_detail' song_id=analysis.song.id %}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-arrow-left me-1"></i>
-                            Back to Song
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5>{{ analysis.song.title|default:"Unknown Title" }}</h5>
-                            <p class="text-muted mb-1">
-                                <strong>Artist:</strong> {{ analysis.song.artist|default:"Unknown Artist" }}
-                            </p>
-                            <p class="text-muted mb-1">
-                                <strong>File:</strong> {{ analysis.song.original_filename }}
-                            </p>
-                            <p class="text-muted mb-0">
-                                <strong>Uploaded:</strong> {{ analysis.song.created_at|date:"M d, Y H:i" }}
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="text-end">
-                                <span class="badge bg-{% if analysis.status == 'analyzed' %}success{% elif analysis.status == 'processing' %}warning{% else %}danger{% endif %} fs-6">
-                                    {{ analysis.status|title }}
-                                </span>
-                                {% if analysis.completed_at %}
-                                <p class="text-muted mt-2 mb-0">
-                                    <strong>Completed:</strong> {{ analysis.completed_at|date:"M d, Y H:i" }}
-                                </p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Analysis Summary -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Analysis Summary
-                    </h4>
-                </div>
-                <div class="card-body">
-                    {% if analysis.track_matches.exists %}
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-info">
-                                        <i class="fas fa-music"></i>
-                                    </span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Total Matches</span>
-                                        <span class="info-box-number">{{ analysis.track_matches.count }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-warning">
-                                        <i class="fas fa-copy"></i>
-                                    </span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Cover Matches</span>
-                                        <span class="info-box-number">
-                                            {% for match in analysis.track_matches.all %}
-                                                {% if match.match_type == 'cover' %}{{ forloop.counter }}{% endif %}
-                                            {% empty %}0{% endfor %}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-success">
-                                        <i class="fas fa-percentage"></i>
-                                    </span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Highest Score</span>
-                                        <span class="info-box-number">
-                                            {% for match in analysis.track_matches.all %}
-                                                {% if forloop.first %}{{ match.score }}{% endif %}
-                                            {% empty %}0{% endfor %}%
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-danger">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                    </span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Risk Level</span>
-                                        <span class="info-box-number">
-                                            {% for match in analysis.track_matches.all %}
-                                                {% if forloop.first %}
-                                                    {% if match.score > 80 %}High{% elif match.score > 50 %}Medium{% else %}Low{% endif %}
-                                                {% endif %}
-                                            {% empty %}Low{% endfor %}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+<main>
+  <div class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
+    <div class="w-full mb-1">
+      <div class="mb-4">
+        <nav class="flex mb-5" aria-label="Breadcrumb">
+          <ol class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2">
+            <li class="inline-flex items-center">
+              <a href="{% url 'acrcloud:view_audios' %}" class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white">
+                <svg class="w-5 h-5 mr-2.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                </svg>
+                Songs
+              </a>
+            </li>
+            <li>
+              <div class="flex items-center">
+                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" class="ml-1 text-gray-700 hover:text-primary-600 md:ml-2 dark:text-gray-300 dark:hover:text-white">{{ analysis.song.title|default:analysis.song.original_filename|truncatechars:30 }}</a>
+              </div>
+            </li>
+            <li>
+              <div class="flex items-center">
+                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="ml-1 text-gray-400 md:ml-2 dark:text-gray-500" aria-current="page">Pattern Matching Report</span>
+              </div>
+            </li>
+          </ol>
+        </nav>
+        <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Pattern Matching Analysis</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Detailed fingerprint analysis for {{ analysis.song.title|default:analysis.song.original_filename }}</p>
+      </div>
+      
+      <!-- Analysis Summary Stats -->
+      <div class="grid grid-cols-2 gap-4 mb-6 sm:grid-cols-4">
+        <div class="p-4 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+          <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Matches</div>
+          <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ analysis.track_matches.count }}</div>
+        </div>
+        <div class="p-4 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+          <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Music Matches</div>
+          <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            {{ music_matches_count }}
+          </div>
+        </div>
+        <div class="p-4 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+          <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Cover Matches</div>
+          <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+            {{ cover_matches_count }}
+          </div>
+        </div>
+        <div class="p-4 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+          <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Highest Score</div>
+          <div class="text-2xl font-bold text-gray-900 dark:text-white">
+            {% with top_match=analysis.track_matches.first %}
+              {% if top_match %}{{ top_match.score }}%{% else %}-{% endif %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-3 mb-4">
+        <a href="{% url 'acrcloud:song_detail' analysis.song.id %}" 
+           class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Song
+        </a>
+        <a href="{% url 'acrcloud:enhanced_analysis_report' analysis.id %}" 
+           class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Enhanced Report
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pattern Matching Results Table -->
+  {% if analysis.track_matches.exists %}
+  <div class="flex flex-col">
+    <div class="overflow-x-auto">
+      <div class="inline-block min-w-full align-middle">
+        <div class="overflow-hidden shadow">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+            <thead class="bg-gray-100 dark:bg-gray-700">
+              <tr>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-8">#</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-24">Type</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">Title</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">Artists</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-24">ISRC</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-16">Score</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-16">Sim</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-16">Dist</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-16">Pat %</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-16">Risk</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-16">Dur</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-20">T.Skew</th>
+                <th scope="col" class="p-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400 w-20">F.Skew</th>
+                <th scope="col" class="p-2 text-xs font-medium text-center text-gray-500 uppercase dark:text-gray-400 w-20 sticky right-0 bg-gray-100 dark:bg-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+              {% for match in analysis.track_matches.all %}
+              <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                <!-- Row Number -->
+                <td class="p-2 text-xs font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  {{ forloop.counter }}
+                </td>
+                
+                <!-- Match Type -->
+                <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if match.match_type == 'music' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300{% elif match.match_type == 'cover' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300{% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300{% endif %}">
+                    {{ match.get_match_type_display|truncatechars:10 }}
+                  </span>
+                </td>
+                
+                <!-- Title -->
+                <td class="p-2 text-xs font-medium text-gray-900 dark:text-white max-w-[200px] truncate" title="{% if match.track %}{{ match.track.name }}{% else %}{{ match.raw_data.track_info.title }}{% endif %}">
+                  {% if match.track %}
+                    {{ match.track.name|truncatechars:30 }}
+                  {% else %}
+                    {{ match.raw_data.track_info.title|default:"Unknown"|truncatechars:30 }}
+                  {% endif %}
+                </td>
+                
+                <!-- Artists (chips) -->
+                <td class="p-2 text-xs font-normal text-gray-900 dark:text-white max-w-[150px]">
+                  <div class="flex flex-wrap gap-1">
+                    {% if match.track %}
+                      {% for artist in match.track.artists.all|slice:":2" %}
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                          {{ artist.name|truncatechars:15 }}
+                        </span>
+                      {% endfor %}
+                      {% if match.track.artists.count > 2 %}
+                        <span class="text-xs text-gray-500">+{{ match.track.artists.count|add:"-2" }}</span>
+                      {% endif %}
                     {% else %}
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            No matches found in this analysis.
-                        </div>
+                      {% for artist in match.raw_data.track_info.artists|slice:":2" %}
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                          {{ artist.name|truncatechars:15 }}
+                        </span>
+                      {% endfor %}
+                      {% if match.raw_data.track_info.artists|length > 2 %}
+                        <span class="text-xs text-gray-500">+{{ match.raw_data.track_info.artists|length|add:"-2" }}</span>
+                      {% endif %}
                     {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pattern Matching Results -->
-    {% if analysis.track_matches.exists %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">
-                        <i class="fas fa-search me-2"></i>
-                        Pattern Matching Results
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Match Type</th>
-                                    <th>Title</th>
-                                    <th>Artists</th>
-                                    <th>Album</th>
-                                    <th>Label</th>
-                                    <th>ISRC</th>
-                                    <th>Score</th>
-                                    <th>Duration Match (s)</th>
-                                    <th>Time Skew</th>
-                                    <th>Frequency Skew</th>
-                                    <th>Pattern Matching</th>
-                                    <th>Risk</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for match in analysis.track_matches.all %}
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-{% if match.match_type == 'music' %}primary{% elif match.match_type == 'cover' %}warning{% else %}secondary{% endif %}">
-                                            {{ match.get_match_type_display }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {% if match.track %}
-                                            {{ match.track.name }}
-                                        {% else %}
-                                            {{ match.raw_data.track_info.title|default:"Unknown" }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if match.track %}
-                                            {% for artist in match.track.artists.all %}
-                                                <span class="badge bg-light text-dark me-1">{{ artist.name }}</span>
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for artist in match.raw_data.track_info.artists %}
-                                                <span class="badge bg-light text-dark me-1">{{ artist.name }}</span>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if match.track and match.track.album %}
-                                            {{ match.track.album.name }}
-                                        {% else %}
-                                            {{ match.raw_data.track_info.album.name|default:"-" }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if match.track %}
-                                            {{ match.track.label|default:"-" }}
-                                        {% else %}
-                                            {{ match.raw_data.track_info.label|default:"-" }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if match.track %}
-                                            {{ match.track.isrc|default:"-" }}
-                                        {% else %}
-                                            {{ match.raw_data.track_info.external_ids.isrc|default:"-" }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{% if match.score > 80 %}danger{% elif match.score > 50 %}warning{% else %}success{% endif %}">
-                                            {{ match.score }}%
-                                        </span>
-                                    </td>
-                                    <td>{{ match.played_duration|floatformat:1 }}</td>
-                                    <td>
-                                        {% if match.raw_data.pattern_matching.time_skew %}
-                                            {{ match.raw_data.pattern_matching.time_skew }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if match.raw_data.pattern_matching.frequency_skew %}
-                                            {{ match.raw_data.pattern_matching.frequency_skew }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if match.raw_data.pattern_matching.pattern_matching %}
-                                            {{ match.raw_data.pattern_matching.pattern_matching }}%
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if match.raw_data.pattern_matching.risk %}
-                                            <span class="badge bg-{% if match.raw_data.pattern_matching.risk > 70 %}danger{% elif match.raw_data.pattern_matching.risk > 40 %}warning{% else %}success{% endif %}">
-                                                {{ match.raw_data.pattern_matching.risk }}%
-                                            </span>
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                  </div>
+                </td>
+                
+                <!-- ISRC -->
+                <td class="p-2 text-xs font-mono text-gray-900 whitespace-nowrap dark:text-white">
+                  {% if match.track %}
+                    {{ match.track.isrc|default:"-"|truncatechars:12 }}
+                  {% else %}
+                    {{ match.raw_data.track_info.external_ids.isrc|default:"-"|truncatechars:12 }}
+                  {% endif %}
+                </td>
+                
+                <!-- Score (chip) -->
+                <td class="p-2 text-xs font-semibold whitespace-nowrap">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if match.score > 80 %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300{% elif match.score > 50 %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300{% else %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300{% endif %}">
+                    {{ match.score }}
+                  </span>
+                </td>
+                
+                <!-- Similarity -->
+                <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                  {% if match.raw_data.pattern_matching.similarity %}
+                    {{ match.raw_data.pattern_matching.similarity|floatformat:2 }}
+                  {% else %}-{% endif %}
+                </td>
+                
+                <!-- Distance -->
+                <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                  {% if match.raw_data.pattern_matching.distance %}
+                    {{ match.raw_data.pattern_matching.distance|floatformat:2 }}
+                  {% else %}-{% endif %}
+                </td>
+                
+                <!-- Pattern Matching % -->
+                <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                  {% if match.raw_data.pattern_matching.pattern_matching %}
+                    {{ match.raw_data.pattern_matching.pattern_matching }}
+                  {% else %}-{% endif %}
+                </td>
+                
+                <!-- Risk (chip) -->
+                <td class="p-2 text-xs font-semibold whitespace-nowrap">
+                  {% if match.raw_data.pattern_matching.risk %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if match.raw_data.pattern_matching.risk > 70 %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300{% elif match.raw_data.pattern_matching.risk > 40 %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300{% else %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300{% endif %}">
+                      {{ match.raw_data.pattern_matching.risk }}
+                    </span>
+                  {% else %}-{% endif %}
+                </td>
+                
+                <!-- Duration -->
+                <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                  {{ match.played_duration|floatformat:1 }}
+                </td>
+                
+                <!-- Time Skew -->
+                <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                  {% if match.raw_data.pattern_matching.time_skew %}
+                    {{ match.raw_data.pattern_matching.time_skew|floatformat:3 }}
+                  {% else %}-{% endif %}
+                </td>
+                
+                <!-- Frequency Skew -->
+                <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                  {% if match.raw_data.pattern_matching.frequency_skew %}
+                    {{ match.raw_data.pattern_matching.frequency_skew|floatformat:3 }}
+                  {% else %}-{% endif %}
+                </td>
+                
+                <!-- Actions -->
+                <td class="p-2 whitespace-nowrap text-center sticky right-0 bg-white dark:bg-gray-800">
+                  <button type="button"
+                    data-modal-target="view-match-{{ match.id }}" 
+                    data-modal-toggle="view-match-{{ match.id }}"
+                    class="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+              
+              <!-- Match Detail Modal -->
+              <div id="view-match-{{ match.id }}" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative p-4 w-full max-w-4xl max-h-full">
+                  <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <!-- Modal header -->
+                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        Match Details - {{ match.raw_data.track_info.title|default:"Unknown" }}
+                      </h3>
+                      <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="view-match-{{ match.id }}">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14">
+                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                      </button>
                     </div>
+                    <!-- Modal body -->
+                    <div class="p-4 md:p-5">
+                      <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3">
+                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                        Raw Match Data
+                      </h4>
+                      <div class="json-content show">
+                        <pre><code id="jsonData-{{ match.id }}"></code></pre>
+                      </div>
+                      <script type="application/json" id="match-json-{{ match.id }}">{{ match.raw_data|to_json }}</script>
+                    </div>
+                  </div>
                 </div>
-            </div>
+              </div>
+              
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+      </div>
     </div>
-    {% endif %}
+  </div>
+  {% else %}
+  <div class="p-4 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+    <div class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No Matches Found</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This song did not match any tracks in the ACRCloud database.</p>
+    </div>
+  </div>
+  {% endif %}
 
-    <!-- Raw Data (for debugging) -->
-    {% if user.is_staff %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">
-                        <i class="fas fa-code me-2"></i>
-                        Raw Analysis Data
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <pre class="bg-light p-3 rounded"><code>{{ analysis.raw_response|pprint }}</code></pre>
-                </div>
-            </div>
-        </div>
+  <!-- Raw Data (for debugging - Staff Only) -->
+  {% if user.is_staff %}
+  <div class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+    <div class="mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+        </svg>
+        Raw Analysis Data
+      </h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Complete ACRCloud API response for debugging</p>
     </div>
-    {% endif %}
-</div>
+    <div class="expandable-json">
+      <button class="json-toggle" onclick="toggleJSON()">
+        <span class="icon">▶</span>
+        <span>Expand Raw JSON Data</span>
+        <small style="margin-left: auto; opacity: 0.8;">(Click to view complete API response)</small>
+      </button>
+      <div class="json-content" id="jsonContent">
+        <pre><code id="jsonData"></code></pre>
+      </div>
+    </div>
+    {{ analysis.raw_response|json_script:"raw-json-data" }}
+  </div>
+  {% endif %}
+
+</main>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+// Store raw JSON data (if exists)
+{% if user.is_staff %}
+const rawJsonData = JSON.parse(document.getElementById('raw-json-data').textContent);
+{% endif %}
+
+// Format all match JSON data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Find all code elements that need formatting (they start empty)
+    const matchJsonElements = document.querySelectorAll('code[id^="jsonData-"]');
+    
+    matchJsonElements.forEach(function(codeElement) {
+        try {
+            const matchId = codeElement.id.replace('jsonData-', '');
+            const scriptId = 'match-json-' + matchId;
+            const scriptElement = document.getElementById(scriptId);
+            
+            if (scriptElement) {
+                const jsonData = JSON.parse(scriptElement.textContent);
+                const formatted = JSON.stringify(jsonData, null, 2);
+                const highlighted = syntaxHighlight(formatted);
+                codeElement.innerHTML = highlighted;
+            } else {
+                console.error('No JSON script element found for:', scriptId);
+                codeElement.textContent = 'JSON data not available';
+            }
+        } catch (e) {
+            console.error('Error formatting match JSON:', e);
+            codeElement.textContent = 'Error formatting JSON data: ' + e.message;
+        }
+    });
+});
+
+// Toggle main JSON visibility
+function toggleJSON() {
+    const content = document.getElementById('jsonContent');
+    const toggle = document.querySelector('.json-toggle');
+    
+    if (content.classList.contains('show')) {
+        content.classList.remove('show');
+        toggle.classList.remove('expanded');
+        toggle.querySelector('span:nth-child(2)').textContent = 'Expand Raw JSON Data';
+    } else {
+        content.classList.add('show');
+        toggle.classList.add('expanded');
+        toggle.querySelector('span:nth-child(2)').textContent = 'Collapse Raw JSON Data';
+        
+        // Format and display JSON on first expand
+        if (!document.getElementById('jsonData').textContent) {
+            formatJSON();
+        }
+    }
+}
+
+// Toggle per-match JSON visibility
+function toggleMatchJSON(matchId) {
+    const content = document.getElementById(`jsonContent-${matchId}`);
+    const toggle = event.currentTarget;
+    
+    if (content.classList.contains('show')) {
+        content.classList.remove('show');
+        toggle.classList.remove('expanded');
+        toggle.querySelector('span:nth-child(2)').textContent = 'View Raw Match Data';
+    } else {
+        content.classList.add('show');
+        toggle.classList.add('expanded');
+        toggle.querySelector('span:nth-child(2)').textContent = 'Hide Raw Match Data';
+    }
+}
+
+// Format main JSON with syntax highlighting
+function formatJSON() {
+    const formatted = JSON.stringify(rawJsonData, null, 2);
+    const highlighted = syntaxHighlight(formatted);
+    document.getElementById('jsonData').innerHTML = highlighted;
+}
+
+// Simple syntax highlighting for JSON
+function syntaxHighlight(json) {
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'json-number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'json-key';
+            } else {
+                cls = 'json-string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'json-boolean';
+        } else if (/null/.test(match)) {
+            cls = 'json-null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
+</script>
 {% endblock %}

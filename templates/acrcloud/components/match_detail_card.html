@@ -1,0 +1,345 @@
+{% comment %}
+Detailed Match Card Component
+Displays comprehensive fingerprint analysis data for a single ACRCloud track match
+
+Usage:
+{% include "acrcloud/components/match_detail_card.html" with match=match_object %}
+
+Variables:
+- match: ACRCloudTrackMatch instance
+{% endcomment %}
+
+{% load static %}
+{% load acrcloud_filters %}
+
+<div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 mb-4">
+    <!-- Header: Track Info -->
+    <div class="flex justify-between items-start mb-4 border-b border-gray-200 dark:border-gray-700 pb-3">
+        <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+                <h5 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {% if match.track %}
+                        {{ match.track.name }}
+                    {% else %}
+                        {{ match.raw_data.track_info.title|default:"Unknown Title" }}
+                    {% endif %}
+                </h5>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
+                    {% if match.match_type == 'music' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                    {% elif match.match_type == 'cover' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                    {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200{% endif %}">
+                    {{ match.get_match_type_display }}
+                </span>
+            </div>
+            
+            <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                <p>
+                    <span class="font-medium">Artists:</span> 
+                    {% if match.track %}
+                        {% for artist in match.track.artists.all %}
+                            {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Unknown Artist
+                        {% endfor %}
+                    {% else %}
+                        {% for artist in match.raw_data.track_info.artists %}
+                            {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Unknown Artist
+                        {% endfor %}
+                    {% endif %}
+                </p>
+                
+                {% if match.track and match.track.album or match.raw_data.track_info.album %}
+                <p>
+                    <span class="font-medium">Album:</span>
+                    {% if match.track and match.track.album %}
+                        {{ match.track.album.name }}
+                    {% else %}
+                        {{ match.raw_data.track_info.album.name|default:"-" }}
+                    {% endif %}
+                </p>
+                {% endif %}
+                
+                {% if match.track.label or match.raw_data.track_info.label %}
+                <p>
+                    <span class="font-medium">Label:</span>
+                    {% if match.track %}
+                        {{ match.track.label|default:"-" }}
+                    {% else %}
+                        {{ match.raw_data.track_info.label|default:"-" }}
+                    {% endif %}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Overall Score Badge -->
+        <div class="ml-4 text-center">
+            <div class="text-2xl font-bold 
+                {% if match.score >= 80 %}text-red-600 dark:text-red-400
+                {% elif match.score >= 50 %}text-yellow-600 dark:text-yellow-400
+                {% else %}text-green-600 dark:text-green-400{% endif %}">
+                {{ match.score }}%
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Score</div>
+        </div>
+    </div>
+    
+    <!-- Fingerprint Metrics Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <!-- Similarity -->
+        <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div class="text-lg font-semibold text-gray-900 dark:text-white">
+                {% if match.raw_data.pattern_matching.similarity %}
+                    {{ match.raw_data.pattern_matching.similarity|floatformat:2 }}
+                {% else %}
+                    -
+                {% endif %}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Similarity</div>
+        </div>
+        
+        <!-- Distance -->
+        <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div class="text-lg font-semibold text-gray-900 dark:text-white">
+                {% if match.raw_data.pattern_matching.distance %}
+                    {{ match.raw_data.pattern_matching.distance|floatformat:3 }}
+                {% else %}
+                    -
+                {% endif %}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Distance</div>
+        </div>
+        
+        <!-- Pattern Matching -->
+        <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div class="text-lg font-semibold text-gray-900 dark:text-white">
+                {% if match.raw_data.pattern_matching.pattern_matching %}
+                    {{ match.raw_data.pattern_matching.pattern_matching }}%
+                {% else %}
+                    -
+                {% endif %}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Pattern Match</div>
+        </div>
+        
+        <!-- Risk -->
+        <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div class="text-lg font-semibold 
+                {% if match.raw_data.pattern_matching.risk >= 70 %}text-red-600 dark:text-red-400
+                {% elif match.raw_data.pattern_matching.risk >= 40 %}text-yellow-600 dark:text-yellow-400
+                {% else %}text-green-600 dark:text-green-400{% endif %}">
+                {% if match.raw_data.pattern_matching.risk %}
+                    {{ match.raw_data.pattern_matching.risk }}%
+                {% else %}
+                    -
+                {% endif %}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Risk</div>
+        </div>
+    </div>
+    
+    <!-- Time Offset Analysis -->
+    <div class="mb-4">
+        <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Time Offset Analysis
+        </h6>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Match Duration -->
+            <div class="text-sm bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                <span class="font-medium text-blue-900 dark:text-blue-200">Match Duration:</span>
+                <span class="text-blue-700 dark:text-blue-300 ml-2">{{ match.played_duration|floatformat:1 }}s</span>
+            </div>
+            
+            <!-- Play Offset -->
+            <div class="text-sm bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                <span class="font-medium text-blue-900 dark:text-blue-200">Play Offset:</span>
+                <span class="text-blue-700 dark:text-blue-300 ml-2">
+                    {% if match.raw_data.pattern_matching.play_offset_ms %}
+                        {{ match.raw_data.pattern_matching.play_offset_ms }}ms ({{ match.raw_data.pattern_matching.play_offset_ms|divide:1000 }}s)
+                    {% else %}
+                        -
+                    {% endif %}
+                </span>
+            </div>
+            
+            <!-- DB Time Range -->
+            <div class="text-sm bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                <span class="font-medium text-green-900 dark:text-green-200">DB Track Range:</span>
+                <span class="text-green-700 dark:text-green-300 ml-2">
+                    {% if match.raw_data.pattern_matching.db_begin_time_offset_ms %}
+                        {{ match.raw_data.pattern_matching.db_begin_time_offset_ms }}ms - {{ match.raw_data.pattern_matching.db_end_time_offset_ms }}ms
+                    {% else %}
+                        -
+                    {% endif %}
+                </span>
+            </div>
+            
+            <!-- Sample Time Range -->
+            <div class="text-sm bg-purple-50 dark:bg-purple-900/20 p-2 rounded">
+                <span class="font-medium text-purple-900 dark:text-purple-200">Sample Range:</span>
+                <span class="text-purple-700 dark:text-purple-300 ml-2">
+                    {% if match.raw_data.pattern_matching.sample_begin_time_offset_ms %}
+                        {{ match.raw_data.pattern_matching.sample_begin_time_offset_ms }}ms - {{ match.raw_data.pattern_matching.sample_end_time_offset_ms }}ms
+                    {% else %}
+                        -
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Skew Analysis -->
+    {% if match.raw_data.pattern_matching.time_skew or match.raw_data.pattern_matching.frequency_skew %}
+    <div class="mb-4">
+        <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+            </svg>
+            Audio Distortion Analysis
+        </h6>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {% if match.raw_data.pattern_matching.time_skew %}
+            <div class="text-sm bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
+                <span class="font-medium text-yellow-900 dark:text-yellow-200">Time Skew:</span>
+                <span class="text-yellow-700 dark:text-yellow-300 ml-2">
+                    {{ match.raw_data.pattern_matching.time_skew|floatformat:4 }}
+                    {% with skew=match.raw_data.pattern_matching.time_skew %}
+                        {% if skew|floatformat:2 != "1.00" %}
+                            <span class="text-xs">({% if skew < 1 %}slower{% else %}faster{% endif %})</span>
+                        {% endif %}
+                    {% endwith %}
+                </span>
+            </div>
+            {% endif %}
+            
+            {% if match.raw_data.pattern_matching.frequency_skew %}
+            <div class="text-sm bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
+                <span class="font-medium text-yellow-900 dark:text-yellow-200">Frequency Skew:</span>
+                <span class="text-yellow-700 dark:text-yellow-300 ml-2">
+                    {{ match.raw_data.pattern_matching.frequency_skew|floatformat:4 }}
+                    {% with skew=match.raw_data.pattern_matching.frequency_skew %}
+                        {% if skew|floatformat:2 != "1.00" %}
+                            <span class="text-xs">({% if skew < 1 %}lower pitch{% else %}higher pitch{% endif %})</span>
+                        {% endif %}
+                    {% endwith %}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- External IDs and Metadata -->
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
+        <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+            Identifiers & Metadata
+        </h6>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+            <!-- ISRC -->
+            <div class="flex justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                <span class="font-medium text-gray-700 dark:text-gray-300">ISRC:</span>
+                <code class="text-gray-900 dark:text-white">
+                    {% if match.track %}
+                        {{ match.track.isrc|default:"-" }}
+                    {% else %}
+                        {{ match.raw_data.track_info.external_ids.isrc|default:"-" }}
+                    {% endif %}
+                </code>
+            </div>
+            
+            <!-- ACRCloud ID -->
+            <div class="flex justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                <span class="font-medium text-gray-700 dark:text-gray-300">ACRCloud ID:</span>
+                <code class="text-gray-900 dark:text-white text-xs truncate max-w-[120px]" title="{{ match.acrcloud_id }}">
+                    {{ match.acrcloud_id|truncatechars:15 }}
+                </code>
+            </div>
+            
+            <!-- Match Type -->
+            <div class="flex justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Match Type:</span>
+                <span class="text-gray-900 dark:text-white">
+                    {{ match.raw_data.pattern_matching.match_type|default:"-" }}
+                </span>
+            </div>
+            
+            <!-- UPC (if available) -->
+            {% if match.raw_data.track_info.external_ids.upc %}
+            <div class="flex justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                <span class="font-medium text-gray-700 dark:text-gray-300">UPC:</span>
+                <code class="text-gray-900 dark:text-white">{{ match.raw_data.track_info.external_ids.upc }}</code>
+            </div>
+            {% endif %}
+            
+            <!-- Result From -->
+            <div class="flex justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Source:</span>
+                <span class="text-gray-900 dark:text-white">
+                    {% if match.raw_data.pattern_matching.result_from == 1 %}Fingerprint
+                    {% elif match.raw_data.pattern_matching.result_from == 2 %}Cover Detection
+                    {% elif match.raw_data.pattern_matching.result_from == 3 %}Both
+                    {% else %}-{% endif %}
+                </span>
+            </div>
+            
+            <!-- Duration -->
+            <div class="flex justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Duration:</span>
+                <span class="text-gray-900 dark:text-white">
+                    {% if match.raw_data.pattern_matching.duration_ms %}
+                        {{ match.raw_data.pattern_matching.duration_ms|divide:1000 }}s
+                    {% else %}-{% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Platform Links (if available) -->
+        {% if match.raw_data.track_info.external_metadata %}
+        <div class="mt-3">
+            <span class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Platform Links:</span>
+            <div class="flex flex-wrap gap-2">
+                {% if match.raw_data.track_info.external_metadata.spotify %}
+                    <a href="https://open.spotify.com/track/{{ match.raw_data.track_info.external_metadata.spotify.track.id }}" 
+                       target="_blank" rel="noopener"
+                       class="inline-flex items-center px-2 py-1 text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-800">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                        </svg>
+                        Spotify
+                    </a>
+                {% endif %}
+                
+                {% if match.raw_data.track_info.external_metadata.deezer %}
+                    <a href="https://www.deezer.com/track/{{ match.raw_data.track_info.external_metadata.deezer.track.id }}" 
+                       target="_blank" rel="noopener"
+                       class="inline-flex items-center px-2 py-1 text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded hover:bg-orange-200 dark:hover:bg-orange-800">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18.81 12.83v8.72h-2.57v-8.72h2.57zm-5.42 0v8.72h-2.55v-8.72h2.55zm-5.38 0v8.72H5.44v-8.72h2.57zM11.24 9.5v12.05H8.69V9.5h2.55zm5.39 0v12.05h-2.55V9.5h2.55zM22.2 9.5v12.05h-2.57V9.5h2.57zM8.01 6.17v15.38H5.44V6.17h2.57zm5.4 0v15.38H10.8V6.17h2.61zm5.42 0v15.38h-2.55V6.17h2.55zM5.46 2.45v19.1H2.88V2.45h2.58z"/>
+                        </svg>
+                        Deezer
+                    </a>
+                {% endif %}
+                
+                {% if match.raw_data.track_info.external_metadata.youtube %}
+                    <a href="https://www.youtube.com/watch?v={{ match.raw_data.track_info.external_metadata.youtube.vid }}" 
+                       target="_blank" rel="noopener"
+                       class="inline-flex items-center px-2 py-1 text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                        YouTube
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>

@@ -5,6 +5,7 @@ from .views import (
     SongDetailView,
     AnalysisReportView,
     PatternMatchingReportView,
+    EnhancedAnalysisReportView,
     FilePondUploadView,
     RetryAnalysisView,
     DeleteSongView,
@@ -21,6 +22,7 @@ urlpatterns = [
     path("songs/", ViewAudiosView.as_view(), name="view_audios"),
     path("song/<uuid:song_id>/", SongDetailView.as_view(), name="song_detail"),
     path("analysis/<uuid:analysis_id>/", AnalysisReportView.as_view(), name="analysis_report"),
+    path("analysis/<uuid:analysis_id>/enhanced/", EnhancedAnalysisReportView.as_view(), name="enhanced_analysis_report"),
     path("analysis/<uuid:analysis_id>/pattern-matching/", PatternMatchingReportView.as_view(), name="pattern_matching_report"),
     
     # API endpoints

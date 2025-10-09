@@ -228,9 +228,8 @@ def process_acrcloud_webhook_task(analysis_id: str, file_id: str, webhook_data: 
             'identification': identify_results
         }
         
-        # Update analysis with results
+        # Update analysis with results (but don't set status to 'analyzed' yet)
         analysis.raw_response = combined_results
-        analysis.status = 'analyzed'
         analysis.completed_at = timezone.now()
         analysis.save()
         
@@ -249,7 +248,10 @@ def process_acrcloud_webhook_task(analysis_id: str, file_id: str, webhook_data: 
         metadata_processor = ACRCloudMetadataProcessor()
         metadata_processor.process_webhook_results(analysis, combined_results)
         
-        # Update song status
+        # NOW set status to 'analyzed' after everything is ready
+        analysis.status = 'analyzed'
+        analysis.save()
+        
         song.status = 'analyzed'
         song.save()
         

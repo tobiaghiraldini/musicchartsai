@@ -174,6 +174,24 @@ class SongDetailView(View):
         analysis = song.analyses.filter(analysis_type='full').first()
         report = analysis.report if analysis else None
         
+        # NOTE: Additional defensive check option (currently not needed)
+        # If race conditions occur despite correct task ordering, add explicit existence check:
+        #
+        # has_report = False
+        # if analysis:
+        #     try:
+        #         report = analysis.report
+        #         has_report = True
+        #     except AnalysisReport.DoesNotExist:
+        #         has_report = False
+        #
+        # Then in context add: 'has_report': has_report
+        # And in template use: {% if has_report %} instead of {% if report %}
+        #
+        # This provides an extra layer of defense by checking actual object existence
+        # rather than relying solely on the status flag, though the correct task ordering
+        # in process_acrcloud_webhook_task should prevent this issue.
+        
         context = {
             'song': song,
             'analysis': analysis,
@@ -190,10 +208,20 @@ class AnalysisReportView(View):
     def get(self, request, analysis_id):
         analysis = get_object_or_404(Analysis, id=analysis_id, song__user=request.user)
         
+        # Check if analysis is complete
+        if analysis.status == 'processing':
+            messages.info(request, 'Analysis is still in progress. Please wait a moment.')
+            return redirect('acrcloud:song_detail', song_id=str(analysis.song.id))
+        
         try:
             report = analysis.report
         except AnalysisReport.DoesNotExist:
-            report = None
+            # Report not created yet (race condition)
+            if analysis.status == 'analyzed':
+                messages.warning(request, 'Report is being generated. Please refresh in a moment.')
+            else:
+                messages.error(request, 'Analysis report is not available.')
+            return redirect('acrcloud:song_detail', song_id=str(analysis.song.id))
         
         context = {
             'analysis': analysis,
@@ -210,10 +238,45 @@ class PatternMatchingReportView(View):
     def get(self, request, analysis_id):
         analysis = get_object_or_404(Analysis, id=analysis_id, song__user=request.user)
         
+        # Get counts by match type
+        music_matches_count = analysis.track_matches.filter(match_type='music').count()
+        cover_matches_count = analysis.track_matches.filter(match_type='cover').count()
+        
         context = {
             'analysis': analysis,
+            'music_matches_count': music_matches_count,
+            'cover_matches_count': cover_matches_count,
         }
         return render(request, 'acrcloud/pattern_matching_report.html', context)
+
+
+@method_decorator(login_required, name='dispatch')
+class EnhancedAnalysisReportView(View):
+    """
+    View for displaying enhanced analysis report with all fingerprint details
+    """
+    def get(self, request, analysis_id):
+        analysis = get_object_or_404(Analysis, id=analysis_id, song__user=request.user)
+        
+        # Check if analysis is complete
+        if analysis.status == 'processing':
+            messages.info(request, 'Analysis is still in progress. Please wait a moment.')
+            return redirect('acrcloud:song_detail', song_id=str(analysis.song.id))
+        
+        # Get all track matches ordered by score (highest first)
+        track_matches = analysis.track_matches.all().order_by('-score')
+        
+        # Get counts by match type
+        music_matches_count = analysis.track_matches.filter(match_type='music').count()
+        cover_matches_count = analysis.track_matches.filter(match_type='cover').count()
+        
+        context = {
+            'analysis': analysis,
+            'track_matches': track_matches,
+            'music_matches_count': music_matches_count,
+            'cover_matches_count': cover_matches_count,
+        }
+        return render(request, 'acrcloud/enhanced_analysis_report.html', context)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
