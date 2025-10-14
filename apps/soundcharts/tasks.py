@@ -299,6 +299,12 @@ def sync_chart_rankings_task(self, schedule_id, execution_id):
                     items_count = len(rankings_data['items'])
                     logger.info(f"API returned {items_count} items for {chart.name} on {period_start}")
                     
+                    # Check if API has any items - only process if there's actual data
+                    if items_count == 0:
+                        logger.warning(f"API returned empty results for {chart.name} on {period_start} - skipping (no data available)")
+                        # Don't create ranking record for dates with no data (like manual import behavior)
+                        continue
+                    
                     # Process the ranking data
                     ranking, created = _process_chart_ranking(
                         chart, 
@@ -414,13 +420,13 @@ def process_scheduled_chart_syncs(self):
 def _get_missing_ranking_periods(chart, sync_historical_data=True):
     """
     Determine what ranking dates are missing for a chart based on its frequency.
+    First checks API for 'latest' to get the actual latest available ranking date,
+    then calculates missing periods based on that date.
     Returns a list of (date, None) tuples representing dates to fetch.
-    Historical data is limited to the last 3 days only to prevent excessive API calls.
     """
     from datetime import datetime, timedelta
     from django.utils import timezone
     
-    now = timezone.now()
     missing_periods = []
     
     # Get existing rankings dates for this chart
@@ -432,39 +438,55 @@ def _get_missing_ranking_periods(chart, sync_historical_data=True):
     # Determine frequency interval
     if chart.frequency.lower() == 'daily':
         interval = timedelta(days=1)
-        # For daily charts, check last 3 days
-        days_to_check = 3
+        # For daily charts, check last 3 periods
+        periods_to_check = 3
     elif chart.frequency.lower() == 'weekly':
         interval = timedelta(weeks=1)
-        # For weekly charts, check last 3 weeks
-        days_to_check = 21 if sync_historical_data else 7
+        # For weekly charts, check last 3-4 weeks
+        periods_to_check = 4 if sync_historical_data else 2
     elif chart.frequency.lower() == 'monthly':
         interval = timedelta(days=30)
         # For monthly charts, check last 3 months
-        days_to_check = 90 if sync_historical_data else 30
+        periods_to_check = 3 if sync_historical_data else 1
     else:
         # Default to weekly
         interval = timedelta(weeks=1)
-        days_to_check = 21 if sync_historical_data else 7
+        periods_to_check = 4 if sync_historical_data else 2
     
-    # Always check today's ranking
-    today = now.date()
-    if today not in existing_ranking_dates:
-        missing_periods.append((now, None))
-        logger.info(f"Will fetch ranking for {chart.name} for today: {today}")
+    # First, check the API for the latest available ranking date
+    service = SoundchartsService()
+    logger.info(f"Checking API for latest available ranking for {chart.name}")
     
-    # If sync_historical_data is enabled, check for missing historical data
-    if sync_historical_data:
-        check_date = now - timedelta(days=1)  # Start from yesterday
-        end_date = now - timedelta(days=days_to_check)
+    try:
+        latest_data = service.get_song_ranking_for_date(chart.slug, 'latest')
         
-        while check_date >= end_date:
-            if check_date.date() not in existing_ranking_dates:
-                missing_periods.append((check_date, None))
-                logger.info(f"Will fetch ranking for {chart.name} for date: {check_date.date()}")
+        if latest_data and 'related' in latest_data and 'date' in latest_data['related']:
+            # Parse the latest ranking date from the API
+            latest_date_str = latest_data['related']['date']
+            latest_date = timezone.datetime.fromisoformat(latest_date_str.replace('+00:00', '+0000').replace('Z', '+0000'))
+            if latest_date.tzinfo is None:
+                latest_date = timezone.make_aware(latest_date)
             
-            # Move back by the chart's frequency interval
-            check_date -= interval
+            logger.info(f"Latest available ranking for {chart.name} is from: {latest_date.date()}")
+            
+            # Use the latest available date as the reference point
+            check_date = latest_date
+        else:
+            # Fallback to today if we can't get the latest date
+            logger.warning(f"Could not determine latest ranking date for {chart.name}, using today as reference")
+            check_date = timezone.now()
+    except Exception as e:
+        logger.warning(f"Error checking latest ranking for {chart.name}: {e}, using today as reference")
+        check_date = timezone.now()
+    
+    # Now check for missing periods starting from the latest available date
+    for i in range(periods_to_check):
+        if check_date.date() not in existing_ranking_dates:
+            missing_periods.append((check_date, None))
+            logger.info(f"Will check for ranking data for {chart.name} on: {check_date.date()}")
+        
+        # Move back by the chart's frequency interval
+        check_date -= interval
     
     if not missing_periods:
         logger.info(f"No missing rankings found for {chart.name}")
@@ -477,47 +499,42 @@ def _get_missing_ranking_periods(chart, sync_historical_data=True):
 def _process_chart_ranking(chart, rankings_data, ranking_date):
     """
     Process chart ranking data and create/update ChartRanking record.
-    Only creates a new ranking if one doesn't exist for the given date.
+    Uses the exact same approach as the manual import for consistency.
     """
     try:
-        # Normalize ranking_date to just the date portion for comparison
+        # Parse ranking_date if it's a string
         from django.utils import timezone
         if isinstance(ranking_date, str):
             ranking_date = timezone.datetime.fromisoformat(ranking_date)
         
-        ranking_date_normalized = ranking_date.replace(hour=0, minute=0, second=0, microsecond=0)
-        
-        # Check if a ranking already exists for this chart and date
-        existing_ranking = ChartRanking.objects.filter(
+        # Use the exact same approach as manual import
+        ranking, created = ChartRanking.objects.get_or_create(
             chart=chart,
-            ranking_date__date=ranking_date_normalized.date()
-        ).first()
+            ranking_date=ranking_date,
+            defaults={
+                "total_entries": len(rankings_data.get('items', [])),
+                "api_version": rankings_data.get('version', 'v2.14'),
+            },
+        )
         
-        if existing_ranking:
-            # Ranking already exists for this date, skip creation but update if needed
-            logger.info(f"Ranking already exists for {chart.name} on {ranking_date_normalized.date()}, skipping...")
+        if created:
+            logger.info(f"Created new ranking for {chart.name} on {ranking_date}")
+        else:
+            # Update existing ranking if data has changed
             updated = False
-            if existing_ranking.total_entries != len(rankings_data.get('items', [])):
-                existing_ranking.total_entries = len(rankings_data.get('items', []))
+            if ranking.total_entries != len(rankings_data.get('items', [])):
+                ranking.total_entries = len(rankings_data.get('items', []))
                 updated = True
-            if rankings_data.get('version') and existing_ranking.api_version != rankings_data['version']:
-                existing_ranking.api_version = rankings_data['version']
+            if rankings_data.get('version') and ranking.api_version != rankings_data['version']:
+                ranking.api_version = rankings_data['version']
                 updated = True
             if updated:
-                existing_ranking.save()
-                logger.info(f"Updated existing ranking for {chart.name} on {ranking_date_normalized.date()}")
-            return existing_ranking, False
+                ranking.save()
+                logger.info(f"Updated existing ranking for {chart.name} on {ranking_date}")
+            else:
+                logger.info(f"Ranking already exists for {chart.name} on {ranking_date}, no changes needed")
         
-        # Create new ranking
-        ranking = ChartRanking.objects.create(
-            chart=chart,
-            ranking_date=ranking_date_normalized,
-            total_entries=len(rankings_data.get('items', [])),
-            api_version=rankings_data.get('version', 'v2.14'),
-        )
-        logger.info(f"Created new ranking for {chart.name} on {ranking_date_normalized.date()}")
-        
-        return ranking, True
+        return ranking, created
         
     except Exception as e:
         logger.error(f"Error processing chart ranking: {str(e)}")

@@ -251,16 +251,35 @@ class SoundchartsService:
         if datetime:
             # Handle datetime objects properly
             if hasattr(datetime, 'strftime'):
-                # It's a datetime object, format it properly
-                atom_datetime = datetime.strftime('%Y-%m-%dT%H:%M:%S%z')
-                # Ensure timezone format is correct (replace +0000 with +00:00)
-                if atom_datetime.endswith('+0000'):
-                    atom_datetime = atom_datetime[:-5] + '+00:00'
-                elif atom_datetime.endswith('-0000'):
-                    atom_datetime = atom_datetime[:-5] + '+00:00'
+                # It's a datetime object, format it properly for Soundcharts API
+                # The API expects ISO format with timezone: 2020-10-06T18:00:01+00:00
+                if datetime.tzinfo is not None:
+                    # Timezone-aware datetime
+                    atom_datetime = datetime.strftime('%Y-%m-%dT%H:%M:%S%z')
+                    # Ensure timezone format is correct (replace +0000 with +00:00)
+                    if atom_datetime.endswith('+0000'):
+                        atom_datetime = atom_datetime[:-5] + '+00:00'
+                    elif atom_datetime.endswith('-0000'):
+                        atom_datetime = atom_datetime[:-5] + '+00:00'
+                else:
+                    # Naive datetime - assume UTC
+                    atom_datetime = datetime.strftime('%Y-%m-%dT%H:%M:%S+00:00')
             else:
-                # It's a string, use as is
-                atom_datetime = str(datetime)
+                # It's a string - need to ensure it's properly formatted
+                datetime_str = str(datetime)
+                
+                # If it's already properly formatted (has seconds and timezone), use it
+                if '+' in datetime_str or datetime_str.count(':') >= 2:
+                    atom_datetime = datetime_str
+                else:
+                    # Incomplete format from datetime-local input (e.g., "2025-10-14T16:16")
+                    # Add seconds and UTC timezone
+                    if 'T' in datetime_str and datetime_str.count(':') == 1:
+                        # Format: YYYY-MM-DDTHH:MM - add seconds and timezone
+                        atom_datetime = f"{datetime_str}:00+00:00"
+                    else:
+                        # Unexpected format, use as is and let the API reject it
+                        atom_datetime = datetime_str
         else:
             atom_datetime = "latest"
             
