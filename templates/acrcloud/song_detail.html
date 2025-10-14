@@ -102,7 +102,7 @@
                 </svg>
                 View Enhanced Report
               </a>
-              {% if report %}
+              {% if has_report %}
               <a href="{% url 'acrcloud:analysis_report' analysis.id %}" class="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
@@ -155,7 +155,25 @@
               <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">This page will refresh automatically when analysis is complete.</p>
             </div>
           </div>
-        {% elif song.status == 'analyzed' and report %}
+        {% elif report_pending %}
+          <!-- Report is being generated (race condition state) -->
+          <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="text-center py-12">
+              <div class="inline-flex items-center justify-center w-16 h-16 mb-4 text-green-600 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-200">
+                <svg class="w-8 h-8 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Generating Report</h3>
+              <p class="text-gray-500 dark:text-gray-400 mb-6">Analysis complete! Generating detailed report...</p>
+              <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                <div class="bg-green-600 h-2 rounded-full animate-pulse" style="width: 90%"></div>
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">Page will refresh automatically in a few seconds.</p>
+            </div>
+          </div>
+        {% elif song.status == 'analyzed' and has_report %}
           <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
             <div class="mb-6">
               <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Analysis Summary</h3>
@@ -302,10 +320,17 @@
 {% block extra_js %}
 {% if song.status == 'processing' %}
 <script>
-// Auto-refresh for processing songs
+// Auto-refresh for processing songs (30 seconds)
 setTimeout(function() {
     window.location.reload();
 }, 30000);
+</script>
+{% elif report_pending %}
+<script>
+// Auto-refresh for report generation (5 seconds - faster refresh for race condition)
+setTimeout(function() {
+    window.location.reload();
+}, 5000);
 </script>
 {% endif %}
 {% endblock %}

@@ -262,6 +262,11 @@ class EnhancedAnalysisReportView(View):
             messages.info(request, 'Analysis is still in progress. Please wait a moment.')
             return redirect('acrcloud:song_detail', song_id=str(analysis.song.id))
         
+        # Check if track matches exist (race condition protection)
+        if not analysis.track_matches.exists() and analysis.status == 'analyzed':
+            messages.warning(request, 'Analysis results are being processed. Please refresh in a moment.')
+            return redirect('acrcloud:song_detail', song_id=str(analysis.song.id))
+        
         # Get all track matches ordered by score (highest first)
         track_matches = analysis.track_matches.all().order_by('-score')
         
