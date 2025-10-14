@@ -285,28 +285,28 @@
                 
                 <!-- Similarity -->
                 <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
-                  {% if match.raw_data.pattern_matching.similarity %}
+                  {% if match.raw_data.pattern_matching.similarity != None %}
                     {{ match.raw_data.pattern_matching.similarity|floatformat:2 }}
                   {% else %}-{% endif %}
                 </td>
                 
                 <!-- Distance -->
                 <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
-                  {% if match.raw_data.pattern_matching.distance %}
+                  {% if match.raw_data.pattern_matching.distance != None %}
                     {{ match.raw_data.pattern_matching.distance|floatformat:2 }}
                   {% else %}-{% endif %}
                 </td>
                 
                 <!-- Pattern Matching % -->
                 <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
-                  {% if match.raw_data.pattern_matching.pattern_matching %}
+                  {% if match.raw_data.pattern_matching.pattern_matching != None %}
                     {{ match.raw_data.pattern_matching.pattern_matching }}
                   {% else %}-{% endif %}
                 </td>
                 
                 <!-- Risk (chip) -->
                 <td class="p-2 text-xs font-semibold whitespace-nowrap">
-                  {% if match.raw_data.pattern_matching.risk %}
+                  {% if match.raw_data.pattern_matching.risk != None %}
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if match.raw_data.pattern_matching.risk > 70 %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300{% elif match.raw_data.pattern_matching.risk > 40 %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300{% else %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300{% endif %}">
                       {{ match.raw_data.pattern_matching.risk }}
                     </span>
@@ -320,14 +320,14 @@
                 
                 <!-- Time Skew -->
                 <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
-                  {% if match.raw_data.pattern_matching.time_skew %}
+                  {% if match.raw_data.pattern_matching.time_skew != None %}
                     {{ match.raw_data.pattern_matching.time_skew|floatformat:3 }}
                   {% else %}-{% endif %}
                 </td>
                 
                 <!-- Frequency Skew -->
                 <td class="p-2 text-xs font-normal text-gray-900 whitespace-nowrap dark:text-white">
-                  {% if match.raw_data.pattern_matching.frequency_skew %}
+                  {% if match.raw_data.pattern_matching.frequency_skew != None %}
                     {{ match.raw_data.pattern_matching.frequency_skew|floatformat:3 }}
                   {% else %}-{% endif %}
                 </td>

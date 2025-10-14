@@ -91,7 +91,7 @@ Variables:
         <!-- Similarity -->
         <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div class="text-lg font-semibold text-gray-900 dark:text-white">
-                {% if match.raw_data.pattern_matching.similarity %}
+                {% if match.raw_data.pattern_matching.similarity != None %}
                     {{ match.raw_data.pattern_matching.similarity|floatformat:2 }}
                 {% else %}
                     -
@@ -103,7 +103,7 @@ Variables:
         <!-- Distance -->
         <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div class="text-lg font-semibold text-gray-900 dark:text-white">
-                {% if match.raw_data.pattern_matching.distance %}
+                {% if match.raw_data.pattern_matching.distance != None %}
                     {{ match.raw_data.pattern_matching.distance|floatformat:3 }}
                 {% else %}
                     -
@@ -115,7 +115,7 @@ Variables:
         <!-- Pattern Matching -->
         <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div class="text-lg font-semibold text-gray-900 dark:text-white">
-                {% if match.raw_data.pattern_matching.pattern_matching %}
+                {% if match.raw_data.pattern_matching.pattern_matching != None %}
                     {{ match.raw_data.pattern_matching.pattern_matching }}%
                 {% else %}
                     -
@@ -127,10 +127,12 @@ Variables:
         <!-- Risk -->
         <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div class="text-lg font-semibold 
-                {% if match.raw_data.pattern_matching.risk >= 70 %}text-red-600 dark:text-red-400
-                {% elif match.raw_data.pattern_matching.risk >= 40 %}text-yellow-600 dark:text-yellow-400
-                {% else %}text-green-600 dark:text-green-400{% endif %}">
-                {% if match.raw_data.pattern_matching.risk %}
+                {% if match.raw_data.pattern_matching.risk != None %}
+                    {% if match.raw_data.pattern_matching.risk >= 70 %}text-red-600 dark:text-red-400
+                    {% elif match.raw_data.pattern_matching.risk >= 40 %}text-yellow-600 dark:text-yellow-400
+                    {% else %}text-green-600 dark:text-green-400{% endif %}
+                {% else %}text-gray-900 dark:text-white{% endif %}">
+                {% if match.raw_data.pattern_matching.risk != None %}
                     {{ match.raw_data.pattern_matching.risk }}%
                 {% else %}
                     -
@@ -194,7 +196,7 @@ Variables:
     </div>
     
     <!-- Skew Analysis -->
-    {% if match.raw_data.pattern_matching.time_skew or match.raw_data.pattern_matching.frequency_skew %}
+    {% if match.raw_data.pattern_matching.time_skew != None or match.raw_data.pattern_matching.frequency_skew != None %}
     <div class="mb-4">
         <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">
             <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,28 +205,28 @@ Variables:
             Audio Distortion Analysis
         </h6>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {% if match.raw_data.pattern_matching.time_skew %}
+            {% if match.raw_data.pattern_matching.time_skew != None %}
             <div class="text-sm bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
                 <span class="font-medium text-yellow-900 dark:text-yellow-200">Time Skew:</span>
                 <span class="text-yellow-700 dark:text-yellow-300 ml-2">
                     {{ match.raw_data.pattern_matching.time_skew|floatformat:4 }}
                     {% with skew=match.raw_data.pattern_matching.time_skew %}
-                        {% if skew|floatformat:2 != "1.00" %}
-                            <span class="text-xs">({% if skew < 1 %}slower{% else %}faster{% endif %})</span>
+                        {% if skew|floatformat:2 != "0.00" %}
+                            <span class="text-xs">({% if skew < 0 %}slower{% else %}faster{% endif %})</span>
                         {% endif %}
                     {% endwith %}
                 </span>
             </div>
             {% endif %}
             
-            {% if match.raw_data.pattern_matching.frequency_skew %}
+            {% if match.raw_data.pattern_matching.frequency_skew != None %}
             <div class="text-sm bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
                 <span class="font-medium text-yellow-900 dark:text-yellow-200">Frequency Skew:</span>
                 <span class="text-yellow-700 dark:text-yellow-300 ml-2">
                     {{ match.raw_data.pattern_matching.frequency_skew|floatformat:4 }}
                     {% with skew=match.raw_data.pattern_matching.frequency_skew %}
-                        {% if skew|floatformat:2 != "1.00" %}
-                            <span class="text-xs">({% if skew < 1 %}lower pitch{% else %}higher pitch{% endif %})</span>
+                        {% if skew|floatformat:2 != "0.00" %}
+                            <span class="text-xs">({% if skew < 0 %}lower pitch{% else %}higher pitch{% endif %})</span>
                         {% endif %}
                     {% endwith %}
                 </span>
