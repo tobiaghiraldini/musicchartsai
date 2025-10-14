@@ -36,11 +36,11 @@ class AdminDataTable {
         const headerRow = document.createElement('tr');
         const headers = [
             { key: 'position', label: 'Position', sortable: true, width: '80px' },
-            { key: 'track_name', label: 'Track & Artist', sortable: true, width: '300px' },
-            { key: 'trend_text', label: 'Trend', sortable: true, width: '120px' },
-            { key: 'weeks', label: 'Weeks', sortable: true, width: '100px' },
-            { key: 'streams', label: 'Streams', sortable: true, width: '140px' },
-            { key: 'previous_position', label: 'Previous', sortable: true, width: '100px' }
+            { key: 'track_name', label: 'Track & Artist', sortable: true, width: '35%' },
+            { key: 'trend_text', label: 'Trend', sortable: true, width: '15%' },
+            { key: 'weeks', label: 'Weeks', sortable: true, width: '10%' },
+            { key: 'streams', label: 'Streams', sortable: true, width: '20%' },
+            { key: 'previous_position', label: 'Previous', sortable: true, width: '10%' }
         ];
         
         headers.forEach(header => {
@@ -170,9 +170,11 @@ class AdminDataTable {
             // Track & Artist
             const trackCell = document.createElement('td');
             trackCell.className = 'track-info';
+            trackCell.style.wordWrap = 'break-word';
+            trackCell.style.overflowWrap = 'break-word';
             trackCell.innerHTML = `
-                <a href="${item.track_url}" class="track-name">${item.track_name}</a>
-                <span class="artist-name">${item.artist_name}</span>
+                <a href="${item.track_url}" class="track-name" style="word-wrap: break-word; overflow-wrap: break-word; display: block;">${item.track_name}</a>
+                <span class="artist-name" style="word-wrap: break-word; overflow-wrap: break-word; display: block;">${item.artist_name}</span>
             `;
             row.appendChild(trackCell);
             

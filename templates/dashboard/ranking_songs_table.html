@@ -68,28 +68,28 @@
         <div class="overflow-x-auto rounded-lg">
           <div class="inline-block min-w-full align-middle">
             <div class="overflow-hidden shadow sm:rounded-lg">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600 table-fixed">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white w-20">
                       Position
                     </th>
-                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white w-80">
                       Track
                     </th>
-                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white w-48">
                       Artist
                     </th>
-                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white w-32">
                       Previous Position
                     </th>
-                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white w-28">
                       Change
                     </th>
-                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white w-32">
                       Weeks on Chart
                     </th>
-                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    <th scope="col" class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white w-32">
                       Metric
                     </th>
                   </tr>
@@ -104,30 +104,30 @@
                         </span>
                       </div>
                     </td>
-                    <td class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                    <td class="p-4 text-sm font-normal text-gray-900 dark:text-white">
                       <div class="flex items-center">
                         {% if entry.track.image_url %}
-                        <img class="w-10 h-10 rounded-lg object-cover mr-3" src="{{ entry.track.image_url }}" alt="{{ entry.track.name }}">
+                        <img class="w-10 h-10 rounded-lg object-cover mr-3 flex-shrink-0" src="{{ entry.track.image_url }}" alt="{{ entry.track.name }}">
                         {% else %}
-                        <div class="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center mr-3">
+                        <div class="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                           <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                           </svg>
                         </div>
                         {% endif %}
-                        <div>
-                          <div class="font-semibold">
+                        <div class="min-w-0 flex-1">
+                          <div class="font-semibold break-words">
                             <a href="{% url 'soundcharts:song_audience_detail' entry.track.uuid %}" 
                                class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">
                               {{ entry.track.name }}
                             </a>
                           </div>
-                          <div class="text-xs text-gray-500 dark:text-gray-400">UUID: {{ entry.track.uuid|truncatechars:8 }}</div>
+                          <div class="text-xs text-gray-500 dark:text-gray-400 truncate">UUID: {{ entry.track.uuid|truncatechars:8 }}</div>
                         </div>
                       </div>
                     </td>
-                    <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
-                      {{ entry.track.credit_name|default:"Unknown Artist" }}
+                    <td class="p-4 text-sm font-normal text-gray-500 dark:text-gray-400">
+                      <div class="break-words">{{ entry.track.credit_name|default:"Unknown Artist" }}</div>
                     </td>
                     <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
                       {% if entry.previous_position %}

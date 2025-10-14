@@ -296,6 +296,9 @@ def sync_chart_rankings_task(self, schedule_id, execution_id):
                 )
                 
                 if rankings_data and 'items' in rankings_data:
+                    items_count = len(rankings_data['items'])
+                    logger.info(f"API returned {items_count} items for {chart.name} on {period_start}")
+                    
                     # Process the ranking data
                     ranking, created = _process_chart_ranking(
                         chart, 
@@ -305,15 +308,18 @@ def sync_chart_rankings_task(self, schedule_id, execution_id):
                     
                     if created:
                         rankings_created += 1
+                        logger.info(f"Created new ranking {ranking.id} for {chart.name}")
                     else:
                         rankings_updated += 1
+                        logger.info(f"Updated existing ranking {ranking.id} for {chart.name}")
                     
                     # Process tracks and entries
                     track_stats = _process_ranking_entries(ranking, rankings_data['items'], schedule.fetch_track_metadata)
-                    tracks_created += track_stats['created']
-                    tracks_updated += track_stats['updated']
+                    tracks_created += track_stats.get('created', 0)
+                    tracks_updated += track_stats.get('updated', 0)
+                    entries_created = track_stats.get('entries_created', 0)
                     
-                    logger.info(f"Processed ranking for {chart.name} on {period_start}")
+                    logger.info(f"Successfully processed ranking for {chart.name} on {period_start}: {entries_created} entries created")
                 else:
                     logger.warning(f"No ranking data found for {chart.name} on {period_start}")
                 
@@ -407,7 +413,8 @@ def process_scheduled_chart_syncs(self):
 
 def _get_missing_ranking_periods(chart, sync_historical_data=True):
     """
-    Determine what ranking periods are missing for a chart based on its frequency.
+    Determine what ranking dates are missing for a chart based on its frequency.
+    Returns a list of (date, None) tuples representing dates to fetch.
     Historical data is limited to the last 3 days only to prevent excessive API calls.
     """
     from datetime import datetime, timedelta
@@ -416,91 +423,101 @@ def _get_missing_ranking_periods(chart, sync_historical_data=True):
     now = timezone.now()
     missing_periods = []
     
-    # Get existing rankings
-    existing_rankings = ChartRanking.objects.filter(chart=chart).order_by('ranking_date')
-    
-    if not existing_rankings.exists():
-        # No existing rankings, fetch the latest one
-        missing_periods.append((now, None))
-        return missing_periods
+    # Get existing rankings dates for this chart
+    existing_ranking_dates = set(
+        ChartRanking.objects.filter(chart=chart)
+        .values_list('ranking_date__date', flat=True)
+    )
     
     # Determine frequency interval
     if chart.frequency.lower() == 'daily':
         interval = timedelta(days=1)
+        # For daily charts, check last 3 days
+        days_to_check = 3
     elif chart.frequency.lower() == 'weekly':
         interval = timedelta(weeks=1)
+        # For weekly charts, check last 3 weeks
+        days_to_check = 21 if sync_historical_data else 7
     elif chart.frequency.lower() == 'monthly':
         interval = timedelta(days=30)
+        # For monthly charts, check last 3 months
+        days_to_check = 90 if sync_historical_data else 30
     else:
         # Default to weekly
         interval = timedelta(weeks=1)
+        days_to_check = 21 if sync_historical_data else 7
     
+    # Always check today's ranking
+    today = now.date()
+    if today not in existing_ranking_dates:
+        missing_periods.append((now, None))
+        logger.info(f"Will fetch ranking for {chart.name} for today: {today}")
+    
+    # If sync_historical_data is enabled, check for missing historical data
     if sync_historical_data:
-        # Find gaps in the data from the beginning
-        earliest_ranking = existing_rankings.first()
-        current_date = earliest_ranking.ranking_date
+        check_date = now - timedelta(days=1)  # Start from yesterday
+        end_date = now - timedelta(days=days_to_check)
         
-        # Go back to find the start of missing data - LIMITED TO 3 DAYS
-        while current_date > now - timedelta(days=3):  # Limit to 3 days back only
-            period_start = current_date - interval
-            period_end = current_date
+        while check_date >= end_date:
+            if check_date.date() not in existing_ranking_dates:
+                missing_periods.append((check_date, None))
+                logger.info(f"Will fetch ranking for {chart.name} for date: {check_date.date()}")
             
-            has_ranking = ChartRanking.objects.filter(
-                chart=chart,
-                ranking_date__gte=period_start,
-                ranking_date__lt=period_end
-            ).exists()
-            
-            if not has_ranking:
-                missing_periods.append((period_start, period_end))
-            
-            current_date -= interval
+            # Move back by the chart's frequency interval
+            check_date -= interval
+    
+    if not missing_periods:
+        logger.info(f"No missing rankings found for {chart.name}")
     else:
-        # Only check for recent missing data
-        latest_ranking = existing_rankings.last()
-        current_date = latest_ranking.ranking_date + interval
-        
-        while current_date <= now:
-            # Check if we have a ranking for this period
-            period_start = current_date - interval
-            period_end = current_date
-            
-            has_ranking = ChartRanking.objects.filter(
-                chart=chart,
-                ranking_date__gte=period_start,
-                ranking_date__lt=period_end
-            ).exists()
-            
-            if not has_ranking:
-                missing_periods.append((period_start, period_end))
-            
-            current_date += interval
+        logger.info(f"Found {len(missing_periods)} missing ranking(s) for {chart.name}")
     
     return missing_periods
 
 
 def _process_chart_ranking(chart, rankings_data, ranking_date):
     """
-    Process chart ranking data and create/update ChartRanking record
+    Process chart ranking data and create/update ChartRanking record.
+    Only creates a new ranking if one doesn't exist for the given date.
     """
     try:
-        # Create or get the chart ranking
-        ranking, created = ChartRanking.objects.get_or_create(
+        # Normalize ranking_date to just the date portion for comparison
+        from django.utils import timezone
+        if isinstance(ranking_date, str):
+            ranking_date = timezone.datetime.fromisoformat(ranking_date)
+        
+        ranking_date_normalized = ranking_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Check if a ranking already exists for this chart and date
+        existing_ranking = ChartRanking.objects.filter(
             chart=chart,
-            ranking_date=ranking_date,
-            defaults={
-                'total_entries': len(rankings_data.get('items', [])),
-                'api_version': rankings_data.get('version', 'v2.14'),
-            }
+            ranking_date__date=ranking_date_normalized.date()
+        ).first()
+        
+        if existing_ranking:
+            # Ranking already exists for this date, skip creation but update if needed
+            logger.info(f"Ranking already exists for {chart.name} on {ranking_date_normalized.date()}, skipping...")
+            updated = False
+            if existing_ranking.total_entries != len(rankings_data.get('items', [])):
+                existing_ranking.total_entries = len(rankings_data.get('items', []))
+                updated = True
+            if rankings_data.get('version') and existing_ranking.api_version != rankings_data['version']:
+                existing_ranking.api_version = rankings_data['version']
+                updated = True
+            if updated:
+                existing_ranking.save()
+                logger.info(f"Updated existing ranking for {chart.name} on {ranking_date_normalized.date()}")
+            return existing_ranking, False
+        
+        # Create new ranking
+        ranking = ChartRanking.objects.create(
+            chart=chart,
+            ranking_date=ranking_date_normalized,
+            total_entries=len(rankings_data.get('items', [])),
+            api_version=rankings_data.get('version', 'v2.14'),
         )
+        logger.info(f"Created new ranking for {chart.name} on {ranking_date_normalized.date()}")
         
-        if not created:
-            # Update existing ranking
-            ranking.total_entries = len(rankings_data.get('items', []))
-            ranking.api_version = rankings_data.get('version', 'v2.14')
-            ranking.save()
-        
-        return ranking, created
+        return ranking, True
         
     except Exception as e:
         logger.error(f"Error processing chart ranking: {str(e)}")
@@ -513,50 +530,66 @@ def _process_ranking_entries(ranking, items_data, fetch_track_metadata=True):
     """
     tracks_created = 0
     tracks_updated = 0
+    entries_created = 0
     
     try:
         # Clear existing entries for this ranking
-        ranking.entries.all().delete()
+        existing_count = ranking.entries.count()
+        if existing_count > 0:
+            logger.info(f"Deleting {existing_count} existing entries for ranking {ranking.id}")
+            ranking.entries.all().delete()
         
         # Collect track UUIDs for metadata fetching
         track_uuids_for_metadata = []
         
         for item_data in items_data:
             try:
-                # Get or create track
-                track_uuid = item_data.get('uuid')
+                # Extract song data from API response
+                # API structure: { "song": { "uuid": "...", "name": "..." }, "position": 1, ... }
+                song_data = item_data.get('song', {})
+                track_uuid = song_data.get('uuid')
+                
                 if not track_uuid:
+                    logger.warning(f"Skipping entry with no track UUID: {item_data}")
                     continue
                 
+                # Extract track information from nested song object
+                track_name = song_data.get('name', '')
+                track_slug = song_data.get('slug', '')
+                credit_name = song_data.get('creditName', '')
+                image_url = song_data.get('imageUrl', '')
+                
+                # Get or create track
                 track, track_created = Track.objects.get_or_create(
                     uuid=track_uuid,
                     defaults={
-                        'name': item_data.get('name', ''),
-                        'slug': item_data.get('slug', ''),
-                        'credit_name': item_data.get('creditName', ''),
-                        'image_url': item_data.get('imageUrl', ''),
+                        'name': track_name,
+                        'slug': track_slug,
+                        'credit_name': credit_name,
+                        'image_url': image_url,
                     }
                 )
                 
                 if track_created:
                     tracks_created += 1
+                    logger.info(f"Created new track: {track_name} ({track_uuid})")
                     # Add to metadata fetch queue if enabled
                     if fetch_track_metadata:
                         track_uuids_for_metadata.append(track_uuid)
                 else:
                     # Update existing track if needed
                     updated = False
-                    if item_data.get('name') and track.name != item_data['name']:
-                        track.name = item_data['name']
+                    if track_name and track.name != track_name:
+                        track.name = track_name
                         updated = True
-                    if item_data.get('slug') and track.slug != item_data['slug']:
-                        track.slug = item_data['slug']
+                    if track_slug and track.slug != track_slug:
+                        track.slug = track_slug
                         updated = True
-                    if item_data.get('creditName') and track.credit_name != item_data['creditName']:
-                        track.credit_name = item_data['creditName']
+                    if credit_name and track.credit_name != credit_name:
+                        track.credit_name = credit_name
                         updated = True
-                    if item_data.get('imageUrl') and track.image_url != item_data['imageUrl']:
-                        track.image_url = item_data['imageUrl']
+                    if image_url and track.image_url != image_url:
+                        track.image_url = image_url
                         updated = True
                     
                     if updated:
@@ -566,20 +599,33 @@ def _process_ranking_entries(ranking, items_data, fetch_track_metadata=True):
                         if fetch_track_metadata and _should_fetch_track_metadata(track):
                             track_uuids_for_metadata.append(track_uuid)
                 
+                # Extract position data - API uses different field names
+                position = item_data.get('position', 0)
+                old_position = item_data.get('oldPosition')  # API uses 'oldPosition' not 'previousPosition'
+                position_evolution = item_data.get('positionEvolution')  # API uses 'positionEvolution' not 'positionChange'
+                time_on_chart = item_data.get('timeOnChart')  # API uses 'timeOnChart' not 'weeksOnChart'
+                
                 # Create ranking entry
-                ChartRankingEntry.objects.create(
+                entry = ChartRankingEntry.objects.create(
                     ranking=ranking,
                     track=track,
-                    position=item_data.get('position', 0),
-                    previous_position=item_data.get('previousPosition'),
-                    position_change=item_data.get('positionChange'),
-                    weeks_on_chart=item_data.get('weeksOnChart'),
+                    position=position,
+                    previous_position=old_position,
+                    position_change=position_evolution,
+                    weeks_on_chart=time_on_chart,
                     api_data=item_data,
                 )
+                entries_created += 1
+                logger.debug(f"Created ranking entry: Position {position} - {track_name}")
                 
             except Exception as e:
                 logger.error(f"Error processing ranking entry: {str(e)}")
+                logger.error(f"Item data: {item_data}")
                 continue
+        
+        # Log summary
+        logger.info(f"Created {entries_created} ranking entries for ranking {ranking.id}")
+        logger.info(f"Track stats - Created: {tracks_created}, Updated: {tracks_updated}")
         
         # Queue metadata fetch tasks if enabled
         if fetch_track_metadata and track_uuids_for_metadata:
@@ -587,7 +633,8 @@ def _process_ranking_entries(ranking, items_data, fetch_track_metadata=True):
         
         return {
             'created': tracks_created,
-            'updated': tracks_updated
+            'updated': tracks_updated,
+            'entries_created': entries_created
         }
         
     except Exception as e:

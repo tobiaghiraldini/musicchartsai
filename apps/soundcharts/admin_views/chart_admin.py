@@ -1443,7 +1443,7 @@ Ranking History Summary:
                 defaults={
                     'created_by': request.user,
                     'is_active': True,
-                    'sync_immediately': False,  # Default to scheduled sync
+                    'sync_immediately': True,  # Trigger immediate sync
                     'sync_historical_data': True,
                     'fetch_track_metadata': True,
                 }
@@ -1455,8 +1455,8 @@ Ranking History Summary:
             self.message_user(
                 request,
                 f"Successfully added {count} chart(s) to sync schedule. "
-                f"Charts will sync according to their frequency schedule. "
-                f"Use 'Trigger Manual Sync' action to start immediate sync.",
+                f"Immediate sync has been triggered and rankings will be fetched from the API. "
+                f"Charts will continue to sync according to their frequency schedule.",
                 messages.SUCCESS
             )
         else:

@@ -64,6 +64,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  table-layout: fixed;
 }
 
 .data-table th {
@@ -128,6 +129,9 @@
 
 .track-info {
   min-width: 300px;
+  max-width: 400px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .track-name {
@@ -136,6 +140,8 @@
   display: block;
   margin-bottom: 4px;
   text-decoration: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .track-name:hover {
@@ -147,6 +153,8 @@
   color: #7f8c8d;
   font-size: 13px;
   font-style: italic;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .trend {
@@ -331,6 +339,7 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  table-layout: fixed;
 }
 
 .mini-table th {
@@ -342,10 +351,36 @@
   cursor: pointer;
 }
 
+.mini-table th:nth-child(1) {
+  width: 80px; /* Position */
+}
+
+.mini-table th:nth-child(2) {
+  width: 35%; /* Track & Artist */
+}
+
+.mini-table th:nth-child(3) {
+  width: 15%; /* Trend */
+}
+
+.mini-table th:nth-child(4) {
+  width: 10%; /* Weeks */
+}
+
+.mini-table th:nth-child(5) {
+  width: 20%; /* Streams */
+}
+
+.mini-table th:nth-child(6) {
+  width: 10%; /* Previous */
+}
+
 .mini-table td {
   padding: 10px;
   border-bottom: 1px solid #f0f0f0;
   vertical-align: middle;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .mini-table tr:hover {
@@ -358,4 +393,21 @@
 
 .mini-table tr:nth-child(even):hover {
   background-color: #f0f4ff;
+}
+
+/* Mini table specific overrides for text wrapping */
+.mini-table .track-info {
+  max-width: 100%; /* Use full column width */
+}
+
+.mini-table .track-name {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  display: block;
+}
+
+.mini-table .artist-name {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  display: block;
 }

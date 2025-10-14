@@ -230,11 +230,14 @@ class ChartSyncScheduleAdmin(admin.ModelAdmin):
                 defaults={
                     'created_by': request.user,
                     'is_active': True,
+                    'sync_immediately': True,  # Trigger immediate sync
+                    'sync_historical_data': True,
+                    'fetch_track_metadata': True,
                 }
             )
             
             if created:
-                message = f"Chart '{chart.name}' added to sync schedule."
+                message = f"Chart '{chart.name}' added to sync schedule. Immediate sync has been triggered."
                 messages.success(request, message)
             else:
                 message = f"Chart '{chart.name}' is already in sync schedule."
