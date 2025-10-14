@@ -226,6 +226,41 @@ class ACRCloudTrackMatch(models.Model):
     
     def __str__(self):
         return f"{self.get_match_type_display()} - Score: {self.score} - {self.acrcloud_id}"
+    
+    @property
+    def track_info(self):
+        """Get track info from raw_data"""
+        return self.raw_data.get('track_info', {})
+    
+    @property
+    def match_data(self):
+        """Get match data from raw_data"""
+        return self.raw_data.get('match_data', {})
+    
+    @property
+    def pattern_matching(self):
+        """Get pattern matching data from raw_data"""
+        return self.raw_data.get('pattern_matching', {})
+    
+    @property
+    def engine_type(self):
+        """Get engine type used for detection"""
+        return self.match_data.get('engine_type')
+    
+    @property
+    def time_skew(self):
+        """Get time skew value"""
+        return self.match_data.get('time_skew')
+    
+    @property
+    def frequency_skew(self):
+        """Get frequency skew value"""
+        return self.match_data.get('frequency_skew')
+    
+    @property
+    def match_type_detail(self):
+        """Get match type detail (e.g. 'traverse')"""
+        return self.match_data.get('type')
 
 
 class PlatformTrackMapping(models.Model):

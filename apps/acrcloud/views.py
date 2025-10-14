@@ -170,32 +170,31 @@ class SongDetailView(View):
     def get(self, request, song_id):
         song = get_object_or_404(Song, id=song_id, user=request.user)
         
-        # Get the latest analysis and report
+        # Get the latest analysis and report with defensive check for race conditions
         analysis = song.analyses.filter(analysis_type='full').first()
-        report = analysis.report if analysis else None
+        report = None
+        has_report = False
+        report_pending = False
         
-        # NOTE: Additional defensive check option (currently not needed)
-        # If race conditions occur despite correct task ordering, add explicit existence check:
-        #
-        # has_report = False
-        # if analysis:
-        #     try:
-        #         report = analysis.report
-        #         has_report = True
-        #     except AnalysisReport.DoesNotExist:
-        #         has_report = False
-        #
-        # Then in context add: 'has_report': has_report
-        # And in template use: {% if has_report %} instead of {% if report %}
-        #
-        # This provides an extra layer of defense by checking actual object existence
-        # rather than relying solely on the status flag, though the correct task ordering
-        # in process_acrcloud_webhook_task should prevent this issue.
+        if analysis:
+            try:
+                # Try to access the report - this will raise DoesNotExist if not ready
+                report = analysis.report
+                has_report = True
+            except AnalysisReport.DoesNotExist:
+                # Report doesn't exist yet
+                has_report = False
+                # Check if we're waiting for report (analyzed status but no report)
+                if analysis.status == 'analyzed':
+                    report_pending = True
+                    logger.warning(f"Analysis {analysis.id} marked as analyzed but report not yet created (race condition)")
         
         context = {
             'song': song,
             'analysis': analysis,
             'report': report,
+            'has_report': has_report,
+            'report_pending': report_pending,
         }
         return render(request, 'acrcloud/song_detail.html', context)
 

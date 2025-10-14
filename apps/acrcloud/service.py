@@ -534,7 +534,7 @@ class ACRCloudMetadataProcessor:
         ACRCloudTrackMatch.objects.create(
             analysis=analysis,
             match_type='music',
-            acrcloud_id=track_info.get('acrid'),
+            acrcloud_id=track_info.get('acrid') or 'unknown',  # Some matches may not have acrid
             score=track_info.get('score', match_data.get('score', 0)),
             offset=match_data.get('offset', 0),
             played_duration=match_data.get('played_duration', 0),
@@ -565,7 +565,7 @@ class ACRCloudMetadataProcessor:
         ACRCloudTrackMatch.objects.create(
             analysis=analysis,
             match_type='cover',
-            acrcloud_id=track_info.get('acrid'),
+            acrcloud_id=track_info.get('acrid') or 'unknown',  # Some matches may not have acrid
             score=track_info.get('score', match_data.get('score', 0)),
             offset=match_data.get('offset', 0),
             played_duration=match_data.get('played_duration', 0),
@@ -579,6 +579,27 @@ class ACRCloudMetadataProcessor:
         
         self.logger.info(f"Created cover match: {track_info.get('title', 'Unknown')} - Score: {track_info.get('score', 0)}")
     
+    def _normalize_external_metadata(self, external_metadata):
+        """Normalize external_metadata to always return a dict.
+        
+        ACRCloud sometimes returns an empty list [] instead of empty dict {}
+        when there's no external metadata (especially with derivative works detection).
+        """
+        if isinstance(external_metadata, list):
+            return {}
+        return external_metadata if isinstance(external_metadata, dict) else {}
+    
+    def _normalize_external_data(self, data):
+        """Normalize any external data field (metadata, ids, etc.) to always return a dict.
+        
+        ACRCloud sometimes returns an empty list [] instead of empty dict {}
+        when there's no data (especially with derivative works detection).
+        This applies to external_metadata, external_ids, and potentially other fields.
+        """
+        if isinstance(data, list):
+            return {}
+        return data if isinstance(data, dict) else {}
+    
     def _create_or_update_track(self, track_info: dict, match_data: dict):
         """Create or update Track model from ACRCloud data"""
         
@@ -586,8 +607,11 @@ class ACRCloudMetadataProcessor:
         from django.utils import timezone
         from datetime import datetime
         
+        # Normalize external_ids (can be list or dict from ACRCloud)
+        external_ids = self._normalize_external_data(track_info.get('external_ids', {}))
+        
         # Try to find existing track by ISRC
-        isrc = track_info.get('external_ids', {}).get('isrc')
+        isrc = external_ids.get('isrc')
         track = None
         
         if isrc:
@@ -595,6 +619,9 @@ class ACRCloudMetadataProcessor:
         
         if not track:
             # Create new track
+            # Normalize external_metadata (can be list or dict from ACRCloud)
+            external_meta = self._normalize_external_metadata(track_info.get('external_metadata', {}))
+            
             track = Track.objects.create(
                 name=track_info.get('title', ''),
                 uuid=str(uuid.uuid4()),  # Generate new UUID
@@ -602,21 +629,24 @@ class ACRCloudMetadataProcessor:
                 duration=int(track_info.get('duration_ms', 0) / 1000) if track_info.get('duration_ms') else None,
                 release_date=self._parse_date(track_info.get('release_date')),
                 label=track_info.get('label', ''),
-                acrcloud_id=track_info.get('acrid'),
+                acrcloud_id=track_info.get('acrid') or '',  # Some matches may not have acrid
                 acrcloud_score=match_data.get('score'),
                 acrcloud_analyzed_at=timezone.now(),
-                upc=track_info.get('external_ids', {}).get('upc') or '',
-                musicbrainz_id=track_info.get('external_metadata', {}).get('musicbrainz', {}).get('track', {}).get('id') or '',
-                platform_ids=self._extract_platform_ids(track_info.get('external_metadata', {}))
+                upc=external_ids.get('upc') or '',
+                musicbrainz_id=external_meta.get('musicbrainz', {}).get('track', {}).get('id') or '',
+                platform_ids=self._extract_platform_ids(external_meta)
             )
         else:
             # Update existing track with ACRCloud data
-            track.acrcloud_id = track_info.get('acrid')
+            # Normalize external_metadata (can be list or dict from ACRCloud)
+            external_meta = self._normalize_external_metadata(track_info.get('external_metadata', {}))
+            
+            track.acrcloud_id = track_info.get('acrid') or ''  # Some matches may not have acrid
             track.acrcloud_score = match_data.get('score')
             track.acrcloud_analyzed_at = timezone.now()
-            track.upc = track_info.get('external_ids', {}).get('upc') or ''
-            track.musicbrainz_id = track_info.get('external_metadata', {}).get('musicbrainz', {}).get('track', {}).get('id') or ''
-            track.platform_ids = self._extract_platform_ids(track_info.get('external_metadata', {}))
+            track.upc = external_ids.get('upc') or ''
+            track.musicbrainz_id = external_meta.get('musicbrainz', {}).get('track', {}).get('id') or ''
+            track.platform_ids = self._extract_platform_ids(external_meta)
             track.save()
         
         # Create/update artists
@@ -629,7 +659,8 @@ class ACRCloudMetadataProcessor:
         self._create_or_update_genres(track, track_info.get('genres', []))
         
         # Create platform mappings
-        self._create_platform_mappings(track, track_info.get('external_metadata', {}))
+        # Normalize external_metadata (can be list or dict from ACRCloud)
+        self._create_platform_mappings(track, self._normalize_external_metadata(track_info.get('external_metadata', {})))
         
         return track
     
@@ -844,11 +875,26 @@ class ACRCloudMetadataProcessor:
             'sample_end_time_offset_ms': track_info.get('sample_end_time_offset_ms', 0),
         }
         
-        # Extract time skew and frequency skew if available
-        if 'time_skew' in track_info:
+        # Extract derivative works detection fields from match_data
+        # These fields are at the top level of match_data with derivative works detection enabled
+        if 'engine_type' in match_data:
+            pattern_data['engine_type'] = match_data['engine_type']
+        if 'time_skew' in match_data:
+            pattern_data['time_skew'] = match_data['time_skew']
+        if 'frequency_skew' in match_data:
+            pattern_data['frequency_skew'] = match_data['frequency_skew']
+        if 'file_duration' in match_data:
+            pattern_data['file_duration'] = match_data['file_duration']
+        
+        # Also check in track_info as fallback (for backward compatibility)
+        if 'time_skew' in track_info and 'time_skew' not in pattern_data:
             pattern_data['time_skew'] = track_info['time_skew']
-        if 'frequency_skew' in track_info:
+        if 'frequency_skew' in track_info and 'frequency_skew' not in pattern_data:
             pattern_data['frequency_skew'] = track_info['frequency_skew']
+        
+        # Add play_offset_ms if available
+        if 'play_offset_ms' in track_info:
+            pattern_data['play_offset_ms'] = track_info['play_offset_ms']
         
         return pattern_data
     
