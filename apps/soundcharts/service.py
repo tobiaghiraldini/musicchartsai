@@ -144,11 +144,32 @@ class SoundchartsService:
             logger.error(f"Unexpected error getting artist metadata: {e}")
             return None
 
-    def get_artist_audience_for_platform(self, uuid, platform="spotify", date='latest'):
-        url = f"{self.api_url}/api/v2/artist/{uuid}/audience/{platform}/report/{date}"
+    def get_artist_audience_for_platform(self, uuid, platform="spotify", start_date=None, end_date=None):
+        """
+        Get artist audience data for a specific platform.
+        Endpoint: GET /api/v2/artist/{uuid}/audience/{platform}
+        
+        Args:
+            uuid: Artist UUID
+            platform: Platform code (e.g., 'spotify', 'instagram', 'youtube')
+            start_date: Optional start date (format YYYY-MM-DD), period cannot exceed 90 days
+            end_date: Optional end date (format YYYY-MM-DD), leave empty to use latest 90 days
+        
+        Returns:
+            Dict with audience data including followerCount, plots, etc.
+        """
+        url = f"{self.api_url}/api/v2/artist/{uuid}/audience/{platform}"
         try:
             headers = {"x-app-id": self.app_id, "x-api-key": self.api_key}
-            response = requests.get(url, headers=headers)
+            params = {}
+            
+            # Add optional date filters as query parameters
+            if start_date:
+                params['startDate'] = start_date
+            if end_date:
+                params['endDate'] = end_date
+            
+            response = requests.get(url, headers=headers, params=params if params else None)
             response.raise_for_status()
             data = response.json()
             logger.info(f"Artist audience for platform API response: {data}")
@@ -161,12 +182,14 @@ class SoundchartsService:
             return None
 
 
-    def search_artists(self, q, limit=100, offset=0):
+    def search_artists(self, q, limit=20, offset=0):
         # Try the search endpoint first as it's more reliable
+        # Note: Soundcharts API has a maximum limit of 20 results per request
         url = f"{self.api_url}/api/v2/artist/search/{q}"
         try:
             headers = {"x-app-id": self.app_id, "x-api-key": self.api_key}
-            params = {"limit": limit, "offset": offset}
+            # Ensure limit doesn't exceed API maximum of 20
+            params = {"limit": min(limit, 20), "offset": offset}
             response = requests.get(url, headers=headers, params=params)
             response.raise_for_status()
             data = response.json()

@@ -14,6 +14,8 @@ from .models import (
     ChartRankingEntrySummary,
     MetadataFetchTask,
     TrackAudienceTimeSeries,
+    ArtistAudience,
+    ArtistAudienceTimeSeries,
     ChartSyncSchedule,
     ChartSyncExecution,
 )
@@ -50,3 +52,22 @@ admin.site.register(ChartSyncExecution, ChartSyncExecutionAdmin)
 
 # Register TrackAudienceTimeSeries with inline admin
 admin.site.register(TrackAudienceTimeSeries, TrackAudienceAdmin)
+
+
+# Simple admin for Artist Audience models
+@admin.register(ArtistAudience)
+class ArtistAudienceAdmin(admin.ModelAdmin):
+    list_display = ('artist', 'platform', 'report_date', 'fetched_at')
+    list_filter = ('platform', 'report_date', 'fetched_at')
+    search_fields = ('artist__name', 'artist__uuid')
+    readonly_fields = ('fetched_at', 'api_data')
+    ordering = ('-fetched_at',)
+
+
+@admin.register(ArtistAudienceTimeSeries)
+class ArtistAudienceTimeSeriesAdmin(admin.ModelAdmin):
+    list_display = ('artist', 'platform', 'date', 'formatted_audience_value', 'fetched_at')
+    list_filter = ('platform', 'date')
+    search_fields = ('artist__name', 'artist__uuid')
+    readonly_fields = ('fetched_at', 'api_data', 'formatted_audience_value')
+    ordering = ('-date',)

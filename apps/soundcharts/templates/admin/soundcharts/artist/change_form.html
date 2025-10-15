@@ -1,16 +1,78 @@
 {% extends "admin/change_form.html" %}
-{% load i18n admin_urls %}
+{% load i18n admin_urls static %}
 
 {% block extra_actions %}
-    {% if original and original.uuid %}
-   
+  {% if show_fetch_metadata_button and original and original.uuid %}
+
     <div class="form-group mt-2">
-        
-        <form method="post" action="{{ request.path }}" style="display: inline;">
-            {% csrf_token %}
-             <input type="submit" value="{% trans 'Fetch Metadata from API' %}" name="_fetch_metadata" class="btn btn-info w-100">
-        </form>
+      <form method="post" action="{{ request.path }}" style="display: inline; width: 100%;">
+        {% csrf_token %}
+        <input type="submit" value="{% trans 'Fetch Metadata from API' %}" name="_fetch_metadata" class="btn btn-info w-100">
+      </form>
     </div>
-    {% endif %}
-    {{ block.super }}
+  {% endif %}
+  
+  {% if show_fetch_audience_button and original and original.uuid %}
+    <div class="form-group mt-2">
+      <form method="post" action="{{ request.path }}" id="audienceForm">
+        {% csrf_token %}
+        <div class="flex-row gap-2 mb-2">
+          <label for="platform_select">Platform:
+          <select name="platform" id="platform_select" style="padding: 5px;">
+            <option value="spotify">Spotify</option>
+            <option value="instagram">Instagram</option>
+            <option value="youtube">YouTube</option>
+            <option value="tiktok">TikTok</option>
+            <option value="facebook">Facebook</option>
+            <option value="twitter">X (Twitter)</option>
+            <option value="soundcloud">SoundCloud</option>
+            {% for slug, name in available_platforms %}
+              {% if slug not in 'spotify,instagram,youtube,tiktok,facebook,twitter,soundcloud' %}
+                <option value="{{ slug }}">{{ name }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+          </label>
+          <small style="margin-left: 10px; color: #666;">
+            Returns latest 90 days of follower/like counts
+          </small>
+        </div>
+        <input type="submit" value="{% trans 'Fetch Audience Data from API' %}" name="_fetch_audience" class="btn btn-info w-100">
+      </form>
+    </div>
+  {% endif %}
+  
+  {{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "assets/admin-import.css" %}">
+<style>
+.submit-row input[name="_fetch_metadata"] {
+    background: #28a745 !important;
+    color: white !important;
+    border: 1px solid #28a745 !important;
+}
+.submit-row input[name="_fetch_metadata"]:hover {
+    background: #218838 !important;
+    border-color: #1e7e34 !important;
+}
+.submit-row input[name="_fetch_audience"] {
+    background: #007bff !important;
+    color: white !important;
+    border: 1px solid #007bff !important;
+}
+.submit-row input[name="_fetch_audience"]:hover {
+    background: #0056b3 !important;
+    border-color: #004085 !important;
+}
+.flex-row {
+    display: flex;
+    align-items: center;
+}
+.gap-2 {
+    gap: 10px;
+}
+</style>
 {% endblock %} 

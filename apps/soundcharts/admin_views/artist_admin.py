@@ -1,11 +1,15 @@
 from django.contrib import admin
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.utils.html import format_html
-from django.urls import reverse
+from django.urls import reverse, path
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 from datetime import datetime
 import logging
+import json
 
-from ..models import Artist, Genre
+from ..models import Artist, Genre, Platform, ArtistAudience, ArtistAudienceTimeSeries
 from ..service import SoundchartsService
 from .soundcharts_admin_mixin import SoundchartsAdminMixin
 
@@ -91,246 +95,376 @@ class ArtistAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
     fetch_artist_metadata.short_description = "Fetch metadata from Soundcharts API"
 
     def response_change(self, request, obj):
-        """Handle custom actions in change form"""
-        if "_fetch_metadata" in request.POST:
-            # Handle single artist metadata fetch
-            if obj.uuid:
-                service = SoundchartsService()
-                try:
-                    metadata = service.get_artist_metadata(obj.uuid)
-                    if metadata:
-                        # Update the artist object with metadata
-                        if "object" in metadata:
-                            artist_data = metadata["object"]
-
-                            logger.debug("Artist Metadata:", artist_data)
-                            # Map all available fields from the API response
-                            if "name" in artist_data:
-                                obj.name = artist_data["name"]
-                            if "slug" in artist_data:
-                                obj.slug = artist_data["slug"]
-                            if "appUrl" in artist_data:
-                                obj.appUrl = artist_data["appUrl"]
-                            if "imageUrl" in artist_data:
-                                obj.imageUrl = artist_data["imageUrl"]
-                            if "biography" in artist_data:
-                                obj.biography = artist_data["biography"]
-                            if "isni" in artist_data:
-                                obj.isni = artist_data["isni"]
-                            if "ipi" in artist_data:
-                                obj.ipi = artist_data["ipi"]
-                            if "gender" in artist_data:
-                                obj.gender = artist_data["gender"]
-                            if "type" in artist_data:
-                                obj.type = artist_data["type"]
-                            if "birthDate" in artist_data:
-                                try:
-                                    # Handle ISO datetime string format
-                                    if artist_data["birthDate"]:
-                                        if "T" in artist_data["birthDate"]:
-                                            # ISO format: "2001-12-18T00:00:00+00:00"
-                                            obj.birthDate = datetime.fromisoformat(
-                                                artist_data["birthDate"].replace(
-                                                    "Z", "+00:00"
-                                                )
-                                            ).date()
-                                        else:
-                                            # Simple date format: "2001-12-18"
-                                            obj.birthDate = datetime.strptime(
-                                                artist_data["birthDate"], "%Y-%m-%d"
-                                            ).date()
-                                except (ValueError, TypeError) as e:
-                                    logger.warning(
-                                        f"Could not parse birthDate '{artist_data['birthDate']}': {e}"
-                                    )
-                                    # Leave birthDate as None if parsing fails
-                            if "careerStage" in artist_data:
-                                obj.careerStage = artist_data["careerStage"]
-                            if "cityName" in artist_data:
-                                obj.cityName = artist_data["cityName"]
-                            if "countryCode" in artist_data:
-                                obj.countryCode = artist_data["countryCode"]
-                            if "genres" in artist_data:
-                                # Handle genres - create or find Genre objects and link them
-                                genre_names = set()
-                                for genre_obj in artist_data["genres"]:
-                                    if "root" in genre_obj:
-                                        genre_names.add(genre_obj["root"])
-                                    if "sub" in genre_obj:
-                                        genre_names.update(genre_obj["sub"])
-
-                                # Clear existing genres and add new ones
-                                obj.genres.clear()
-
-                                for genre_name in genre_names:
-                                    # Try to find existing genre by name, or create new one
-                                    genre, created = Genre.objects.get_or_create(
-                                        name=genre_name,
-                                        defaults={
-                                            "uuid": f"genre-{genre_name.lower().replace(' ', '-')}"
-                                        },
-                                    )
-                                    obj.genres.add(genre)
-
-                                    if created:
-                                        logger.info(f"Created new genre: {genre_name}")
-                                    else:
-                                        logger.info(
-                                            f"Found existing genre: {genre_name}"
-                                        )
-                            # Save the updated object
-                            obj.save()
-
-                            self.message_user(
-                                request,
-                                f"Successfully fetched and updated metadata for '{obj.name}'",
-                            )
-                            logger.info(
-                                f"Updated artist {obj.name} with metadata: {metadata}"
-                            )
-                        else:
-                            self.message_user(
-                                request,
-                                f"Invalid metadata format for '{obj.name}'",
-                                level="WARNING",
-                            )
-                    else:
-                        self.message_user(
-                            request,
-                            f"Failed to fetch metadata for '{obj.name}'",
-                            level="WARNING",
-                        )
-                except Exception as e:
-                    self.message_user(
-                        request,
-                        f"Error fetching metadata for '{obj.name}': {str(e)}",
-                        level="ERROR",
-                    )
-                    logger.error(f"Error fetching metadata for artist {obj.name}: {e}")
-            else:
-                self.message_user(
-                    request, f"Artist '{obj.name}' has no UUID", level="WARNING"
-                )
-
-            # Redirect back to the change form without triggering form validation
-            return HttpResponseRedirect(request.get_full_path())
-
-        # Only call super() if it's not our custom action
+        """Handle custom actions in change form - now handled in change_view"""
+        # The fetch actions are now handled in change_view() before form validation
+        # This method is kept for compatibility with standard Django admin flow
         return super().response_change(request, obj)
+    
+    def _process_artist_audience_data(self, artist, platform_slug, audience_data):
+        """
+        Process and store artist audience data from Soundcharts API.
+        
+        API Response structure:
+        {
+            "related": {
+                "artist": {...},
+                "platform": "spotify",
+                "lastCrawlDate": "2025-10-15T12:00:00+00:00"
+            },
+            "items": [
+                {"date": "2025-07-17T00:00:00+00:00", "followerCount": 3083287, ...},
+                {"date": "2025-07-18T00:00:00+00:00", "followerCount": 3083873, ...},
+                ...
+            ],
+            "page": {"offset": 0, "limit": 100, "total": 112}
+        }
+        """
+        try:
+            # Get the platform object
+            platform = Platform.objects.filter(slug=platform_slug).first()
+            if not platform:
+                return {'success': False, 'error': f'Platform {platform_slug} not found'}
+            
+            # Extract the time-series data
+            items = audience_data.get('items', [])
+            related = audience_data.get('related', {})
+            
+            if not items:
+                return {'success': False, 'error': 'No time-series data in response'}
+            
+            # Get the latest follower count (last item in the list)
+            latest_item = items[-1] if items else {}
+            follower_count = (latest_item.get('followerCount') or 
+                            latest_item.get('likeCount') or 
+                            latest_item.get('viewCount'))
+            
+            # Store time-series data from items
+            records_created = 0
+            records_updated = 0
+            
+            for item in items:
+                item_date_str = item.get('date')
+                if not item_date_str:
+                    continue
+                
+                try:
+                    # Parse date (format: YYYY-MM-DDTHH:MM:SS+00:00 or YYYY-MM-DD)
+                    if 'T' in item_date_str:
+                        item_date = datetime.fromisoformat(item_date_str.replace('Z', '+00:00')).date()
+                    else:
+                        item_date = datetime.strptime(item_date_str, '%Y-%m-%d').date()
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Could not parse item date '{item_date_str}': {e}")
+                    continue
+                
+                # Get the metric value (followerCount, likeCount, or viewCount)
+                audience_value = (item.get('followerCount') or 
+                                item.get('likeCount') or 
+                                item.get('viewCount'))
+                if audience_value is None:
+                    continue
+                
+                # Create or update ArtistAudienceTimeSeries record
+                ts_record, created = ArtistAudienceTimeSeries.objects.update_or_create(
+                    artist=artist,
+                    platform=platform,
+                    date=item_date,
+                    defaults={
+                        'audience_value': audience_value,
+                        'platform_identifier': '',  # Not provided in this endpoint
+                        'api_data': item,
+                        'fetched_at': timezone.now()
+                    }
+                )
+                
+                if created:
+                    records_created += 1
+                else:
+                    records_updated += 1
+            
+            logger.info(f"Stored {records_created} new records, updated {records_updated} records for {artist.name} on {platform_slug}")
+            
+            return {
+                'success': True,
+                'records_created': records_created,
+                'records_updated': records_updated,
+                'latest_follower_count': follower_count,
+                'total_items': len(items)
+            }
+            
+        except Exception as e:
+            logger.error(f"Error processing artist audience data: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            return {'success': False, 'error': str(e)}
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
-        """Override change view to handle custom actions"""
-        if request.method == "POST" and "_fetch_metadata" in request.POST:
-            # Handle metadata fetch action
-            try:
+        """Add custom buttons to the change view and handle fetch actions before form validation"""
+        
+        # Handle fetch actions BEFORE form validation
+        if request.method == "POST":
+            if "_fetch_metadata" in request.POST:
+                # Get the object without going through form validation
                 obj = self.get_object(request, object_id)
-                if obj and obj.uuid:
-                    service = SoundchartsService()
-                    metadata = service.get_artist_metadata(obj.uuid)
-
-                    if metadata and "object" in metadata:
-                        artist_data = metadata["object"]
-
-                        logger.debug("Artist Metadata:", artist_data)
-                        # Map all available fields from the API response
-                        if "name" in artist_data:
-                            obj.name = artist_data["name"]
-                        if "slug" in artist_data:
-                            obj.slug = artist_data["slug"]
-                        if "appUrl" in artist_data:
-                            obj.appUrl = artist_data["appUrl"]
-                        if "imageUrl" in artist_data:
-                            obj.imageUrl = artist_data["imageUrl"]
-                        if "biography" in artist_data:
-                            obj.biography = artist_data["biography"]
-                        if "isni" in artist_data:
-                            obj.isni = artist_data["isni"]
-                        if "ipi" in artist_data:
-                            obj.ipi = artist_data["ipi"]
-                        if "gender" in artist_data:
-                            obj.gender = artist_data["gender"]
-                        if "type" in artist_data:
-                            obj.type = artist_data["type"]
-                        if "birthDate" in artist_data:
-                            try:
-                                # Handle ISO datetime string format
-                                if artist_data["birthDate"]:
-                                    if "T" in artist_data["birthDate"]:
-                                        # ISO format: "2001-12-18T00:00:00+00:00"
-                                        obj.birthDate = datetime.fromisoformat(
-                                            artist_data["birthDate"].replace(
-                                                "Z", "+00:00"
-                                            )
-                                        ).date()
-                                    else:
-                                        # Simple date format: "2001-12-18"
-                                        obj.birthDate = datetime.strptime(
-                                            artist_data["birthDate"], "%Y-%m-%d"
-                                        ).date()
-                            except (ValueError, TypeError) as e:
-                                logger.warning(
-                                    f"Could not parse birthDate '{artist_data['birthDate']}': {e}"
-                                )
-                                # Leave birthDate as None if parsing fails
-                        if "careerStage" in artist_data:
-                            obj.careerStage = artist_data["careerStage"]
-                        if "cityName" in artist_data:
-                            obj.cityName = artist_data["cityName"]
-                        if "countryCode" in artist_data:
-                            obj.countryCode = artist_data["countryCode"]
-                        if "genres" in artist_data:
-                            # Handle genres - create or find Genre objects and link them
-                            genre_names = set()
-                            for genre_obj in artist_data["genres"]:
-                                if "root" in genre_obj:
-                                    genre_names.add(genre_obj["root"])
-                                if "sub" in genre_obj:
-                                    genre_names.update(genre_obj["sub"])
-
-                            # Clear existing genres and add new ones
-                            obj.genres.clear()
-
-                            for genre_name in genre_names:
-                                # Try to find existing genre by name, or create new one
-                                genre, created = Genre.objects.get_or_create(
-                                    name=genre_name,
-                                    defaults={
-                                        "uuid": f"genre-{genre_name.lower().replace(' ', '-')}"
-                                    },
-                                )
-                                obj.genres.add(genre)
-
-                                if created:
-                                    logger.info(f"Created new genre: {genre_name}")
-                                else:
-                                    logger.info(f"Found existing genre: {genre_name}")
-
-                        # Save the updated object
-                        obj.save()
-
-                        self.message_user(
-                            request,
-                            f"Successfully fetched and updated metadata for '{obj.name}'",
-                        )
-                        logger.info(
-                            f"Updated artist {obj.name} with metadata: {metadata}"
-                        )
-                    else:
-                        self.message_user(
-                            request,
-                            f"Failed to fetch metadata for '{obj.name}'",
-                            level="WARNING",
-                        )
-                else:
-                    self.message_user(request, f"Artist has no UUID", level="WARNING")
-            except Exception as e:
-                self.message_user(
-                    request, f"Error fetching metadata: {str(e)}", level="ERROR"
-                )
-                logger.error(f"Error fetching metadata: {e}")
-
-            # Redirect back to the change form
-            return HttpResponseRedirect(request.get_full_path())
-
-        # Call the parent method for normal form handling
+                if obj:
+                    return self._handle_fetch_metadata(request, obj)
+            
+            elif "_fetch_audience" in request.POST:
+                # Get the object without going through form validation
+                obj = self.get_object(request, object_id)
+                if obj:
+                    return self._handle_fetch_audience(request, obj)
+        
+        # Add context for template
+        extra_context = extra_context or {}
+        extra_context["show_fetch_metadata_button"] = True
+        extra_context["show_fetch_audience_button"] = True
+        
+        # Add available platforms for audience fetching
+        extra_context["available_platforms"] = Platform.objects.all().values_list('slug', 'name')
+        
         return super().change_view(request, object_id, form_url, extra_context)
+    
+    def _handle_fetch_metadata(self, request, obj):
+        """Handle metadata fetch action"""
+        if not obj.uuid:
+            self.message_user(
+                request, f"Artist '{obj.name}' has no UUID", level="WARNING"
+            )
+            return HttpResponseRedirect(request.get_full_path())
+        
+        service = SoundchartsService()
+        try:
+            metadata = service.get_artist_metadata(obj.uuid)
+            if metadata and "object" in metadata:
+                artist_data = metadata["object"]
+
+                logger.debug("Artist Metadata:", artist_data)
+                # Map all available fields from the API response
+                if "name" in artist_data:
+                    obj.name = artist_data["name"]
+                if "slug" in artist_data:
+                    obj.slug = artist_data["slug"]
+                if "appUrl" in artist_data:
+                    obj.appUrl = artist_data["appUrl"]
+                if "imageUrl" in artist_data:
+                    obj.imageUrl = artist_data["imageUrl"]
+                if "biography" in artist_data:
+                    obj.biography = artist_data["biography"]
+                if "isni" in artist_data:
+                    obj.isni = artist_data["isni"]
+                if "ipi" in artist_data:
+                    obj.ipi = artist_data["ipi"]
+                if "gender" in artist_data:
+                    obj.gender = artist_data["gender"]
+                if "type" in artist_data:
+                    obj.type = artist_data["type"]
+                if "birthDate" in artist_data:
+                    try:
+                        # Handle ISO datetime string format
+                        if artist_data["birthDate"]:
+                            if "T" in artist_data["birthDate"]:
+                                # ISO format: "2001-12-18T00:00:00+00:00"
+                                obj.birthDate = datetime.fromisoformat(
+                                    artist_data["birthDate"].replace("Z", "+00:00")
+                                ).date()
+                            else:
+                                # Simple date format: "2001-12-18"
+                                obj.birthDate = datetime.strptime(
+                                    artist_data["birthDate"], "%Y-%m-%d"
+                                ).date()
+                    except (ValueError, TypeError) as e:
+                        logger.warning(
+                            f"Could not parse birthDate '{artist_data['birthDate']}': {e}"
+                        )
+                if "careerStage" in artist_data:
+                    obj.careerStage = artist_data["careerStage"]
+                if "cityName" in artist_data:
+                    obj.cityName = artist_data["cityName"]
+                if "countryCode" in artist_data:
+                    obj.countryCode = artist_data["countryCode"]
+                if "genres" in artist_data:
+                    # Handle genres - create or find Genre objects and link them
+                    genre_names = set()
+                    for genre_obj in artist_data["genres"]:
+                        if "root" in genre_obj:
+                            genre_names.add(genre_obj["root"])
+                        if "sub" in genre_obj:
+                            genre_names.update(genre_obj["sub"])
+
+                    # Clear existing genres and add new ones
+                    obj.genres.clear()
+
+                    for genre_name in genre_names:
+                        # Try to find existing genre by name, or create new one
+                        genre, created = Genre.objects.get_or_create(
+                            name=genre_name,
+                            defaults={
+                                "slug": Genre._generate_unique_slug(genre_name)
+                            },
+                        )
+                        obj.genres.add(genre)
+
+                        if created:
+                            logger.info(f"Created new genre: {genre_name}")
+                        else:
+                            logger.info(f"Found existing genre: {genre_name}")
+                
+                # Update metadata fetch timestamp
+                obj.metadata_fetched_at = timezone.now()
+                # Save the updated object
+                obj.save()
+
+                self.message_user(
+                    request,
+                    f"Successfully fetched and updated metadata for '{obj.name}'",
+                )
+                logger.info(f"Updated artist {obj.name} with metadata: {metadata}")
+            else:
+                self.message_user(
+                    request,
+                    f"Invalid metadata format for '{obj.name}'",
+                    level="WARNING",
+                )
+        except Exception as e:
+            self.message_user(
+                request,
+                f"Error fetching metadata for '{obj.name}': {str(e)}",
+                level="ERROR",
+            )
+            logger.error(f"Error fetching metadata for artist {obj.name}: {e}")
+        
+        return HttpResponseRedirect(request.get_full_path())
+    
+    def _handle_fetch_audience(self, request, obj):
+        """Handle audience fetch action"""
+        if not obj.uuid:
+            self.message_user(
+                request, f"Artist '{obj.name}' has no UUID", level="WARNING"
+            )
+            return HttpResponseRedirect(request.get_full_path())
+        
+        platform = request.POST.get('platform', 'spotify')
+        # Note: The audience endpoint doesn't use date parameters like reports
+        # It returns the latest 90 days of data by default
+        
+        service = SoundchartsService()
+        try:
+            audience_data = service.get_artist_audience_for_platform(
+                obj.uuid, 
+                platform=platform
+            )
+            
+            if audience_data and "items" in audience_data:
+                # Process and store audience data
+                result = self._process_artist_audience_data(obj, platform, audience_data)
+                
+                if result['success']:
+                    obj.audience_fetched_at = timezone.now()
+                    obj.save()
+                    
+                    records_msg = f"{result.get('records_created', 0)} created, {result.get('records_updated', 0)} updated"
+                    follower_msg = f"Latest: {result.get('latest_follower_count', 'N/A'):,}" if result.get('latest_follower_count') else ""
+                    
+                    self.message_user(
+                        request,
+                        f"Successfully fetched audience data for '{obj.name}' on {platform}: {records_msg}. {follower_msg}",
+                    )
+                    logger.info(f"Updated artist {obj.name} with audience data: {result}")
+                else:
+                    self.message_user(
+                        request,
+                        f"Failed to process audience data for '{obj.name}': {result.get('error', 'Unknown error')}",
+                        level="WARNING",
+                    )
+            else:
+                self.message_user(
+                    request,
+                    f"Failed to fetch audience data for '{obj.name}' on {platform}",
+                    level="WARNING",
+                )
+        except Exception as e:
+            self.message_user(
+                request,
+                f"Error fetching audience data for '{obj.name}': {str(e)}",
+                level="ERROR",
+            )
+            logger.error(f"Error fetching audience data for artist {obj.name}: {e}")
+        
+        return HttpResponseRedirect(request.get_full_path())
+    
+    def get_urls(self):
+        """Add custom URLs for artist admin actions"""
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<int:object_id>/fetch-audience/",
+                self.admin_site.admin_view(self.fetch_audience_api),
+                name="soundcharts_artist_fetch_audience",
+            ),
+        ]
+        return custom_urls + urls
+    
+    @csrf_exempt
+    def fetch_audience_api(self, request, object_id):
+        """API endpoint to fetch audience data for a single artist"""
+        if request.method != "POST":
+            return JsonResponse({"error": "Method not allowed"}, status=405)
+
+        try:
+            artist = get_object_or_404(Artist, id=object_id)
+            data = json.loads(request.body)
+            platform = data.get('platform', 'spotify')
+            start_date = data.get('start_date')  # Optional: format YYYY-MM-DD
+            end_date = data.get('end_date')      # Optional: format YYYY-MM-DD
+            
+            if not artist.uuid:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Artist has no UUID - cannot fetch audience data"
+                })
+
+            service = SoundchartsService()
+            audience_data = service.get_artist_audience_for_platform(
+                artist.uuid, 
+                platform=platform,
+                start_date=start_date,
+                end_date=end_date
+            )
+            
+            if audience_data and "items" in audience_data:
+                result = self._process_artist_audience_data(artist, platform, audience_data)
+                
+                if result['success']:
+                    artist.audience_fetched_at = timezone.now()
+                    artist.save()
+                    
+                    records_msg = f"{result.get('records_created', 0)} created, {result.get('records_updated', 0)} updated"
+                    logger.info(f"Successfully fetched audience data for artist {artist.uuid} on {platform}: {result}")
+                    
+                    return JsonResponse({
+                        "success": True,
+                        "message": f"Successfully fetched audience data for '{artist.name}' on {platform}: {records_msg}",
+                        "data": {
+                            "records_created": result.get('records_created', 0),
+                            "records_updated": result.get('records_updated', 0),
+                            "latest_follower_count": result.get('latest_follower_count')
+                        }
+                    })
+                else:
+                    return JsonResponse({
+                        "success": False,
+                        "error": f"Failed to process audience data for '{artist.name}' on {platform}: {result.get('error', 'Unknown error')}"
+                    })
+            else:
+                return JsonResponse({
+                    "success": False,
+                    "error": f"Failed to fetch audience data for '{artist.name}' on {platform}"
+                })
+                
+        except Exception as e:
+            logger.error(f"Error fetching audience data for artist {object_id}: {e}")
+            return JsonResponse({
+                "success": False,
+                "error": f"Error fetching audience data: {str(e)}"
+            }, status=500)

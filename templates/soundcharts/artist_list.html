@@ -1,0 +1,367 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- CSRF Token for AJAX requests -->
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+<main>
+  <div class="px-4 pt-6">
+    <!-- Header Section -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Stored Artists</h1>
+          <p class="text-gray-600 dark:text-gray-400">Artists saved in your database</p>
+        </div>
+        <a href="{% url 'soundcharts:artist_search' %}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          Search New Artists
+        </a>
+      </div>
+    </div>
+
+    {% if error %}
+    <!-- Error State -->
+    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:border-red-800">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+        <span class="text-red-800 dark:text-red-200">{{ error }}</span>
+      </div>
+    </div>
+    {% elif artists %}
+    
+    <!-- Artists Table -->
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Artist</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Country</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Career Stage</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Audience Data</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+            {% for artist in artists %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <!-- Artist Cell -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    {% if artist.image_url %}
+                    <img class="h-10 w-10 rounded-full object-cover" src="{{ artist.image_url }}" alt="{{ artist.name }}">
+                    {% else %}
+                    <div class="h-10 w-10 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                      <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                      </svg>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ artist.name }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ artist.uuid|truncatechars:20 }}</div>
+                  </div>
+                </div>
+              </td>
+              
+              <!-- Country Cell -->
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {{ artist.country_code|default:"N/A" }}
+              </td>
+              
+              <!-- Career Stage Cell -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                {% if artist.career_stage %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                             {% if artist.career_stage == 'superstar' %}bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200
+                             {% elif artist.career_stage == 'mainstream' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                             {% elif artist.career_stage == 'mid_level' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                             {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200{% endif %}">
+                  {{ artist.career_stage }}
+                </span>
+                {% else %}
+                <span class="text-sm text-gray-500 dark:text-gray-400">N/A</span>
+                {% endif %}
+              </td>
+              
+              <!-- Status Cell -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex flex-col gap-1">
+                  {% if artist.metadata_fetched %}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    ✓ Metadata
+                  </span>
+                  {% else %}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                    ○ Metadata
+                  </span>
+                  {% endif %}
+                </div>
+              </td>
+              
+              <!-- Audience Data Cell -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                {% if artist.has_audience_data %}
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                    ✓ {{ artist.platforms_count }} platform{{ artist.platforms_count|pluralize }}
+                  </span>
+                </div>
+                {% else %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                  ○ No data
+                </span>
+                {% endif %}
+              </td>
+              
+              <!-- Actions Cell -->
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex items-center justify-end space-x-2">
+                  <!-- Fetch Metadata Button -->
+                  <button onclick="fetchMetadata('{{ artist.uuid }}')" 
+                          id="metadata-btn-{{ artist.uuid }}"
+                          class="inline-flex items-center p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                          title="Fetch Metadata">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </button>
+                  
+                  <!-- Fetch Audience Button -->
+                  <button onclick="fetchAudience('{{ artist.uuid }}')" 
+                          id="audience-btn-{{ artist.uuid }}"
+                          class="inline-flex items-center p-2 text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
+                          title="Fetch Audience">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </button>
+                  
+                  <!-- View Details Button -->
+                  <a href="{% url 'soundcharts:artist_detail' artist.uuid %}" 
+                     class="inline-flex items-center p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                     title="View Details">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No artists yet</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by searching and importing artists</p>
+      <div class="mt-6">
+        <a href="{% url 'soundcharts:artist_search' %}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          Search Artists
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</main>
+
+<!-- Success/Error Notifications -->
+<div id="notification-container" class="fixed top-4 right-4 z-50"></div>
+
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+const CSRF_TOKEN = document.querySelector('[name=csrf-token]').content || '{{ csrf_token }}';
+console.log('CSRF Token available:', CSRF_TOKEN ? 'Yes' : 'No');
+console.log('CSRF Token length:', CSRF_TOKEN ? CSRF_TOKEN.length : 0);
+
+function fetchMetadata(uuid) {
+    console.log('fetchMetadata called for UUID:', uuid);
+    const button = document.getElementById(`metadata-btn-${uuid}`);
+    
+    if (!button) {
+        console.error('Button not found for UUID:', uuid);
+        return;
+    }
+    
+    const originalHTML = button.innerHTML;
+    
+    button.disabled = true;
+    button.innerHTML = '<svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+    
+    const url = '/soundcharts/api/artists/fetch-metadata/';
+    console.log('Fetching metadata from:', url);
+    console.log('Request body:', { uuid: uuid });
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': CSRF_TOKEN
+        },
+        body: JSON.stringify({ uuid: uuid })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Metadata fetch response:', data);
+        if (data.success) {
+            button.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+            button.classList.remove('text-blue-600', 'hover:text-blue-800', 'dark:text-blue-400');
+            button.classList.add('text-green-600', 'dark:text-green-500');
+            button.disabled = true;
+            showNotification(data.message, 'success');
+            
+            // Reload page after 1 second to show updated data
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+            showNotification(data.error || 'Failed to fetch metadata', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Metadata fetch error:', error);
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+        showNotification('Failed to fetch metadata: ' + error.message, 'error');
+    });
+}
+
+function fetchAudience(uuid) {
+    console.log('fetchAudience called for UUID:', uuid);
+    const button = document.getElementById(`audience-btn-${uuid}`);
+    
+    if (!button) {
+        console.error('Button not found for UUID:', uuid);
+        return;
+    }
+    
+    const originalHTML = button.innerHTML;
+    
+    button.disabled = true;
+    button.innerHTML = '<svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+    
+    const url = '/soundcharts/api/artists/fetch-audience/';
+    console.log('Fetching audience from:', url);
+    console.log('Request body:', { uuid: uuid, platform: 'spotify' });
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': CSRF_TOKEN
+        },
+        body: JSON.stringify({ uuid: uuid, platform: 'spotify' })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Audience fetch response:', data);
+        if (data.success) {
+            button.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+            button.classList.remove('text-purple-600', 'hover:text-purple-800', 'dark:text-purple-400');
+            button.classList.add('text-green-600', 'dark:text-green-500');
+            button.disabled = true;
+            showNotification(data.message, 'success');
+            
+            // Reload page after 1 second to show updated data
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+            showNotification(data.error || 'Failed to fetch audience', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Audience fetch error:', error);
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+        showNotification('Failed to fetch audience: ' + error.message, 'error');
+    });
+}
+
+function showNotification(message, type = 'success') {
+    const container = document.getElementById('notification-container');
+    const notification = document.createElement('div');
+    
+    const bgColor = type === 'success' ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800';
+    const textColor = type === 'success' ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200';
+    const iconColor = type === 'success' ? 'text-green-600' : 'text-red-600';
+    const icon = type === 'success' 
+        ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>'
+        : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>';
+    
+    notification.className = `mb-4 p-4 ${bgColor} border rounded-lg animate-slide-in`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <svg class="w-5 h-5 ${iconColor} mr-3" fill="currentColor" viewBox="0 0 20 20">
+                ${icon}
+            </svg>
+            <span class="${textColor}">${message}</span>
+        </div>
+    `;
+    
+    container.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
+</script>
+
+<style>
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-in {
+    animation: slide-in 0.3s ease-out;
+    transition: opacity 0.3s, transform 0.3s;
+}
+</style>
+{% endblock extra_js %}
+

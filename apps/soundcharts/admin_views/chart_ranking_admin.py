@@ -1,17 +1,8 @@
 from django.contrib import admin
-from django.urls import path
-from django.shortcuts import get_object_or_404
-from django.template.response import TemplateResponse
 from django.utils.html import format_html
 from django.urls import reverse
-from django.shortcuts import redirect
-from django.template.loader import render_to_string
-from django.db.models import Count, Sum, Min, Max, Q
-from django.db.models.functions import Trunc
-from django.db.models import DateTimeField
-from django.utils.safestring import mark_safe
-
-from ..models import ChartRanking, ChartRankingEntrySummary, ChartRankingEntry
+from django.db.models import Count, Q
+from ..models import ChartRanking, ChartRankingEntry
 
 
 class ChartRankingEntryInline(admin.TabularInline):

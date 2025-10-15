@@ -1,15 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib import messages
 from django.utils import timezone
-from .models import Track, Platform, TrackAudienceTimeSeries, ChartRankingEntry, ChartSyncSchedule, ChartSyncExecution, Chart
+from django.db.models import Q
+from datetime import datetime, timedelta
+from .models import Track, Platform, Artist, TrackAudienceTimeSeries, ArtistAudienceTimeSeries, ChartRankingEntry, ChartSyncSchedule, ChartSyncExecution, Chart
 from .audience_processor import AudienceDataProcessor
 from .tasks import sync_chart_rankings_task
 import json
@@ -337,7 +335,7 @@ class TracksWithAudienceView(View):
             # Get tracks that have audience time-series data
             tracks_with_audience = Track.objects.filter(
                 audience_timeseries__isnull=False
-            ).distinct().select_related().prefetch_related('audience_timeseries__platform')
+            ).distinct().select_related('primary_artist').prefetch_related('audience_timeseries__platform')
             
             tracks_data = []
             
@@ -367,11 +365,21 @@ class TracksWithAudienceView(View):
                         ).count()
                     })
                 
+                # Include artist information
+                artist_data = None
+                if track.primary_artist:
+                    artist_data = {
+                        'uuid': track.primary_artist.uuid,
+                        'name': track.primary_artist.name,
+                        'slug': track.primary_artist.slug,
+                    }
+                
                 tracks_data.append({
                     'uuid': track.uuid,
                     'name': track.name,
                     'credit_name': track.credit_name,
                     'image_url': track.image_url,
+                    'artist': artist_data,
                     'audience_fetched_at': track.audience_fetched_at.isoformat() if track.audience_fetched_at else None,
                     'platforms': platforms_data
                 })
@@ -836,3 +844,482 @@ def _check_and_fetch_audience_data(track):
         # Queue audience data fetch task
         fetch_track_audience_data.delay(track.uuid)
         logger.info(f"Queued audience data fetch for track {track.uuid}")
+
+
+# ============================================================================
+# ARTIST VIEWS
+# ============================================================================
+
+@method_decorator(login_required, name='dispatch')
+class ArtistSearchView(View):
+    """View for searching artists via Soundcharts API"""
+    
+    def get(self, request):
+        """Render the artist search page"""
+        return render(request, 'soundcharts/artist_search.html', {
+            'segment': 'artists',
+        })
+    
+    def post(self, request):
+        """Search for artists via API"""
+        try:
+            data = json.loads(request.body)
+            query = data.get('query', '').strip()
+            
+            if not query:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Search query is required'
+                }, status=400)
+            
+            from .service import SoundchartsService
+            service = SoundchartsService()
+            
+            # Search for artists
+            results = service.search_artists(query, limit=20)
+            
+            if results:
+                return JsonResponse({
+                    'success': True,
+                    'artists': results
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'No artists found or API error occurred'
+                })
+                
+        except Exception as e:
+            logger.error(f"Error searching artists: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+
+@method_decorator(login_required, name='dispatch')
+class ArtistListView(View):
+    """View for listing stored artists"""
+    
+    def get(self, request):
+        """Get all stored artists with their audience data"""
+        try:
+            artists = Artist.objects.all().prefetch_related(
+                'genres', 
+                'audience_timeseries__platform'
+            ).order_by('name')
+            
+            artists_data = []
+            for artist in artists:
+                # Get platforms that have audience data
+                platforms_with_data = Platform.objects.filter(
+                    artist_audience_timeseries__artist=artist
+                ).distinct()
+                
+                artists_data.append({
+                    'id': artist.id,
+                    'uuid': artist.uuid,
+                    'name': artist.name,
+                    'slug': artist.slug,
+                    'image_url': artist.imageUrl,
+                    'country_code': artist.countryCode,
+                    'career_stage': artist.careerStage,
+                    'has_audience_data': platforms_with_data.exists(),
+                    'platforms_count': platforms_with_data.count(),
+                    'metadata_fetched': artist.metadata_fetched_at is not None,
+                    'audience_fetched': artist.audience_fetched_at is not None,
+                })
+            
+            return render(request, 'soundcharts/artist_list.html', {
+                'artists': artists_data,
+                'segment': 'artists',
+            })
+            
+        except Exception as e:
+            logger.error(f"Error in ArtistListView: {e}")
+            return render(request, 'soundcharts/artist_list.html', {
+                'error': 'Failed to load artists',
+                'segment': 'artists',
+            })
+
+
+@method_decorator(login_required, name='dispatch')
+class ArtistDetailView(View):
+    """View for displaying detailed analytics for a specific artist"""
+    
+    def get(self, request, artist_uuid):
+        """Display detailed audience analytics for a specific artist"""
+        try:
+            # Get the artist
+            artist = get_object_or_404(Artist, uuid=artist_uuid)
+            
+            # Get platforms that have audience data for this artist
+            platforms = Platform.objects.filter(
+                artist_audience_timeseries__artist=artist
+            ).distinct().order_by('name')
+            
+            # Get latest audience data for each platform
+            platforms_data = []
+            for platform in platforms:
+                latest_audience = ArtistAudienceTimeSeries.objects.filter(
+                    artist=artist,
+                    platform=platform
+                ).order_by('-date').first()
+                
+                platforms_data.append({
+                    'platform': platform,
+                    'latest_audience': latest_audience,
+                    'data_points': ArtistAudienceTimeSeries.objects.filter(
+                        artist=artist,
+                        platform=platform
+                    ).count()
+                })
+            
+            # Get tracks by this artist
+            related_tracks = Track.objects.filter(
+                Q(primary_artist=artist) | Q(artists=artist)
+            ).distinct()[:10]
+            
+            context = {
+                'artist': artist,
+                'platforms_data': platforms_data,
+                'related_tracks': related_tracks,
+                'segment': 'artists',
+            }
+            
+            return render(request, 'soundcharts/artist_detail.html', context)
+            
+        except Exception as e:
+            logger.error(f"Error in ArtistDetailView: {e}")
+            return render(request, 'soundcharts/artist_detail.html', {
+                'error': 'Failed to load artist details',
+                'segment': 'artists',
+            })
+
+
+@method_decorator(login_required, name='dispatch')
+class ArtistAudienceChartView(View):
+    """View for providing artist audience chart data"""
+    
+    def get(self, request, artist_uuid, platform_slug=None):
+        """Get audience chart data for an artist"""
+        try:
+            artist = get_object_or_404(Artist, uuid=artist_uuid)
+            
+            if platform_slug:
+                # Single platform chart data
+                try:
+                    platform = Platform.objects.get(slug=platform_slug)
+                    chart_data = self._get_single_platform_data(artist, platform, request)
+                    return JsonResponse({
+                        'success': True,
+                        'artist': {
+                            'name': artist.name,
+                            'uuid': artist.uuid
+                        },
+                        'platform': {
+                            'name': platform.name,
+                            'slug': platform.slug,
+                            'metric_name': platform.audience_metric_name
+                        },
+                        'chart_data': chart_data
+                    })
+                except Platform.DoesNotExist:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Platform {platform_slug} not found'
+                    }, status=404)
+            else:
+                # All platforms chart data
+                platforms = Platform.objects.filter(
+                    artist_audience_timeseries__artist=artist
+                ).distinct()
+                
+                platforms_data = []
+                for platform in platforms:
+                    chart_data = self._get_single_platform_data(artist, platform, request)
+                    platforms_data.append({
+                        'platform': {
+                            'name': platform.name,
+                            'slug': platform.slug,
+                            'metric_name': platform.audience_metric_name
+                        },
+                        'chart_data': chart_data
+                    })
+                
+                return JsonResponse({
+                    'success': True,
+                    'artist': {
+                        'name': artist.name,
+                        'uuid': artist.uuid
+                    },
+                    'platforms': platforms_data
+                })
+                
+        except Exception as e:
+            logger.error(f"Error in ArtistAudienceChartView: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+    
+    def _get_single_platform_data(self, artist, platform, request):
+        """Get chart data for a single platform"""
+        try:
+            limit = int(request.GET.get('limit', 30))
+            
+            # Get time-series data
+            chart_data = ArtistAudienceTimeSeries.get_chart_data(
+                artist=artist,
+                platform=platform,
+                limit=limit
+            )
+            
+            if not chart_data:
+                return {
+                    'labels': [],
+                    'datasets': [{
+                        'label': platform.audience_metric_name,
+                        'data': []
+                    }]
+                }
+            
+            # Convert to chart.js format
+            labels = [str(item['date']) for item in chart_data]
+            values = [item['audience_value'] for item in chart_data]
+            
+            return {
+                'labels': labels,
+                'datasets': [{
+                    'label': platform.audience_metric_name,
+                    'data': values,
+                    'fill': True,
+                    'tension': 0.4
+                }]
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting chart data for {artist.name} on {platform.slug}: {e}")
+            return {
+                'labels': [],
+                'datasets': [{
+                    'label': platform.audience_metric_name,
+                    'data': []
+                }]
+            }
+
+
+@method_decorator(login_required, name='dispatch')
+class ArtistSaveView(View):
+    """API view to save an artist from search results to database"""
+    
+    def post(self, request):
+        """Save an artist from Soundcharts to database"""
+        try:
+            data = json.loads(request.body)
+            artist_data = data.get('artist')
+            
+            if not artist_data:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'No artist data provided'
+                }, status=400)
+            
+            # Create or update artist
+            artist = Artist.create_from_soundcharts(artist_data)
+            
+            if artist:
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Artist "{artist.name}" saved successfully',
+                    'artist': {
+                        'id': artist.id,
+                        'uuid': artist.uuid,
+                        'name': artist.name,
+                        'slug': artist.slug
+                    }
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Failed to save artist'
+                }, status=500)
+                
+        except Exception as e:
+            logger.error(f"Error saving artist: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+
+@method_decorator(login_required, name='dispatch')
+class ArtistMetadataFetchView(View):
+    """API view to fetch and update artist metadata"""
+    
+    def post(self, request):
+        """Fetch metadata for an artist"""
+        try:
+            data = json.loads(request.body)
+            artist_uuid = data.get('uuid')
+            
+            if not artist_uuid:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Artist UUID is required'
+                }, status=400)
+            
+            # Get or create artist
+            artist = Artist.objects.filter(uuid=artist_uuid).first()
+            if not artist:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Artist not found in database'
+                }, status=404)
+            
+            # Fetch metadata from API
+            from .service import SoundchartsService
+            service = SoundchartsService()
+            metadata = service.get_artist_metadata(artist_uuid)
+            
+            if metadata and 'object' in metadata:
+                artist_data = metadata['object']
+                
+                # Update artist fields
+                if 'name' in artist_data:
+                    artist.name = artist_data['name']
+                if 'biography' in artist_data:
+                    artist.biography = artist_data['biography']
+                if 'countryCode' in artist_data:
+                    artist.countryCode = artist_data['countryCode']
+                if 'careerStage' in artist_data:
+                    artist.careerStage = artist_data['careerStage']
+                # Add more fields as needed
+                
+                artist.metadata_fetched_at = timezone.now()
+                artist.save()
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Metadata fetched for "{artist.name}"'
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Failed to fetch metadata from API'
+                }, status=500)
+                
+        except Exception as e:
+            logger.error(f"Error fetching artist metadata: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+
+@method_decorator(login_required, name='dispatch')
+class ArtistAudienceFetchView(View):
+    """API view to fetch and store artist audience data"""
+    
+    def post(self, request):
+        """Fetch audience data for an artist"""
+        try:
+            data = json.loads(request.body)
+            artist_uuid = data.get('uuid')
+            platform_slug = data.get('platform', 'spotify')
+            
+            if not artist_uuid:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Artist UUID is required'
+                }, status=400)
+            
+            # Get artist
+            artist = Artist.objects.filter(uuid=artist_uuid).first()
+            if not artist:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Artist not found in database'
+                }, status=404)
+            
+            # Get platform
+            platform = Platform.objects.filter(slug=platform_slug).first()
+            if not platform:
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Platform {platform_slug} not found'
+                }, status=404)
+            
+            # Fetch audience data from API
+            from .service import SoundchartsService
+            service = SoundchartsService()
+            audience_data = service.get_artist_audience_for_platform(artist_uuid, platform=platform_slug)
+            
+            if audience_data and 'items' in audience_data:
+                # Process and store time-series data
+                items = audience_data.get('items', [])
+                records_created = 0
+                records_updated = 0
+                
+                for item in items:
+                    item_date_str = item.get('date')
+                    if not item_date_str:
+                        continue
+                    
+                    try:
+                        # Parse date
+                        if 'T' in item_date_str:
+                            item_date = datetime.fromisoformat(item_date_str.replace('Z', '+00:00')).date()
+                        else:
+                            item_date = datetime.strptime(item_date_str, '%Y-%m-%d').date()
+                    except (ValueError, TypeError):
+                        continue
+                    
+                    # Get audience value
+                    audience_value = (item.get('followerCount') or 
+                                    item.get('likeCount') or 
+                                    item.get('viewCount'))
+                    if audience_value is None:
+                        continue
+                    
+                    # Store time-series record
+                    ts_record, created = ArtistAudienceTimeSeries.objects.update_or_create(
+                        artist=artist,
+                        platform=platform,
+                        date=item_date,
+                        defaults={
+                            'audience_value': audience_value,
+                            'api_data': item,
+                            'fetched_at': timezone.now()
+                        }
+                    )
+                    
+                    if created:
+                        records_created += 1
+                    else:
+                        records_updated += 1
+                
+                # Update fetch timestamp
+                artist.audience_fetched_at = timezone.now()
+                artist.save()
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Fetched audience data for "{artist.name}" on {platform.name}: {records_created} created, {records_updated} updated',
+                    'data': {
+                        'records_created': records_created,
+                        'records_updated': records_updated
+                    }
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Failed to fetch audience data from API'
+                }, status=500)
+                
+        except Exception as e:
+            logger.error(f"Error fetching artist audience: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
