@@ -1,7 +1,11 @@
 from django.db import models
 
 
-# Create your models here.
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class Platform(models.Model):
     name = models.CharField(max_length=255)
     slug = models.CharField(max_length=255, unique=True)
@@ -48,6 +52,10 @@ class Artist(models.Model):
     biography = models.TextField(blank=True)
     isni = models.CharField(max_length=255, blank=True)
     ipi = models.CharField(max_length=255, blank=True)
+    
+    # Metadata fetch tracking
+    metadata_fetched_at = models.DateTimeField(null=True, blank=True, help_text="When metadata was last fetched")
+    audience_fetched_at = models.DateTimeField(null=True, blank=True, help_text="When audience data was last fetched")
     
     # ACRCloud specific fields
     acrcloud_id = models.CharField(max_length=255, blank=True, help_text="ACRCloud artist identifier")
@@ -692,6 +700,151 @@ class TrackAudienceTimeSeries(models.Model):
         """Get the most recent audience value for a track on a specific platform"""
         try:
             return cls.objects.filter(track=track, platform=platform).latest('date')
+        except cls.DoesNotExist:
+            return None
+    
+    @property
+    def formatted_audience_value(self):
+        """Returns formatted audience value for display"""
+        if self.audience_value >= 1_000_000_000:
+            return f"{self.audience_value / 1_000_000_000:.1f}B"
+        elif self.audience_value >= 1_000_000:
+            return f"{self.audience_value / 1_000_000:.1f}M"
+        elif self.audience_value >= 1_000:
+            return f"{self.audience_value / 1_000:.1f}K"
+        else:
+            return f"{self.audience_value:,}"
+
+
+class ArtistAudience(models.Model):
+    """
+    Stores audience and demographic data for artists from Soundcharts API
+    """
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name="audience_data")
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, help_text="Platform for this audience data")
+    
+    # Audience metrics
+    total_listeners = models.BigIntegerField(null=True, blank=True, help_text="Total number of listeners")
+    unique_listeners = models.BigIntegerField(null=True, blank=True, help_text="Unique listeners")
+    repeat_listeners = models.BigIntegerField(null=True, blank=True, help_text="Repeat listeners")
+    
+    # Demographic data (age groups)
+    age_13_17 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 13-17")
+    age_18_24 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 18-24")
+    age_25_34 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 25-34")
+    age_35_44 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 35-44")
+    age_45_54 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 45-54")
+    age_45_59 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 45-59")
+    age_55_64 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 55-64")
+    age_60_150 = models.IntegerField(null=True, blank=True, help_text="Listeners aged 60+")
+    age_65_plus = models.IntegerField(null=True, blank=True, help_text="Listeners aged 65+")
+    
+    # Gender demographics
+    gender_male = models.IntegerField(null=True, blank=True, help_text="Male listeners percentage")
+    gender_female = models.IntegerField(null=True, blank=True, help_text="Female listeners percentage")
+    
+    # Geographic data
+    top_countries = models.JSONField(default=list, help_text="Top countries by listeners")
+    top_cities = models.JSONField(default=list, help_text="Top cities by listeners")
+    
+    # Raw API data
+    api_data = models.JSONField(default=dict, help_text="Raw API response data")
+    report_date = models.DateField(null=True, blank=True, help_text="Date of the audience report")
+    
+    # Metadata
+    fetched_at = models.DateTimeField(auto_now_add=True, help_text="When this data was fetched")
+    
+    class Meta:
+        unique_together = ['artist', 'platform', 'report_date']
+        ordering = ['-fetched_at']
+        verbose_name = "Artist Audience"
+        verbose_name_plural = "Artist Audiences"
+    
+    def __str__(self):
+        return f"{self.artist.name} - {self.platform.name} - {self.fetched_at.strftime('%Y-%m-%d')}"
+
+
+class ArtistAudienceTimeSeries(models.Model):
+    """
+    Stores time-series audience data for artists from Soundcharts API
+    Designed for charting and trend analysis per platform
+    """
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name="audience_timeseries")
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, related_name="artist_audience_timeseries")
+    
+    # Time-series data
+    date = models.DateField(help_text="Date of the audience measurement")
+    audience_value = models.BigIntegerField(help_text="Audience value for this date/platform")
+    
+    # Platform-specific identifier (e.g., Spotify artist ID)
+    platform_identifier = models.CharField(max_length=255, blank=True, 
+                                        help_text="Platform-specific identifier (e.g., '06HL4z0CvFAxyc27GXpf02' for Taylor Swift)")
+    
+    # Metadata
+    fetched_at = models.DateTimeField(auto_now_add=True)
+    api_data = models.JSONField(default=dict, help_text="Raw API response data for this entry")
+    
+    class Meta:
+        unique_together = ['artist', 'platform', 'date']
+        ordering = ['-date']
+        verbose_name = "Artist Audience Time Series"
+        verbose_name_plural = "Artist Audience Time Series"
+        indexes = [
+            models.Index(fields=['artist', 'platform', 'date']),
+            models.Index(fields=['date']),
+            models.Index(fields=['platform', 'date']),
+        ]
+    
+    def __str__(self):
+        return f"{self.artist.name} - {self.platform.name} - {self.date} ({self.audience_value:,})"
+    
+    @classmethod
+    def get_chart_data(cls, artist, platform, start_date=None, end_date=None, limit=None):
+        """
+        Get formatted data ready for charting
+        Returns data ordered by date for line charts (most recent records, ordered oldest to newest)
+        """
+        queryset = cls.objects.filter(artist=artist, platform=platform)
+        
+        if start_date:
+            queryset = queryset.filter(date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date__lte=end_date)
+        
+        if limit:
+            # Get the most recent dates first, then order for display
+            recent_records = queryset.order_by('-date')[:limit]
+            recent_records = list(recent_records)
+            recent_records.sort(key=lambda x: x.date)
+            return [{'date': record.date, 'audience_value': record.audience_value} for record in recent_records]
+        else:
+            return queryset.order_by('date').values('date', 'audience_value')
+    
+    @classmethod
+    def get_platform_comparison(cls, artist, platforms, start_date=None, end_date=None, limit=None):
+        """
+        Get data for multiple platforms for comparison charts
+        Returns data grouped by platform for multi-line charts
+        """
+        queryset = cls.objects.filter(artist=artist, platform__in=platforms)
+        
+        if start_date:
+            queryset = queryset.filter(date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date__lte=end_date)
+        
+        if limit:
+            # Get the most recent dates within limit
+            recent_dates = queryset.values('date').distinct().order_by('-date')[:limit]
+            queryset = queryset.filter(date__in=recent_dates.values_list('date', flat=True))
+        
+        return queryset.values('platform__name', 'date', 'audience_value').order_by('platform__name', 'date')
+    
+    @classmethod
+    def get_latest_audience(cls, artist, platform):
+        """Get the most recent audience value for an artist on a specific platform"""
+        try:
+            return cls.objects.filter(artist=artist, platform=platform).latest('date')
         except cls.DoesNotExist:
             return None
     
