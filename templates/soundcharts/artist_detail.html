@@ -97,7 +97,9 @@
           <!-- Biography -->
           {% if artist.biography %}
           <div class="mt-4">
-            <p class="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">{{ artist.biography }}</p>
+            <div class="text-sm text-gray-700 dark:text-gray-300 biography-content">
+              {{ artist.biography|safe }}
+            </div>
           </div>
           {% endif %}
           
@@ -202,6 +204,98 @@
 </main>
 
 {% endblock content %}
+
+{% block extrastyle %}
+<style>
+/* Biography content styling */
+.biography-content {
+    line-height: 1.6;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.biography-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.biography-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.biography-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.biography-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Dark mode scrollbar */
+.dark .biography-content::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+.dark .biography-content::-webkit-scrollbar-thumb {
+    background: #6B7280;
+}
+
+.dark .biography-content::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
+
+/* Style links in biography */
+.biography-content a {
+    color: #2563EB;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 0.2s;
+}
+
+.biography-content a:hover {
+    color: #1D4ED8;
+    text-decoration-color: #1D4ED8;
+}
+
+.dark .biography-content a {
+    color: #60A5FA;
+}
+
+.dark .biography-content a:hover {
+    color: #93C5FD;
+    text-decoration-color: #93C5FD;
+}
+
+/* Style paragraphs in biography */
+.biography-content p {
+    margin-bottom: 0.75rem;
+}
+
+.biography-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Style bold text */
+.biography-content strong,
+.biography-content b {
+    font-weight: 600;
+    color: #111827;
+}
+
+.dark .biography-content strong,
+.dark .biography-content b {
+    color: #F9FAFB;
+}
+
+/* Style italic text */
+.biography-content em,
+.biography-content i {
+    font-style: italic;
+}
+</style>
+{% endblock extrastyle %}
 
 {% block extra_js %}
 <script>
