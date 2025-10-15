@@ -10,13 +10,13 @@
     <!-- Header Section -->
     <div class="mb-6">
       <div class="flex items-center mb-4">
-        <a href="javascript:history.back()" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white mr-4">
+        <a href="{% url 'soundcharts:artist_list' %}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white mr-4">
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
           </svg>
-          Back
+          Back to Artists
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Song Audience Analytics</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Artist Audience Analytics</h1>
       </div>
     </div>
 
@@ -32,62 +32,81 @@
     </div>
     {% else %}
 
-    <!-- Song Information Card -->
+    <!-- Artist Information Card -->
     <div class="mb-6 p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800">
       <div class="flex items-start space-x-6">
-        <!-- Song Image -->
+        <!-- Artist Image -->
         <div class="flex-shrink-0">
-          {% if track.image_url %}
-          <img class="w-24 h-24 rounded-lg object-cover" src="{{ track.image_url }}" alt="{{ track.name }}">
+          {% if artist.imageUrl %}
+          <img class="w-32 h-32 rounded-lg object-cover" src="{{ artist.imageUrl }}" alt="{{ artist.name }}">
           {% else %}
-          <div class="w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
-            <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <div class="w-32 h-32 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+            <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
             </svg>
           </div>
           {% endif %}
         </div>
         
-        <!-- Song Details -->
+        <!-- Artist Details -->
         <div class="flex-1 min-w-0">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ track.name }}</h2>
-          {% if track.primary_artist %}
-          <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">
-            <a href="{% url 'soundcharts:artist_detail' track.primary_artist.uuid %}" 
-               class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">
-              {{ track.primary_artist.name }}
-            </a>
-          </p>
-          {% else %}
-          <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">{{ track.credit_name|default:"Unknown Artist" }}</p>
-          {% endif %}
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ artist.name }}</h2>
           
-          <!-- Song Metadata -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div class="flex flex-wrap gap-2 mb-4">
+            {% if artist.countryCode %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+              📍 {{ artist.countryCode }}
+            </span>
+            {% endif %}
+            {% if artist.careerStage %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                         {% if artist.careerStage == 'superstar' %}bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200
+                         {% elif artist.careerStage == 'mainstream' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                         {% elif artist.careerStage == 'mid_level' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                         {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200{% endif %}">
+              {{ artist.careerStage }}
+            </span>
+            {% endif %}
+            {% if artist.gender %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+              {{ artist.gender }}
+            </span>
+            {% endif %}
+          </div>
+          
+          <!-- Artist Metadata -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm mb-4">
             <div>
               <span class="font-medium text-gray-700 dark:text-gray-300">UUID:</span>
-              <span class="text-gray-600 dark:text-gray-400 font-mono">{{ track.uuid|truncatechars:20 }}</span>
+              <span class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ artist.uuid|truncatechars:20 }}</span>
             </div>
-            {% if track.release_date %}
+            {% if artist.cityName %}
             <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Release Date:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ track.release_date|date:"M d, Y" }}</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">City:</span>
+              <span class="text-gray-600 dark:text-gray-400">{{ artist.cityName }}</span>
             </div>
             {% endif %}
-            {% if track.duration %}
+            {% if artist.birthDate %}
             <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Duration:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ track.duration|floatformat:0 }}s</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">Birth Date:</span>
+              <span class="text-gray-600 dark:text-gray-400">{{ artist.birthDate|date:"M d, Y" }}</span>
             </div>
             {% endif %}
           </div>
           
-          <!-- Genres -->
-          {% if track.genres.exists %}
+          <!-- Biography -->
+          {% if artist.biography %}
           <div class="mt-4">
-            <span class="font-medium text-gray-700 dark:text-gray-300">Genres:</span>
+            <p class="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">{{ artist.biography }}</p>
+          </div>
+          {% endif %}
+          
+          <!-- Genres -->
+          {% if artist.genres.exists %}
+          <div class="mt-4">
+            <span class="font-medium text-gray-700 dark:text-gray-300 text-sm">Genres:</span>
             <div class="flex flex-wrap gap-2 mt-1">
-              {% for genre in track.genres.all %}
+              {% for genre in artist.genres.all %}
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                 {{ genre.name }}
               </span>
@@ -129,13 +148,7 @@
           
           <div class="mt-2 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
             <span id="data-points-{{ platform_data.platform.slug }}">{{ platform_data.data_points }} data points</span>
-            <div class="flex items-center space-x-2">
-              <span id="date-range-{{ platform_data.platform.slug }}">Last 30 days</span>
-              <button class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" 
-                      onclick="refreshPlatformData('{{ track.uuid }}', '{{ platform_data.platform.slug }}')">
-                Refresh
-              </button>
-            </div>
+            <span id="date-range-{{ platform_data.platform.slug }}">Last 30 days</span>
           </div>
         </div>
         {% endfor %}
@@ -146,100 +159,33 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
         <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No audience data available</h3>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This track doesn't have any audience data yet.</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This artist doesn't have any audience data yet.</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Use the "Fetch Audience" button in the admin panel.</p>
       </div>
       {% endif %}
     </div>
 
-    <!-- Recent Chart Rankings -->
-    {% if recent_rankings %}
-    <div class="mb-6">
-      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Recent Chart Rankings</h3>
-      <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-            <thead class="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white">Chart</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white">Position</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white">Change</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
-              {% for ranking in recent_rankings %}
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                  {{ ranking.ranking.chart.platform.name }} - {{ ranking.ranking.chart.name }} ({{ ranking.ranking.chart.frequency }})
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  <span class="inline-flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-blue-600 rounded-full">
-                    {{ ranking.position }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {{ ranking.ranking.ranking_date|date:"M d, Y" }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {% if ranking.position_change %}
-                    {% if ranking.position_change > 0 %}
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                        ↑ +{{ ranking.position_change }}
-                      </span>
-                    {% elif ranking.position_change < 0 %}
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                        ↓ {{ ranking.position_change }}
-                      </span>
-                    {% else %}
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                        →
-                      </span>
-                    {% endif %}
-                  {% else %}
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                      New
-                    </span>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-
     <!-- Related Tracks -->
     {% if related_tracks %}
     <div class="mb-6">
-      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Related Tracks</h3>
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Tracks by {{ artist.name }}</h3>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {% for related_track in related_tracks %}
+        {% for track in related_tracks %}
         <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 p-4">
           <div class="flex items-center space-x-3">
-            {% if related_track.image_url %}
-            <img class="w-12 h-12 rounded-lg object-cover" src="{{ related_track.image_url }}" alt="{{ related_track.name }}">
+            {% if track.image_url %}
+            <img class="w-12 h-12 rounded-lg object-cover" src="{{ track.image_url }}" alt="{{ track.name }}">
             {% else %}
             <div class="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path>
               </svg>
             </div>
             {% endif %}
             <div class="flex-1 min-w-0">
-              <h4 class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ related_track.name }}</h4>
-              {% if related_track.primary_artist %}
-              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                <a href="{% url 'soundcharts:artist_detail' related_track.primary_artist.uuid %}" 
-                   class="hover:text-blue-600 dark:hover:text-blue-400">
-                  {{ related_track.primary_artist.name }}
-                </a>
-              </p>
-              {% else %}
-              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ related_track.credit_name|default:"Unknown Artist" }}</p>
-              {% endif %}
-              <a href="{% url 'soundcharts:song_audience_detail' related_track.uuid %}" 
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ track.name }}</h4>
+              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ track.credit_name|default:"Unknown Artist" }}</p>
+              <a href="{% url 'soundcharts:song_audience_detail' track.uuid %}" 
                  class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                 View Analytics →
               </a>
@@ -262,8 +208,8 @@
 // Prevent the audience charts manager from running on this page
 window.AUDIENCE_CHARTS_DISABLED = true;
 
-// Song Detail Charts Manager - handles individual song charts
-class SongDetailChartsManager {
+// Artist Detail Charts Manager - handles individual artist charts
+class ArtistDetailChartsManager {
     constructor() {
         this.charts = new Map();
         this.init();
@@ -302,7 +248,7 @@ class SongDetailChartsManager {
 
     loadCharts() {
         {% for platform_data in platforms_data %}
-        this.loadChartData('{{ track.uuid }}', '{{ platform_data.platform.slug }}', 'chart-{{ platform_data.platform.slug }}', {
+        this.loadChartData('{{ artist.uuid }}', '{{ platform_data.platform.slug }}', 'chart-{{ platform_data.platform.slug }}', {
             name: '{{ platform_data.platform.name }}',
             slug: '{{ platform_data.platform.slug }}',
             metric_name: '{{ platform_data.platform.audience_metric_name }}'
@@ -310,9 +256,9 @@ class SongDetailChartsManager {
         {% endfor %}
     }
 
-    async loadChartData(trackUuid, platformSlug, chartId, platform) {
+    async loadChartData(artistUuid, platformSlug, chartId, platform) {
         try {
-            const response = await fetch(`/soundcharts/audience/chart/${trackUuid}/${platformSlug}/?limit=30`);
+            const response = await fetch(`/soundcharts/artists/${artistUuid}/audience/chart/${platformSlug}/?limit=30`);
             const data = await response.json();
             
             if (data.success && data.chart_data) {
@@ -336,7 +282,7 @@ class SongDetailChartsManager {
                 this.renderEmptyChart(chartId, platform);
             }
         } catch (error) {
-            console.error(`Error loading chart data for ${trackUuid} on ${platformSlug}:`, error);
+            console.error(`Error loading chart data for ${artistUuid} on ${platformSlug}:`, error);
             this.renderEmptyChart(chartId, platform);
         }
     }
@@ -379,7 +325,7 @@ class SongDetailChartsManager {
                 }
             },
             series: [{
-                name: platform.metric_name || 'Listeners',
+                name: platform.metric_name || 'Followers',
                 data: chartData.datasets[0].data.map((value, index) => ({
                     x: chartData.labels[index],
                     y: value
@@ -479,7 +425,7 @@ class SongDetailChartsManager {
                 }
             },
             series: [{
-                name: platform.metric_name || 'Listeners',
+                name: platform.metric_name || 'Followers',
                 data: [0, 0, 0, 0, 0, 0, 0]
             }],
             colors: [chartColors.labelColor],
@@ -586,7 +532,10 @@ class SongDetailChartsManager {
             'soundcloud': '#FF5500',
             'deezer': '#00C7F2',
             'amazon_music': '#00A8E1',
-            'pandora': '#224099'
+            'pandora': '#224099',
+            'instagram': '#E4405F',
+            'facebook': '#1877F2',
+            'twitter': '#1DA1F2'
         };
         
         return colors[platformSlug] || '#1A56DB';
@@ -605,42 +554,10 @@ class SongDetailChartsManager {
     }
 }
 
-// Function to refresh platform data
-function refreshPlatformData(trackUuid, platformSlug) {
-    const button = event.target;
-    const originalText = button.textContent;
-    button.textContent = 'Refreshing...';
-    button.disabled = true;
-    
-    fetch(`/soundcharts/audience/refresh/${trackUuid}/${platformSlug}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': document.querySelector('[name=csrf-token]').content,
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Reload the page to show updated data
-            location.reload();
-        } else {
-            alert('Failed to refresh data: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to refresh data');
-    })
-    .finally(() => {
-        button.textContent = originalText;
-        button.disabled = false;
-    });
-}
-
-// Initialize the song detail charts manager when the DOM is loaded
+// Initialize the artist detail charts manager when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new SongDetailChartsManager();
+    new ArtistDetailChartsManager();
 });
 </script>
 {% endblock extra_js %}
+

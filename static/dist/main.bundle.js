@@ -234,7 +234,15 @@ class AudienceChartsManager {
         
         // Set track information
         card.querySelector('#track-name').textContent = track.name;
-        card.querySelector('#track-artist').textContent = track.credit_name || 'Unknown Artist';
+        
+        // Set artist with link if available
+        const artistElement = card.querySelector('#track-artist');
+        if (track.artist && track.artist.uuid) {
+            artistElement.innerHTML = `<a href="/soundcharts/artists/${track.artist.uuid}/" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">${track.artist.name}</a>`;
+        } else {
+            artistElement.textContent = track.credit_name || 'Unknown Artist';
+        }
+        
         card.querySelector('#track-uuid').textContent = `UUID: ${track.uuid}`;
         
         // Set track image

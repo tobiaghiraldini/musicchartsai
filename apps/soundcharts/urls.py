@@ -13,6 +13,14 @@ from .views import (
     ChartSyncScheduleDetailAPIView,
     ChartSyncTriggerAPIView,
     ChartSyncStatusAPIView,
+    # Artist views
+    ArtistSearchView,
+    ArtistListView,
+    ArtistDetailView,
+    ArtistAudienceChartView,
+    ArtistSaveView,
+    ArtistMetadataFetchView,
+    ArtistAudienceFetchView,
 )
 
 app_name = 'soundcharts'
@@ -45,4 +53,18 @@ urlpatterns = [
     
     # Song detail page
     path('songs/<str:track_uuid>/audience/', SongAudienceDetailView.as_view(), name='song_audience_detail'),
+    
+    # Artist pages
+    path('artists/search/', ArtistSearchView.as_view(), name='artist_search'),
+    path('artists/', ArtistListView.as_view(), name='artist_list'),
+    path('artists/<str:artist_uuid>/', ArtistDetailView.as_view(), name='artist_detail'),
+    
+    # Artist API endpoints
+    path('api/artists/save/', ArtistSaveView.as_view(), name='artist_save'),
+    path('api/artists/fetch-metadata/', ArtistMetadataFetchView.as_view(), name='artist_fetch_metadata'),
+    path('api/artists/fetch-audience/', ArtistAudienceFetchView.as_view(), name='artist_fetch_audience'),
+    
+    # Artist audience chart data endpoints
+    path('artists/<str:artist_uuid>/audience/chart/', ArtistAudienceChartView.as_view(), name='artist_audience_chart_all'),
+    path('artists/<str:artist_uuid>/audience/chart/<str:platform_slug>/', ArtistAudienceChartView.as_view(), name='artist_audience_chart_single'),
 ]
