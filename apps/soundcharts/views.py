@@ -1323,3 +1323,370 @@ class ArtistAudienceFetchView(View):
                 'success': False,
                 'error': str(e)
             }, status=500)
+
+
+# ============================================================================
+# MUSIC ANALYTICS VIEWS (Phase 1: Artist-Level Aggregation)
+# ============================================================================
+
+@login_required
+def analytics_search_form(request):
+    """
+    Display the music analytics search form.
+    
+    This form allows users to select artists, platforms, and date range
+    to aggregate audience metrics.
+    
+    TODO: Add role-based permissions in the future:
+    - @permission_required('soundcharts.view_analytics')
+    - Different user roles: admin, analyst, viewer
+    - Limit date range access based on subscription tier
+    - Rate limiting for expensive aggregation queries
+    """
+    from .analytics_service import MusicAnalyticsService
+    
+    service = MusicAnalyticsService()
+    
+    # Get supported platforms for analytics
+    # Only include platforms that work with SoundCharts streaming/social endpoints
+    supported_slugs = ['spotify', 'youtube', 'instagram', 'tiktok', 'facebook', 'twitter']
+    platforms = Platform.objects.filter(
+        slug__in=supported_slugs
+    ).order_by('name')
+    
+    # Log available platforms for debugging
+    logger.info(f"Analytics form: {platforms.count()} supported platforms available")
+    
+    # Get available countries (informational only)
+    countries = service.get_available_countries()
+    
+    context = {
+        'platforms': platforms,
+        'countries': countries,
+    }
+    
+    return render(request, 'soundcharts/analytics_search.html', context)
+
+
+@login_required
+def analytics_search_results(request):
+    """
+    Process analytics search and display results.
+    
+    Handles both GET (initial search) and POST (refresh/export) requests.
+    """
+    from .analytics_service import MusicAnalyticsService
+    from datetime import datetime
+    
+    service = MusicAnalyticsService()
+    
+    if request.method != 'POST':
+        # Redirect to search form if accessed via GET
+        from django.shortcuts import redirect
+        return redirect('soundcharts:analytics_search')
+    
+    try:
+        # Parse request data
+        data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
+        
+        artist_ids = data.getlist('artist_ids[]') if hasattr(data, 'getlist') else data.get('artist_ids', [])
+        platform_ids = data.getlist('platform_ids[]') if hasattr(data, 'getlist') else data.get('platform_ids', [])
+        start_date_str = data.get('start_date')
+        end_date_str = data.get('end_date')
+        country = data.get('country', '')  # Informational only
+        
+        # Validate inputs
+        if not artist_ids:
+            return JsonResponse({
+                'success': False,
+                'error': 'Please select at least one artist'
+            }, status=400)
+        
+        if not platform_ids:
+            return JsonResponse({
+                'success': False,
+                'error': 'Please select at least one platform'
+            }, status=400)
+        
+        if not start_date_str or not end_date_str:
+            return JsonResponse({
+                'success': False,
+                'error': 'Please select a date range'
+            }, status=400)
+        
+        # Parse dates
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        
+        # Validate date range
+        if end_date < start_date:
+            return JsonResponse({
+                'success': False,
+                'error': 'End date must be after start date'
+            }, status=400)
+        
+        date_range_days = (end_date - start_date).days + 1
+        if date_range_days > 365:
+            return JsonResponse({
+                'success': False,
+                'error': 'Date range cannot exceed 365 days'
+            }, status=400)
+        
+        # Fetch fresh data from SoundCharts API and aggregate
+        # This is the main Phase 1 functionality - fetch data on demand
+        result = service.fetch_and_aggregate_artist_metrics(
+            artist_ids, platform_ids, start_date, end_date, country
+        )
+        
+        if not result['success']:
+            # Include detailed error info for debugging
+            error_response = {
+                'success': False,
+                'error': result['error']
+            }
+            if 'error_details' in result:
+                error_response['error_details'] = result['error_details']
+            
+            logger.error(f"Analytics search failed: {result.get('error')}")
+            if 'error_details' in result:
+                logger.error(f"Error details: {result['error_details']}")
+            
+            return JsonResponse(error_response, status=400)
+        
+        # Add country info (informational)
+        result['data']['metadata']['country'] = country
+        
+        # Store search params for Excel export
+        result['data']['search_params'] = {
+            'artist_ids': artist_ids,
+            'platform_ids': platform_ids,
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat(),
+            'country': country
+        }
+        
+        # For AJAX requests, return JSON with results
+        # The frontend will handle displaying the results
+        return JsonResponse(result)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data'
+        }, status=400)
+    except ValueError as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Invalid date format: {str(e)}'
+        }, status=400)
+    except Exception as e:
+        logger.error(f"Error in analytics search: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+@login_required
+def analytics_artist_autocomplete(request):
+    """
+    Autocomplete endpoint for artist selection in analytics form.
+    
+    Only returns artists with valid SoundCharts UUIDs, as these are required
+    for fetching audience data from the API.
+    
+    NOTE: Artists from ACRCloud analysis may not have SoundCharts UUIDs.
+    These artists cannot be used for audience aggregation until their
+    SoundCharts UUID is populated via manual search or API matching.
+    """
+    query = request.GET.get('q', '').strip()
+    
+    if len(query) < 2:
+        return JsonResponse({
+            'success': True,
+            'artists': []
+        })
+    
+    # Only return artists with valid UUIDs
+    artists = Artist.objects.filter(
+        name__icontains=query,
+        uuid__isnull=False
+    ).exclude(uuid='').order_by('name')[:20]
+    
+    results = [{
+        'id': artist.id,
+        'uuid': artist.uuid,
+        'name': artist.name,
+        'imageUrl': artist.imageUrl,
+        'countryCode': artist.countryCode or '',
+        'has_uuid': bool(artist.uuid)
+    } for artist in artists]
+    
+    return JsonResponse({
+        'success': True,
+        'artists': results
+    })
+
+
+@login_required
+def analytics_export_excel(request):
+    """
+    Export analytics results to Excel file.
+    
+    Simple flat table format with metadata header.
+    """
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from django.http import HttpResponse
+    from datetime import datetime
+    from .analytics_service import MusicAnalyticsService
+    
+    if request.method != 'POST':
+        return JsonResponse({
+            'success': False,
+            'error': 'POST request required'
+        }, status=400)
+    
+    try:
+        # Get the same data as the results page
+        service = MusicAnalyticsService()
+        data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
+        
+        # Parse parameters (handle both list and single values)
+        artist_ids = data.get('artist_ids', [])
+        if not isinstance(artist_ids, list):
+            artist_ids = [artist_ids]
+        
+        platform_ids = data.get('platform_ids', [])
+        if not isinstance(platform_ids, list):
+            platform_ids = [platform_ids]
+        
+        start_date_str = data.get('start_date')
+        end_date_str = data.get('end_date')
+        country = data.get('country', '')
+        
+        logger.info(f"Excel export request: artists={artist_ids}, platforms={platform_ids}, dates={start_date_str} to {end_date_str}, country={country}")
+        
+        # Validate required fields
+        if not artist_ids or not platform_ids or not start_date_str or not end_date_str:
+            return JsonResponse({
+                'success': False,
+                'error': 'Missing required parameters for export'
+            }, status=400)
+        
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        
+        # Fetch fresh data (same as results page)
+        result = service.fetch_and_aggregate_artist_metrics(
+            artist_ids, platform_ids, start_date, end_date, country
+        )
+        
+        if not result['success']:
+            return JsonResponse({
+                'success': False,
+                'error': result['error']
+            }, status=400)
+        
+        # Create Excel workbook
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Analytics Report"
+        
+        # Header styling
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="1F4788", end_color="1F4788", fill_type="solid")
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        # Metadata section
+        ws['A1'] = "Music Analytics Report"
+        ws['A1'].font = Font(bold=True, size=14)
+        ws['A2'] = f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        ws['A3'] = f"Date Range: {start_date} to {end_date}"
+        ws['A4'] = f"Artists: {', '.join([a['name'] for a in result['data']['metadata']['artists']])}"
+        ws['A5'] = f"Platforms: {', '.join([p['name'] for p in result['data']['metadata']['platforms']])}"
+        ws['A6'] = f"Country: {country if country else 'Global (All Countries)'}"
+        
+        # Summary section
+        row = 8
+        ws[f'A{row}'] = "SUMMARY"
+        ws[f'A{row}'].font = Font(bold=True, size=12)
+        
+        row += 1
+        summary = result['data']['summary']
+        ws[f'A{row}'] = "Period Average"
+        ws[f'B{row}'] = summary.get('average_daily', 0)
+        ws[f'C{row}'] = service.format_number(summary.get('average_daily', 0))
+        row += 1
+        ws[f'A{row}'] = "Latest Value"
+        ws[f'B{row}'] = summary.get('total_audience', 0)
+        ws[f'C{row}'] = service.format_number(summary.get('total_audience', 0))
+        row += 1
+        ws[f'A{row}'] = "Peak Value"
+        ws[f'B{row}'] = summary.get('peak_value', 0)
+        ws[f'C{row}'] = service.format_number(summary.get('peak_value', 0))
+        
+        # Detailed breakdown section (Artist x Platform)
+        row += 3
+        ws[f'A{row}'] = "ARTIST x PLATFORM BREAKDOWN"
+        ws[f'A{row}'].font = Font(bold=True, size=12)
+        
+        row += 1
+        headers = ['Artist', 'Platform', 'Current Audience', 'Month Average', 'Difference', 'Peak Value', 'Data Points']
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=row, column=col, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+        
+        for detail in result['data']['detailed_breakdown']:
+            row += 1
+            ws.cell(row=row, column=1, value=detail['artist__name'])
+            ws.cell(row=row, column=2, value=detail['platform__name'])
+            ws.cell(row=row, column=3, value=detail.get('current_audience', 0))
+            ws.cell(row=row, column=4, value=detail.get('month_average', 0))
+            ws.cell(row=row, column=5, value=detail.get('difference', 0))
+            ws.cell(row=row, column=6, value=detail.get('peak_value', 0))
+            ws.cell(row=row, column=7, value=detail.get('data_points', 0))
+        
+        # Auto-adjust column widths
+        for column in ws.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width = min(max_length + 2, 50)
+            ws.column_dimensions[column_letter].width = adjusted_width
+        
+        # Save to response
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        filename = f"music_analytics_{start_date}_{end_date}.xlsx"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        wb.save(response)
+        return response
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"Excel export JSON decode error: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': f'Invalid JSON data: {str(e)}'
+        }, status=400)
+    except ValueError as e:
+        logger.error(f"Excel export value error: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': f'Invalid data format: {str(e)}'
+        }, status=400)
+    except Exception as e:
+        logger.error(f"Error exporting to Excel: {e}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': f'Export failed: {str(e)}'
+        }, status=500)
