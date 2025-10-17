@@ -21,6 +21,11 @@ from .views import (
     ArtistSaveView,
     ArtistMetadataFetchView,
     ArtistAudienceFetchView,
+    # Analytics views
+    analytics_search_form,
+    analytics_search_results,
+    analytics_artist_autocomplete,
+    analytics_export_excel,
 )
 
 app_name = 'soundcharts'
@@ -67,4 +72,10 @@ urlpatterns = [
     # Artist audience chart data endpoints
     path('artists/<str:artist_uuid>/audience/chart/', ArtistAudienceChartView.as_view(), name='artist_audience_chart_all'),
     path('artists/<str:artist_uuid>/audience/chart/<str:platform_slug>/', ArtistAudienceChartView.as_view(), name='artist_audience_chart_single'),
+    
+    # Music Analytics pages (Phase 1: Artist-Level Aggregation)
+    path('analytics/', analytics_search_form, name='analytics_search'),
+    path('analytics/results/', analytics_search_results, name='analytics_results'),
+    path('analytics/api/artist-autocomplete/', analytics_artist_autocomplete, name='analytics_artist_autocomplete'),
+    path('analytics/export/', analytics_export_excel, name='analytics_export'),
 ]
