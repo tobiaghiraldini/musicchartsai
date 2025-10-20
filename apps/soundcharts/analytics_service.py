@@ -482,20 +482,30 @@ class MusicAnalyticsService:
         # Sort by artist name, then current audience descending
         detailed_breakdown.sort(key=lambda x: (x['artist__name'], -x['current_audience']))
         
-        # Calculate overall summary
+        # Calculate overall summary with start/end values
         all_values = [p['value'] for p in data_points]
+        
+        # Sort all data points by date to get first and last values
+        sorted_points = sorted(data_points, key=lambda x: x['date'])
+        first_period_value = sorted_points[0]['value'] if sorted_points else 0
+        last_period_value = sorted_points[-1]['value'] if sorted_points else 0
         
         return {
             'success': True,
             'error': None,
             'data': {
                 'summary': {
-                    'total_audience': sum(all_values),
-                    'average_daily': sum(all_values) / len(all_values) if all_values else 0,
+                    'period_average': sum(all_values) / len(all_values) if all_values else 0,  # Average across period
+                    'start_value': first_period_value,  # Value at start of period
+                    'end_value': last_period_value,  # Value at end of period
+                    'difference': last_period_value - first_period_value,  # Growth/decline
                     'peak_value': max(all_values) if all_values else 0,
                     'total_artists': len(artist_totals),
                     'total_platforms': len(platform_totals),
                     'date_range_days': (end_date - start_date).days + 1,
+                    # Keep legacy fields for backward compatibility
+                    'average_daily': sum(all_values) / len(all_values) if all_values else 0,
+                    'total_audience': last_period_value,  # Same as end_value
                 },
                 'by_platform': by_platform,
                 'by_artist': by_artist,
@@ -798,54 +808,140 @@ class MusicAnalyticsService:
         else:
             return f"{int(value):,}"
     
-    def trigger_missing_data_sync(self, artist_ids, platform_ids, start_date, end_date):
+    def get_track_breakdown_for_artist(self, artist_id, platform_id, start_date, end_date, country=None):
         """
-        Trigger background sync for missing audience data.
+        Get track-level breakdown for an artist on a specific platform.
         
-        This will queue Celery tasks to fetch data from SoundCharts API
-        for the specified artists, platforms, and date range.
+        Phase 2: Shows which tracks contributed to the artist's audience metrics.
+        Uses chart ranking data to get stream counts per track.
         
         Args:
-            artist_ids: List of artist IDs
-            platform_ids: List of platform IDs  
-            start_date: Start date for data range
-            end_date: End date for data range
+            artist_id: Artist ID
+            platform_id: Platform ID
+            start_date: Start date for period
+            end_date: End date for period
+            country: Optional country filter
             
         Returns:
             dict with:
-                - task_id: Celery task ID
-                - estimated_time: Estimated completion time in seconds
-                - artists_count: Number of artists to sync
-                - platforms_count: Number of platforms to sync
+                - tracks: List of tracks with streaming metrics
+                - total_streams: Sum of all track streams
+                - top_track: Track with most streams
+                - summary: Aggregated metrics
         """
-        # TODO: Implement Celery task for background syncing
-        # For Phase 1, we'll implement a basic version
-        # Phase 2 can add more sophisticated progress tracking
+        from apps.soundcharts.models import Track, ChartRankingEntry, ChartRanking
         
-        validation = self.validate_artists(artist_ids)
-        if not validation['valid_artists'].exists():
+        try:
+            artist = Artist.objects.get(id=artist_id)
+            platform = Platform.objects.get(id=platform_id)
+        except (Artist.DoesNotExist, Platform.DoesNotExist):
             return {
                 'success': False,
-                'error': validation['error']
+                'error': 'Artist or platform not found'
             }
         
-        valid_artists = validation['valid_artists']
-        platforms = Platform.objects.filter(id__in=platform_ids)
+        # Get all tracks for this artist
+        tracks = Track.objects.filter(artists=artist)
         
-        # Calculate estimated time (rough estimate: 2 seconds per artist-platform-date combination)
-        date_range_days = (end_date - start_date).days + 1
-        # SoundCharts allows 90 days per API call, so calculate number of batches
-        api_calls_needed = (date_range_days + 89) // 90  # Round up division
-        total_api_calls = len(valid_artists) * len(platforms) * api_calls_needed
-        estimated_seconds = total_api_calls * 2
+        if not tracks.exists():
+            return {
+                'success': False,
+                'error': f'No tracks found for {artist.name}'
+            }
+        
+        # Get chart entries for these tracks in the date range
+        chart_entries = ChartRankingEntry.objects.filter(
+            track__in=tracks,
+            ranking__ranking_date__range=(start_date, end_date),
+            ranking__chart__platform=platform
+        ).select_related('track', 'ranking', 'ranking__chart')
+        
+        if not chart_entries.exists():
+            return {
+                'success': False,
+                'error': f'No chart data found for {artist.name} on {platform.name} in the selected period. Tracks may not have charted during this time.',
+                'tracks': []
+            }
+        
+        # Aggregate by track
+        track_data = {}
+        for entry in chart_entries:
+            track_id = entry.track.id
+            
+            if track_id not in track_data:
+                track_data[track_id] = {
+                    'track_name': entry.track.name,
+                    'track_uuid': entry.track.uuid,
+                    'track_credit': entry.track.credit_name or '',
+                    'stream_counts': [],
+                    'positions': [],
+                    'dates': [],
+                    'weeks_on_chart': entry.weeks_on_chart or 0
+                }
+            
+            # Extract metric (stream count) from api_data
+            metric = entry.api_data.get('metric', 0) if entry.api_data else 0
+            track_data[track_id]['stream_counts'].append(metric)
+            track_data[track_id]['positions'].append(entry.position)
+            track_data[track_id]['dates'].append(entry.ranking.ranking_date.date())
+        
+        # Calculate aggregates for each track
+        track_list = []
+        total_streams = 0
+        
+        for track_id, data in track_data.items():
+            streams = data['stream_counts']
+            positions = data['positions']
+            
+            track_total = sum(streams)
+            track_avg = sum(streams) / len(streams) if streams else 0
+            track_peak = max(streams) if streams else 0
+            best_position = min(positions) if positions else 999
+            
+            total_streams += track_total
+            
+            track_list.append({
+                'track_name': data['track_name'],
+                'track_uuid': data['track_uuid'],
+                'track_credit': data['track_credit'],
+                'total_streams': track_total,
+                'avg_daily_streams': track_avg,
+                'peak_streams': track_peak,
+                'best_position': best_position,
+                'weeks_on_chart': data['weeks_on_chart'],
+                'data_points': len(streams)
+            })
+        
+        # Sort by total streams descending
+        track_list.sort(key=lambda x: x['total_streams'], reverse=True)
+        
+        top_track = track_list[0] if track_list else None
         
         return {
             'success': True,
-            'task_id': None,  # TODO: Return actual Celery task ID
-            'estimated_time': estimated_seconds,
-            'artists_count': valid_artists.count(),
-            'platforms_count': platforms.count(),
-            'api_calls_needed': total_api_calls,
-            'message': f'Sync queued for {valid_artists.count()} artist(s) across {platforms.count()} platform(s)'
+            'artist': {
+                'id': artist.id,
+                'name': artist.name,
+                'uuid': artist.uuid
+            },
+            'platform': {
+                'id': platform.id,
+                'name': platform.name,
+                'slug': platform.slug
+            },
+            'period': {
+                'start': start_date,
+                'end': end_date,
+                'days': (end_date - start_date).days + 1
+            },
+            'tracks': track_list,
+            'summary': {
+                'total_tracks': len(track_list),
+                'total_streams': total_streams,
+                'avg_streams_per_track': total_streams / len(track_list) if track_list else 0,
+            },
+            'top_track': top_track,
+            'data_source': 'chart_rankings',
+            'note': 'Stream counts from chart ranking data. Only includes tracks that appeared in charts during the period.'
         }
 

@@ -186,7 +186,7 @@ def model_dt(request, aPath):
     return render(request, 'dyn_dt/model.html', context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/users/signin/')
 def create(request, aPath):
     aModelClass = None
 
@@ -216,7 +216,7 @@ def create(request, aPath):
     return redirect(request.META.get('HTTP_REFERER'))
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/users/signin/')
 def delete(request, aPath, id):
     aModelClass = None
 
@@ -232,7 +232,7 @@ def delete(request, aPath, id):
     return redirect(request.META.get('HTTP_REFERER'))
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/users/signin/')
 def update(request, aPath, id):
     aModelClass = None
 

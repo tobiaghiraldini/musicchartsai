@@ -1529,6 +1529,61 @@ def analytics_artist_autocomplete(request):
 
 
 @login_required
+def analytics_track_breakdown(request):
+    """
+    Get track-level breakdown for a specific artist × platform combination.
+    
+    Phase 2: Returns track streaming data for expandable table rows.
+    
+    Query params:
+        - artist_id: Artist ID
+        - platform_id: Platform ID
+        - start_date: Start date (YYYY-MM-DD)
+        - end_date: End date (YYYY-MM-DD)
+        - country: Optional country code
+    """
+    from .analytics_service import MusicAnalyticsService
+    from datetime import datetime
+    
+    service = MusicAnalyticsService()
+    
+    try:
+        artist_id = request.GET.get('artist_id')
+        platform_id = request.GET.get('platform_id')
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+        country = request.GET.get('country', '')
+        
+        if not all([artist_id, platform_id, start_date_str, end_date_str]):
+            return JsonResponse({
+                'success': False,
+                'error': 'Missing required parameters'
+            }, status=400)
+        
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        
+        # Get track breakdown
+        result = service.get_track_breakdown_for_artist(
+            int(artist_id), int(platform_id), start_date, end_date, country
+        )
+        
+        return JsonResponse(result)
+        
+    except ValueError as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Invalid parameter format: {str(e)}'
+        }, status=400)
+    except Exception as e:
+        logger.error(f"Error fetching track breakdown: {e}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+@login_required
 def analytics_export_excel(request):
     """
     Export analytics results to Excel file.
@@ -1607,32 +1662,41 @@ def analytics_export_excel(request):
         ws['A5'] = f"Platforms: {', '.join([p['name'] for p in result['data']['metadata']['platforms']])}"
         ws['A6'] = f"Country: {country if country else 'Global (All Countries)'}"
         
-        # Summary section
+        # Per-Platform Summary section (from the colored cards)
         row = 8
-        ws[f'A{row}'] = "SUMMARY"
-        ws[f'A{row}'].font = Font(bold=True, size=12)
-        
-        row += 1
-        summary = result['data']['summary']
-        ws[f'A{row}'] = "Period Average"
-        ws[f'B{row}'] = summary.get('average_daily', 0)
-        ws[f'C{row}'] = service.format_number(summary.get('average_daily', 0))
-        row += 1
-        ws[f'A{row}'] = "Latest Value"
-        ws[f'B{row}'] = summary.get('total_audience', 0)
-        ws[f'C{row}'] = service.format_number(summary.get('total_audience', 0))
-        row += 1
-        ws[f'A{row}'] = "Peak Value"
-        ws[f'B{row}'] = summary.get('peak_value', 0)
-        ws[f'C{row}'] = service.format_number(summary.get('peak_value', 0))
+        if result['data'].get('platform_summaries'):
+            ws[f'A{row}'] = "PER-PLATFORM SUMMARY"
+            ws[f'A{row}'].font = Font(bold=True, size=12)
+            row += 1
+            
+            # Headers for platform summary
+            platform_headers = ['Platform', 'Metric Type', 'Start Value', 'End Value', 'Difference', 'Period Average', 'Peak Value', 'Data Points']
+            for col, header in enumerate(platform_headers, 1):
+                cell = ws.cell(row=row, column=col, value=header)
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = header_alignment
+            
+            # Platform summary data
+            for platform_summary in result['data']['platform_summaries']:
+                row += 1
+                ws.cell(row=row, column=1, value=platform_summary['platform__name'])
+                ws.cell(row=row, column=2, value=platform_summary.get('platform__audience_metric_name', 'Monthly Listeners'))
+                ws.cell(row=row, column=3, value=platform_summary.get('first_value', 0))
+                ws.cell(row=row, column=4, value=platform_summary.get('latest_value', 0))
+                ws.cell(row=row, column=5, value=platform_summary.get('difference', 0))
+                ws.cell(row=row, column=6, value=platform_summary.get('period_average', 0))
+                ws.cell(row=row, column=7, value=platform_summary.get('peak_value', 0))
+                ws.cell(row=row, column=8, value=platform_summary.get('data_points', 0))
+            
+            row += 2
         
         # Detailed breakdown section (Artist x Platform)
-        row += 3
         ws[f'A{row}'] = "ARTIST x PLATFORM BREAKDOWN"
         ws[f'A{row}'].font = Font(bold=True, size=12)
         
         row += 1
-        headers = ['Artist', 'Platform', 'Current Audience', 'Month Average', 'Difference', 'Peak Value', 'Data Points']
+        headers = ['Artist', 'Platform', 'Metric Type', 'Start Value', 'End Value', 'Difference', 'Period Average', 'Peak Value', 'Data Points']
         for col, header in enumerate(headers, 1):
             cell = ws.cell(row=row, column=col, value=header)
             cell.font = header_font
@@ -1641,13 +1705,18 @@ def analytics_export_excel(request):
         
         for detail in result['data']['detailed_breakdown']:
             row += 1
+            # Determine metric type
+            metric_type = detail.get('platform__audience_metric_name', 'Monthly Listeners')
+            
             ws.cell(row=row, column=1, value=detail['artist__name'])
             ws.cell(row=row, column=2, value=detail['platform__name'])
-            ws.cell(row=row, column=3, value=detail.get('current_audience', 0))
-            ws.cell(row=row, column=4, value=detail.get('month_average', 0))
-            ws.cell(row=row, column=5, value=detail.get('difference', 0))
-            ws.cell(row=row, column=6, value=detail.get('peak_value', 0))
-            ws.cell(row=row, column=7, value=detail.get('data_points', 0))
+            ws.cell(row=row, column=3, value=metric_type)
+            ws.cell(row=row, column=4, value=detail.get('first_value', 0))
+            ws.cell(row=row, column=5, value=detail.get('latest_value', 0))
+            ws.cell(row=row, column=6, value=detail.get('difference', 0))
+            ws.cell(row=row, column=7, value=detail.get('month_average', 0))
+            ws.cell(row=row, column=8, value=detail.get('peak_value', 0))
+            ws.cell(row=row, column=9, value=detail.get('data_points', 0))
         
         # Auto-adjust column widths
         for column in ws.columns:
@@ -1661,6 +1730,120 @@ def analytics_export_excel(request):
                     pass
             adjusted_width = min(max_length + 2, 50)
             ws.column_dimensions[column_letter].width = adjusted_width
+        
+        # NEW: Add track breakdown sheets for each artist × platform
+        logger.info("Adding track breakdown sheets...")
+        artists = result['data']['metadata']['artists']
+        platforms = result['data']['metadata']['platforms']
+        
+        for artist in artists:
+            for platform in platforms:
+                # Fetch track breakdown data
+                track_data = service.get_track_breakdown_for_artist(
+                    artist['id'], 
+                    platform['id'], 
+                    start_date, 
+                    end_date, 
+                    country
+                )
+                
+                if not track_data.get('success') or not track_data.get('tracks'):
+                    logger.info(f"No track data for {artist['name']} on {platform['name']}")
+                    continue
+                
+                # Create new sheet for this artist × platform
+                sheet_name = f"{artist['name'][:20]} - {platform['name'][:10]}"  # Excel sheet name limit: 31 chars
+                track_ws = wb.create_sheet(title=sheet_name)
+                
+                # Header section
+                track_ws['A1'] = f"Track Breakdown: {artist['name']} on {platform['name']}"
+                track_ws['A1'].font = Font(bold=True, size=12)
+                track_ws['A2'] = f"Period: {start_date} to {end_date}"
+                track_ws['A3'] = f"Country: {country if country else 'Global'}"
+                
+                # Summary metrics
+                track_ws['A5'] = "Total Tracks:"
+                track_ws['B5'] = track_data['summary']['total_tracks']
+                track_ws['B5'].font = Font(bold=True)
+                
+                track_ws['A6'] = "Total Streams:"
+                track_ws['B6'] = track_data['summary']['total_streams']
+                track_ws['B6'].font = Font(bold=True)
+                track_ws['C6'] = service.format_number(track_data['summary']['total_streams'])
+                
+                track_ws['A7'] = "Avg Streams/Track:"
+                track_ws['B7'] = track_data['summary']['avg_streams_per_track']
+                track_ws['B7'].font = Font(bold=True)
+                track_ws['C7'] = service.format_number(track_data['summary']['avg_streams_per_track'])
+                
+                # Top track info
+                if track_data.get('top_track'):
+                    track_ws['A9'] = "Top Track:"
+                    track_ws['B9'] = track_data['top_track']['track_name']
+                    track_ws['B9'].font = Font(bold=True, color="FF0000")
+                    track_ws['C9'] = service.format_number(track_data['top_track']['total_streams']) + " streams"
+                
+                # Track table headers
+                track_row = 11
+                track_headers = ['Track Name', 'Artist Credit', 'Total Streams', 'Avg Daily Streams', 'Peak Streams', 'Best Position', 'Weeks on Chart', 'Data Points']
+                for col, header in enumerate(track_headers, 1):
+                    cell = track_ws.cell(row=track_row, column=col, value=header)
+                    cell.font = header_font
+                    cell.fill = header_fill
+                    cell.alignment = header_alignment
+                
+                # Track data rows
+                for idx, track in enumerate(track_data['tracks'], 1):
+                    track_row += 1
+                    track_ws.cell(row=track_row, column=1, value=track['track_name'])
+                    track_ws.cell(row=track_row, column=2, value=track.get('track_credit', ''))
+                    track_ws.cell(row=track_row, column=3, value=track['total_streams'])
+                    track_ws.cell(row=track_row, column=4, value=round(track['avg_daily_streams'], 2))
+                    track_ws.cell(row=track_row, column=5, value=track['peak_streams'])
+                    track_ws.cell(row=track_row, column=6, value=track['best_position'])
+                    track_ws.cell(row=track_row, column=7, value=track.get('weeks_on_chart', 'N/A'))
+                    track_ws.cell(row=track_row, column=8, value=track['data_points'])
+                    
+                    # Highlight top track (first row)
+                    if idx == 1:
+                        for col in range(1, 9):
+                            track_ws.cell(row=track_row, column=col).fill = PatternFill(
+                                start_color="FFF9C4", end_color="FFF9C4", fill_type="solid"
+                            )
+                
+                # Total row
+                track_row += 1
+                track_ws.cell(row=track_row, column=1, value="TOTAL")
+                track_ws.cell(row=track_row, column=1).font = Font(bold=True)
+                track_ws.cell(row=track_row, column=3, value=track_data['summary']['total_streams'])
+                track_ws.cell(row=track_row, column=3).font = Font(bold=True)
+                
+                # Style total row
+                for col in range(1, 9):
+                    track_ws.cell(row=track_row, column=col).fill = PatternFill(
+                        start_color="E0E0E0", end_color="E0E0E0", fill_type="solid"
+                    )
+                
+                # Note
+                track_row += 2
+                track_ws.cell(row=track_row, column=1, value="Note:")
+                track_ws.cell(row=track_row, column=2, value=track_data.get('note', ''))
+                track_ws.cell(row=track_row, column=2).font = Font(italic=True, size=9)
+                
+                # Auto-adjust column widths for track sheet
+                for column in track_ws.columns:
+                    max_length = 0
+                    column_letter = column[0].column_letter
+                    for cell in column:
+                        try:
+                            if len(str(cell.value)) > max_length:
+                                max_length = len(str(cell.value))
+                        except:
+                            pass
+                    adjusted_width = min(max_length + 2, 50)
+                    track_ws.column_dimensions[column_letter].width = adjusted_width
+                
+                logger.info(f"Added track sheet for {artist['name']} on {platform['name']} with {len(track_data['tracks'])} tracks")
         
         # Save to response
         response = HttpResponse(

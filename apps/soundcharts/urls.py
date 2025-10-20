@@ -25,6 +25,7 @@ from .views import (
     analytics_search_form,
     analytics_search_results,
     analytics_artist_autocomplete,
+    analytics_track_breakdown,
     analytics_export_excel,
 )
 
@@ -77,5 +78,6 @@ urlpatterns = [
     path('analytics/', analytics_search_form, name='analytics_search'),
     path('analytics/results/', analytics_search_results, name='analytics_results'),
     path('analytics/api/artist-autocomplete/', analytics_artist_autocomplete, name='analytics_artist_autocomplete'),
+    path('analytics/api/track-breakdown/', analytics_track_breakdown, name='analytics_track_breakdown'),  # Phase 2
     path('analytics/export/', analytics_export_excel, name='analytics_export'),
 ]
