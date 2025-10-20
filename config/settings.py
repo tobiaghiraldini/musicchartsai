@@ -244,7 +244,10 @@ CELERY_BEAT_SCHEDULE = {
 ########################################
 
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "/users/signin"  # Redirect unauthenticated users here
+LOGIN_REDIRECT_URL = "/"  # Redirect after successful login
+LOGOUT_REDIRECT_URL = "/users/signin"  # Optional: redirect after logout
+
 # EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
