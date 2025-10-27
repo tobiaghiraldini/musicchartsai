@@ -1349,7 +1349,7 @@ def analytics_search_form(request):
     
     # Get supported platforms for analytics
     # Only include platforms that work with SoundCharts streaming/social endpoints
-    supported_slugs = ['spotify', 'youtube', 'instagram', 'tiktok', 'facebook', 'twitter']
+    supported_slugs = ['spotify', 'youtube', 'tiktok', 'shazam', 'airplay']
     platforms = Platform.objects.filter(
         slug__in=supported_slugs
     ).order_by('name')
@@ -1696,7 +1696,7 @@ def analytics_export_excel(request):
         ws[f'A{row}'].font = Font(bold=True, size=12)
         
         row += 1
-        headers = ['Artist', 'Platform', 'Metric Type', 'Start Value', 'End Value', 'Difference', 'Period Average', 'Peak Value', 'Data Points']
+        headers = ['Artist', 'Platform', 'Metric Type', 'Start Value', 'End Value', 'Difference', 'Period Average', 'Peak Value', 'Track Streams', 'Data Points']
         for col, header in enumerate(headers, 1):
             cell = ws.cell(row=row, column=col, value=header)
             cell.font = header_font
@@ -1716,7 +1716,8 @@ def analytics_export_excel(request):
             ws.cell(row=row, column=6, value=detail.get('difference', 0))
             ws.cell(row=row, column=7, value=detail.get('month_average', 0))
             ws.cell(row=row, column=8, value=detail.get('peak_value', 0))
-            ws.cell(row=row, column=9, value=detail.get('data_points', 0))
+            ws.cell(row=row, column=9, value=detail.get('total_track_streams', 0))
+            ws.cell(row=row, column=10, value=detail.get('data_points', 0))
         
         # Auto-adjust column widths
         for column in ws.columns:
@@ -1785,7 +1786,7 @@ def analytics_export_excel(request):
                 
                 # Track table headers
                 track_row = 11
-                track_headers = ['Track Name', 'Artist Credit', 'Total Streams', 'Avg Daily Streams', 'Peak Streams', 'Best Position', 'Weeks on Chart', 'Data Points']
+                track_headers = ['Track Name', 'Artist Credit', 'Total Streams', 'Avg Daily Streams', 'Peak Streams', 'Best Position', 'Weeks on Chart', 'Entry Date', 'Last Seen', 'Data Points']
                 for col, header in enumerate(track_headers, 1):
                     cell = track_ws.cell(row=track_row, column=col, value=header)
                     cell.font = header_font
@@ -1802,11 +1803,13 @@ def analytics_export_excel(request):
                     track_ws.cell(row=track_row, column=5, value=track['peak_streams'])
                     track_ws.cell(row=track_row, column=6, value=track['best_position'])
                     track_ws.cell(row=track_row, column=7, value=track.get('weeks_on_chart', 'N/A'))
-                    track_ws.cell(row=track_row, column=8, value=track['data_points'])
+                    track_ws.cell(row=track_row, column=8, value=track.get('entry_date', 'N/A'))
+                    track_ws.cell(row=track_row, column=9, value=track.get('last_appearance', 'N/A'))
+                    track_ws.cell(row=track_row, column=10, value=track['data_points'])
                     
                     # Highlight top track (first row)
                     if idx == 1:
-                        for col in range(1, 9):
+                        for col in range(1, 11):
                             track_ws.cell(row=track_row, column=col).fill = PatternFill(
                                 start_color="FFF9C4", end_color="FFF9C4", fill_type="solid"
                             )

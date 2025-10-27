@@ -501,3 +501,134 @@ class SoundchartsService:
         except Exception as e:
             logger.error(f"Unexpected error getting albums: {e}")
             return None
+
+    # ============================================
+    # RADIO / AIRPLAY ENDPOINTS
+    # ============================================
+
+    def get_radios(self, limit=100, offset=0):
+        """
+        Get the listing of all radios available on Soundcharts
+        Endpoint: GET /api/v2.22/radio
+        
+        Args:
+            limit: Number of results (max 100)
+            offset: Get results starting from position
+            
+        Returns:
+            dict: API response with radio stations
+        """
+        url = f"{self.api_url}/api/v2.22/radio"
+        try:
+            params = {"limit": limit, "offset": offset}
+            response = requests.get(url, headers=self.headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+            
+            logger.info(f"Radios API response: {len(data.get('items', []))} stations")
+            return data
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error getting radios: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error getting radios: {e}")
+            return None
+
+    def get_artist_radio_spin_count(self, artist_uuid, start_date=None, end_date=None, 
+                                     country_code=None, radio_slugs=None, limit=100, offset=0):
+        """
+        Get aggregated radio spin counts for an artist
+        Endpoint: GET /api/v2/artist/{uuid}/broadcast-groups
+        
+        Args:
+            artist_uuid: Artist UUID
+            start_date: Optional period start date (YYYY-MM-DD), max 90 days range
+            end_date: Optional period end date (YYYY-MM-DD)
+            country_code: Optional country code filter (2 letters ISO 3166-2)
+            radio_slugs: Optional radio slugs filter (comma separated string)
+            limit: Number of results (max 100)
+            offset: Get results starting from position
+            
+        Returns:
+            dict: API response with aggregated spin counts by date and radio
+            Example response:
+            {
+                "items": [
+                    {
+                        "date": "2025-09-15",
+                        "count": 45,
+                        "radio": {"uuid": "...", "name": "BBC Radio 1", "slug": "bbc-radio-1"}
+                    }
+                ]
+            }
+        """
+        url = f"{self.api_url}/api/v2/artist/{artist_uuid}/broadcast-groups"
+        try:
+            params = {"limit": limit, "offset": offset}
+            if start_date:
+                params["startDate"] = start_date
+            if end_date:
+                params["endDate"] = end_date
+            if country_code:
+                params["countryCode"] = country_code
+            if radio_slugs:
+                params["radioSlugs"] = radio_slugs
+            
+            response = requests.get(url, headers=self.headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+            
+            logger.info(f"Artist radio spin count API response: {len(data.get('items', []))} records")
+            return data
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error getting artist radio spin count for {artist_uuid}: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error getting artist radio spin count: {e}")
+            return None
+
+    def get_track_radio_spin_count(self, track_uuid, start_date=None, end_date=None,
+                                    country_code=None, radio_slugs=None, limit=100, offset=0):
+        """
+        Get aggregated radio spin counts for a track
+        Endpoint: GET /api/v2/song/{uuid}/broadcast-groups
+        
+        Args:
+            track_uuid: Track UUID
+            start_date: Optional period start date (YYYY-MM-DD), max 90 days range
+            end_date: Optional period end date (YYYY-MM-DD)
+            country_code: Optional country code filter (2 letters ISO 3166-2)
+            radio_slugs: Optional radio slugs filter (comma separated string)
+            limit: Number of results (max 100)
+            offset: Get results starting from position
+            
+        Returns:
+            dict: API response with aggregated spin counts by date and radio
+        """
+        url = f"{self.api_url}/api/v2/song/{track_uuid}/broadcast-groups"
+        try:
+            params = {"limit": limit, "offset": offset}
+            if start_date:
+                params["startDate"] = start_date
+            if end_date:
+                params["endDate"] = end_date
+            if country_code:
+                params["countryCode"] = country_code
+            if radio_slugs:
+                params["radioSlugs"] = radio_slugs
+            
+            response = requests.get(url, headers=self.headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+            
+            logger.info(f"Track radio spin count API response: {len(data.get('items', []))} records")
+            return data
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error getting track radio spin count for {track_uuid}: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error getting track radio spin count: {e}")
+            return None

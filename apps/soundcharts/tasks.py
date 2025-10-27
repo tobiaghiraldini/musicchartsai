@@ -622,6 +622,16 @@ def _process_ranking_entries(ranking, items_data, fetch_track_metadata=True):
                 position_evolution = item_data.get('positionEvolution')  # API uses 'positionEvolution' not 'positionChange'
                 time_on_chart = item_data.get('timeOnChart')  # API uses 'timeOnChart' not 'weeksOnChart'
                 
+                # Extract entry date from API (format: "2025-06-22T12:00:00+00:00")
+                entry_date_str = item_data.get('entryDate')
+                entry_date = None
+                if entry_date_str:
+                    try:
+                        from datetime import datetime
+                        entry_date = datetime.fromisoformat(entry_date_str.replace('Z', '+00:00'))
+                    except (ValueError, TypeError) as e:
+                        logger.warning(f"Could not parse entry date '{entry_date_str}': {e}")
+                
                 # Create ranking entry
                 entry = ChartRankingEntry.objects.create(
                     ranking=ranking,
@@ -630,6 +640,7 @@ def _process_ranking_entries(ranking, items_data, fetch_track_metadata=True):
                     previous_position=old_position,
                     position_change=position_evolution,
                     weeks_on_chart=time_on_chart,
+                    entry_date=entry_date,
                     api_data=item_data,
                 )
                 entries_created += 1

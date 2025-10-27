@@ -366,7 +366,9 @@ function displayResults(data, searchParams) {
         'instagram': { bg: 'bg-pink-50 dark:bg-pink-900/20', border: 'border-pink-200 dark:border-pink-800', text: 'text-pink-700 dark:text-pink-300', badge: 'bg-pink-600' },
         'tiktok': { bg: 'bg-gray-50 dark:bg-gray-900/20', border: 'border-gray-200 dark:border-gray-800', text: 'text-gray-700 dark:text-gray-300', badge: 'bg-gray-600' },
         'facebook': { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-800', text: 'text-blue-700 dark:text-blue-300', badge: 'bg-blue-600' },
-        'twitter': { bg: 'bg-cyan-50 dark:bg-cyan-900/20', border: 'border-cyan-200 dark:border-cyan-800', text: 'text-cyan-700 dark:text-cyan-300', badge: 'bg-cyan-600' }
+        'twitter': { bg: 'bg-cyan-50 dark:bg-cyan-900/20', border: 'border-cyan-200 dark:border-cyan-800', text: 'text-cyan-700 dark:text-cyan-300', badge: 'bg-cyan-600' },
+        'airplay': { bg: 'bg-purple-50 dark:bg-purple-900/20', border: 'border-purple-200 dark:border-purple-800', text: 'text-purple-700 dark:text-purple-300', badge: 'bg-purple-600' },
+        'radio': { bg: 'bg-purple-50 dark:bg-purple-900/20', border: 'border-purple-200 dark:border-purple-800', text: 'text-purple-700 dark:text-purple-300', badge: 'bg-purple-600' }
     };
     
     const getPlatformColor = (slug) => platformColors[slug] || platformColors['spotify'];
@@ -681,10 +683,15 @@ function displayResults(data, searchParams) {
                         Use <strong>Period Average</strong> = Average monthly listeners throughout the month.
                         ${searchParams.country ? '<br><strong>🌍 Country Filter Active:</strong> All data shown is for ' + searchParams.country + ' only.' : ''}
                     </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-3 p-2 bg-orange-50 dark:bg-orange-900/20 rounded border border-orange-200 dark:border-orange-800">
-                        <strong>⚠️ Phase 2 Note:</strong> These are artist-level metrics (followers/listeners). 
-                        Phase 2 will add <strong>track-level streaming counts</strong> to show total plays/views per song.
-                    </p>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-3 p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
+                        <p class="mb-2"><strong>✅ Now Available: Track Stream Aggregation</strong></p>
+                        <p class="mb-2">The "Track Streams" column shows the <strong>total streams/plays</strong> across all of the artist's tracks from chart data.</p>
+                        <ul class="ml-4 space-y-1">
+                            <li><strong>Monthly Listeners (columns 1-6):</strong> Unique people who listened in a 28-day window</li>
+                            <li><strong>Track Streams (column 8):</strong> Total number of times all tracks were played (from charts)</li>
+                            <li><strong>Relationship:</strong> "Track Streams" ÷ "Monthly Listeners" ≈ how many times each person played the music on average</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -757,6 +764,14 @@ function displayResults(data, searchParams) {
                                     </svg>
                                 </span>
                             </th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase dark:text-gray-300">
+                                <span class="inline-flex items-center" title="Total track streams from chart data">
+                                    Track Streams
+                                    <svg class="w-3 h-3 ml-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </span>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
@@ -771,6 +786,10 @@ function displayResults(data, searchParams) {
                             
                             const rowId = 'row-' + d.artist__uuid + '-' + d.platform__slug;
                             const tracksRowId = 'tracks-' + d.artist__uuid + '-' + d.platform__slug;
+                            
+                            // Check if track stream data is available
+                            const totalTrackStreams = d.total_track_streams || 0;
+                            const hasTrackData = totalTrackStreams > 0;
                             
                             return `
                             <tr id="${rowId}" class="hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -792,9 +811,12 @@ function displayResults(data, searchParams) {
                                 <td class="px-6 py-4 text-sm text-right font-medium ${diffColor}">${diffFormatted}</td>
                                 <td class="px-6 py-4 text-sm text-right text-blue-600 dark:text-blue-400 font-medium">${formatNumber(d.month_average)}</td>
                                 <td class="px-6 py-4 text-sm text-right text-gray-500 dark:text-gray-400">${formatNumber(d.peak_value)}</td>
+                                <td class="px-6 py-4 text-sm text-right ${hasTrackData ? 'text-purple-600 dark:text-purple-400 font-medium' : 'text-gray-300 dark:text-gray-600'}">
+                                    ${hasTrackData ? formatNumber(totalTrackStreams) : 'N/A'}
+                                </td>
                             </tr>
                             <tr id="${tracksRowId}" class="hidden bg-gray-50 dark:bg-gray-900">
-                                <td colspan="7" class="px-6 py-4">
+                                <td colspan="8" class="px-6 py-4">
                                     <div id="tracks-content-${tracksRowId}" class="text-sm">
                                         <!-- Track breakdown will load here -->
                                     </div>
@@ -940,16 +962,24 @@ function renderTrackBreakdown(contentDiv, data) {
     html += '</div></div>';
     
     if (data.tracks && data.tracks.length > 0) {
+        // Detect if this is radio data
+        const isRadio = data.data_source === 'radio_api' || data.platform.slug === 'airplay' || data.platform.slug === 'radio';
+        const metricLabel = isRadio ? 'Total Spins' : 'Total Streams';
+        const positionLabel = isRadio ? 'Stations' : 'Best Position';
+        const chartLabel = isRadio ? 'Days Aired' : 'Weeks on Chart';
+        
         html += '<div class="overflow-x-auto">';
-        html += '<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">';
-        html += '<thead class="bg-gray-100 dark:bg-gray-700"><tr>';
-        html += '<th class="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-gray-300">Track</th>';
-        html += '<th class="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-gray-300">Total Streams</th>';
-        html += '<th class="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-gray-300">Avg Daily</th>';
-        html += '<th class="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-gray-300">Peak Streams</th>';
-        html += '<th class="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-gray-300">Best Position</th>';
-        html += '<th class="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-gray-300">Weeks on Chart</th>';
-        html += '</tr></thead>';
+            html += '<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">';
+            html += '<thead class="bg-gray-100 dark:bg-gray-700"><tr>';
+            html += '<th class="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-gray-300">Track</th>';
+            html += '<th class="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-gray-300">' + metricLabel + '</th>';
+            html += '<th class="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-gray-300">Avg Daily</th>';
+            html += '<th class="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-gray-300">Peak</th>';
+            html += '<th class="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-gray-300">' + positionLabel + '</th>';
+            html += '<th class="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-gray-300">' + chartLabel + '</th>';
+            html += '<th class="px-4 py-2 text-center text-xs font-medium text-gray-600 dark:text-gray-300">Entry Date</th>';
+            html += '<th class="px-4 py-2 text-center text-xs font-medium text-gray-600 dark:text-gray-300">Last Seen</th>';
+            html += '</tr></thead>';
         html += '<tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">';
         
         data.tracks.forEach((track, idx) => {
@@ -967,10 +997,42 @@ function renderTrackBreakdown(contentDiv, data) {
             html += '<td class="px-4 py-2 text-sm text-right text-gray-600 dark:text-gray-400">' + formatNumber(track.avg_daily_streams) + '</td>';
             html += '<td class="px-4 py-2 text-sm text-right text-gray-600 dark:text-gray-400">' + formatNumber(track.peak_streams) + '</td>';
             html += '<td class="px-4 py-2 text-sm text-right">';
-            html += '<span class="inline-flex items-center justify-center w-8 h-8 text-xs font-bold text-white bg-blue-600 rounded-full">';
-            html += '#' + track.best_position;
-            html += '</span></td>';
-            html += '<td class="px-4 py-2 text-sm text-right text-gray-600 dark:text-gray-400">' + (track.weeks_on_chart || 'N/A') + '</td>';
+            if (isRadio) {
+                // For radio, show number of stations
+                html += '<span class="text-gray-900 dark:text-white font-medium">' + (track.stations_count || 'N/A') + '</span>';
+            } else {
+                // For charts, show position badge
+                if (track.best_position) {
+                    html += '<span class="inline-flex items-center justify-center w-8 h-8 text-xs font-bold text-white bg-blue-600 rounded-full">';
+                    html += '#' + track.best_position;
+                    html += '</span>';
+                } else {
+                    html += '<span class="text-gray-400">N/A</span>';
+                }
+            }
+            html += '</td>';
+            html += '<td class="px-4 py-2 text-sm text-right text-gray-600 dark:text-gray-400">' + (track.weeks_on_chart || track.data_points || 'N/A') + '</td>';
+            
+            // Entry Date
+            html += '<td class="px-4 py-2 text-sm text-center text-gray-600 dark:text-gray-400">';
+            if (track.entry_date) {
+                var entryDate = new Date(track.entry_date);
+                html += entryDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            } else {
+                html += '<span class="text-gray-400">N/A</span>';
+            }
+            html += '</td>';
+            
+            // Last Appearance
+            html += '<td class="px-4 py-2 text-sm text-center text-gray-600 dark:text-gray-400">';
+            if (track.last_appearance) {
+                var lastDate = new Date(track.last_appearance);
+                html += lastDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            } else {
+                html += '<span class="text-gray-400">N/A</span>';
+            }
+            html += '</td>';
+            
             html += '</tr>';
         });
         
@@ -978,7 +1040,7 @@ function renderTrackBreakdown(contentDiv, data) {
         html += '<tfoot class="bg-gray-50 dark:bg-gray-800 border-t-2 border-gray-300 dark:border-gray-600"><tr>';
         html += '<td class="px-4 py-2 text-sm font-bold text-gray-900 dark:text-white">TOTAL</td>';
         html += '<td class="px-4 py-2 text-sm text-right font-bold text-gray-900 dark:text-white">' + formatNumber(data.summary.total_streams) + '</td>';
-        html += '<td colspan="4" class="px-4 py-2 text-xs text-right text-gray-500 dark:text-gray-400">';
+        html += '<td colspan="6" class="px-4 py-2 text-xs text-right text-gray-500 dark:text-gray-400">';
         html += 'Average per track: ' + formatNumber(data.summary.avg_streams_per_track);
         html += '</td></tr></tfoot>';
         html += '</table></div>';

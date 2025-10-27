@@ -505,6 +505,16 @@ class ChartRankingEntry(models.Model):
     # genre = models.CharField(max_length=255, blank=True, help_text="Genre")
     # country_code = models.CharField(max_length=2, blank=True, help_text="Country code")
 
+    # Entry/Exit tracking
+    entry_date = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Date when the track first entered this chart (from SoundCharts API)"
+    )
+    exit_date = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Date when the track left this chart (calculated from last appearance)"
+    )
+
     # API metadata
     api_data = models.JSONField(
         default=dict, help_text="Raw API response data for this entry"

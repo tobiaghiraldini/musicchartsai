@@ -11,8 +11,8 @@ Phase 2: Add track-level breakdown
 
 from django.db.models import Sum, Avg, Max, Min, Count, Q
 from django.utils import timezone
-from django.conf import settings
-from datetime import datetime, timedelta, date
+
+from datetime import datetime, timedelta
 from apps.soundcharts.models import (
     Artist, 
     ArtistAudienceTimeSeries, 
@@ -152,17 +152,26 @@ class MusicAnalyticsService:
         # Works for: Instagram, TikTok, Facebook, Twitter, YouTube (subscribers)
         social_platforms = ['instagram', 'tiktok', 'facebook', 'twitter']
         
+        # RADIO/AIRPLAY endpoint (confirmed from SoundCharts docs)
+        # GET /api/v2/artist/{uuid}/broadcast-groups
+        # Returns aggregated daily radio spin counts
+        radio_platforms = ['airplay', 'radio']
+        
         if platform_slug in streaming_platforms:
             logger.info(f"Using STREAMING endpoint for {platform.name}")
             data_points = self._fetch_streaming_data(artist, platform, start_date, end_date, country)
         elif platform_slug in social_platforms:
             logger.info(f"Using SOCIAL endpoint for {platform.name}")
             data_points = self._fetch_social_data(artist, platform, start_date, end_date, country)
+        elif platform_slug in radio_platforms:
+            logger.info(f"Using RADIO endpoint for {platform.name}")
+            data_points = self._fetch_radio_data(artist, platform, start_date, end_date, country)
         else:
             # For other platforms, log and skip
-            logger.warning(f"Platform {platform.name} ({platform_slug}) not supported for streaming or social endpoints. Skipping.")
+            logger.warning(f"Platform {platform.name} ({platform_slug}) not supported for streaming, social, or radio endpoints. Skipping.")
             logger.info(f"Supported streaming platforms: {streaming_platforms}")
             logger.info(f"Supported social platforms: {social_platforms}")
+            logger.info(f"Supported radio platforms: {radio_platforms}")
         
         return data_points
     
@@ -351,6 +360,115 @@ class MusicAnalyticsService:
             logger.error(f"Error fetching social data for {artist.name} on {platform.name}: {e}")
             return []
     
+    def _fetch_radio_data(self, artist, platform, start_date, end_date, country=None):
+        """
+        Fetch radio airplay data from /api/v2/artist/{uuid}/broadcast-groups
+        
+        Returns aggregated daily radio spin counts.
+        Country filter is applied if provided.
+        
+        Args:
+            artist: Artist model instance
+            platform: Platform model instance (should be 'airplay')
+            start_date: Start date
+            end_date: End date
+            country: Optional country code to filter by
+            
+        Returns:
+            List of data points with daily spin counts
+        """
+        try:
+            data_points = []
+            
+            # Call SoundCharts radio spin count API
+            # Note: API has 90-day limit, so we need to batch if period is longer
+            current_start = start_date
+            
+            while current_start <= end_date:
+                current_end = min(current_start + timedelta(days=89), end_date)
+                
+                # Use the service method we just created
+                api_data = self.soundcharts.get_artist_radio_spin_count(
+                    artist_uuid=artist.uuid,
+                    start_date=current_start.strftime('%Y-%m-%d'),
+                    end_date=current_end.strftime('%Y-%m-%d'),
+                    country_code=country
+                )
+                
+                if not api_data:
+                    logger.warning(f"No radio data returned for {artist.name}")
+                    current_start = current_end + timedelta(days=1)
+                    continue
+                
+                # DEBUG: Log API response structure
+                logger.info(f"Radio API Response for {artist.name}: {len(api_data.get('items', []))} records")
+                
+                # Parse response
+                # Actual format from /broadcast-groups (REAL format, not docs):
+                # {"items": [{"playCount": 10, "radio": {...}}, ...]}
+                # Each item = total plays on ONE radio station for the entire period
+                items = api_data.get('items', [])
+                
+                # Calculate total spins across all stations
+                period_total_spins = 0
+                radio_stations = set()
+                
+                for item in items:
+                    # Extract play count (total for this station during period)
+                    play_count = item.get('playCount', 0)
+                    period_total_spins += play_count
+                    
+                    # Track unique radio stations
+                    radio_info = item.get('radio', {})
+                    radio_name = radio_info.get('name')
+                    if radio_name:
+                        radio_stations.add(radio_name)
+                
+                # Since we don't have daily breakdown, create a single data point for the period
+                # We'll distribute the total evenly across the period for averaging purposes
+                if period_total_spins > 0:
+                    # Calculate average daily spins
+                    period_days = (current_end - current_start).days + 1
+                    avg_daily_spins = period_total_spins / period_days if period_days > 0 else period_total_spins
+                    
+                    # Create one data point representing the period average
+                    # (This will be used for aggregation with start/end values)
+                    mid_date = current_start + timedelta(days=period_days // 2)
+                    
+                    data_points.append({
+                        'artist': artist,
+                        'artist_name': artist.name,
+                        'artist_uuid': artist.uuid,
+                        'platform': platform,
+                        'platform_name': platform.name,
+                        'platform_slug': platform.slug,
+                        'date': mid_date,
+                        'value': avg_daily_spins,  # Average daily spins
+                        'metric_name': 'Radio Spins',
+                        'stations_count': len(radio_stations),
+                        'total_spins': period_total_spins,  # Total for the period
+                        'period_days': period_days
+                    })
+                    
+                    logger.info(f"Processed {period_total_spins} total spins across {len(radio_stations)} stations for {artist.name}")
+                
+                current_start = current_end + timedelta(days=1)
+            
+            logger.info(f"Fetched {len(data_points)} radio data points for {artist.name}")
+            return data_points
+            
+        except requests.exceptions.HTTPError as e:
+            if e.response and e.response.status_code == 404:
+                logger.warning(f"No radio data available for {artist.name}")
+            else:
+                logger.error(f"HTTP error fetching radio data: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"Error fetching radio data for {artist.name}: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            return []
+    
     def _aggregate_fetched_data(self, data_points, artists, platforms, start_date, end_date):
         """
         Aggregate the fetched data points into summary metrics.
@@ -464,6 +582,14 @@ class MusicAnalyticsService:
             first_value = sorted_data[0][1] if sorted_data else 0
             latest_value = sorted_data[-1][1] if sorted_data else 0
             
+            # Get track stream totals for this artist-platform combination
+            track_streams_total = self.get_track_stream_total_for_artist_platform(
+                data['artist__uuid'],
+                data['platform__slug'],
+                start_date,
+                end_date
+            )
+            
             detailed_breakdown.append({
                 'artist__name': data['artist__name'],
                 'artist__uuid': data['artist__uuid'],
@@ -476,7 +602,8 @@ class MusicAnalyticsService:
                 'peak_value': max(values) if values else 0,
                 'first_value': first_value,  # Start of period
                 'latest_value': latest_value,  # End of period
-                'data_points': len(values)
+                'data_points': len(values),
+                'total_track_streams': track_streams_total  # Sum of all track streams from charts
             })
         
         # Sort by artist name, then current audience descending
@@ -808,6 +935,58 @@ class MusicAnalyticsService:
         else:
             return f"{int(value):,}"
     
+    def get_track_stream_total_for_artist_platform(self, artist_uuid, platform_slug, start_date, end_date, country=None):
+        """
+        Get total track streams for an artist on a specific platform.
+        
+        This aggregates all track streams from chart ranking data for a given artist-platform
+        combination during the specified date range.
+        
+        Args:
+            artist_uuid: Artist UUID
+            platform_slug: Platform slug
+            start_date: Start date
+            end_date: End date
+            country: Optional country filter
+            
+        Returns:
+            int: Total streams across all tracks
+        """
+        from apps.soundcharts.models import Track, ChartRankingEntry
+        
+        try:
+            # Get artist by UUID
+            artist = Artist.objects.get(uuid=artist_uuid)
+            platform = Platform.objects.get(slug=platform_slug)
+            
+            # Get all tracks for this artist
+            tracks = Track.objects.filter(artists=artist)
+            
+            if not tracks.exists():
+                return 0
+            
+            # Get chart entries for these tracks in the date range
+            chart_entries = ChartRankingEntry.objects.filter(
+                track__in=tracks,
+                ranking__ranking_date__range=(start_date, end_date),
+                ranking__chart__platform=platform
+            )
+            
+            # Sum up all stream counts
+            total_streams = 0
+            for entry in chart_entries:
+                metric = entry.api_data.get('metric', 0) if entry.api_data else 0
+                total_streams += metric
+            
+            return total_streams
+            
+        except (Artist.DoesNotExist, Platform.DoesNotExist):
+            logger.warning(f"Artist {artist_uuid} or platform {platform_slug} not found for track aggregation")
+            return 0
+        except Exception as e:
+            logger.error(f"Error calculating track stream totals: {e}")
+            return 0
+    
     def get_track_breakdown_for_artist(self, artist_id, platform_id, start_date, end_date, country=None):
         """
         Get track-level breakdown for an artist on a specific platform.
@@ -829,7 +1008,7 @@ class MusicAnalyticsService:
                 - top_track: Track with most streams
                 - summary: Aggregated metrics
         """
-        from apps.soundcharts.models import Track, ChartRankingEntry, ChartRanking
+        from apps.soundcharts.models import Track, ChartRankingEntry
         
         try:
             artist = Artist.objects.get(id=artist_id)
@@ -839,6 +1018,10 @@ class MusicAnalyticsService:
                 'success': False,
                 'error': 'Artist or platform not found'
             }
+        
+        # Check if this is a radio platform - handle differently
+        if platform.slug.lower() in ['airplay', 'radio']:
+            return self._get_track_radio_breakdown(artist, platform, start_date, end_date, country)
         
         # Get all tracks for this artist
         tracks = Track.objects.filter(artists=artist)
@@ -876,7 +1059,10 @@ class MusicAnalyticsService:
                     'stream_counts': [],
                     'positions': [],
                     'dates': [],
-                    'weeks_on_chart': entry.weeks_on_chart or 0
+                    'weeks_on_chart': entry.weeks_on_chart or 0,
+                    'entry_date': entry.entry_date,  # From API
+                    'first_appearance': entry.ranking.ranking_date,  # Track first appearance in our data
+                    'last_appearance': entry.ranking.ranking_date   # Track last appearance in our data
                 }
             
             # Extract metric (stream count) from api_data
@@ -884,6 +1070,16 @@ class MusicAnalyticsService:
             track_data[track_id]['stream_counts'].append(metric)
             track_data[track_id]['positions'].append(entry.position)
             track_data[track_id]['dates'].append(entry.ranking.ranking_date.date())
+            
+            # Update first and last appearance dates
+            if entry.ranking.ranking_date < track_data[track_id]['first_appearance']:
+                track_data[track_id]['first_appearance'] = entry.ranking.ranking_date
+            if entry.ranking.ranking_date > track_data[track_id]['last_appearance']:
+                track_data[track_id]['last_appearance'] = entry.ranking.ranking_date
+            
+            # Update entry_date if this entry has one and we don't have it yet
+            if entry.entry_date and not track_data[track_id]['entry_date']:
+                track_data[track_id]['entry_date'] = entry.entry_date
         
         # Calculate aggregates for each track
         track_list = []
@@ -909,7 +1105,10 @@ class MusicAnalyticsService:
                 'peak_streams': track_peak,
                 'best_position': best_position,
                 'weeks_on_chart': data['weeks_on_chart'],
-                'data_points': len(streams)
+                'data_points': len(streams),
+                'entry_date': data['entry_date'].isoformat() if data['entry_date'] else None,
+                'first_appearance': data['first_appearance'].date().isoformat() if data['first_appearance'] else None,
+                'last_appearance': data['last_appearance'].date().isoformat() if data['last_appearance'] else None,
             })
         
         # Sort by total streams descending
@@ -943,5 +1142,141 @@ class MusicAnalyticsService:
             'top_track': top_track,
             'data_source': 'chart_rankings',
             'note': 'Stream counts from chart ranking data. Only includes tracks that appeared in charts during the period.'
+        }
+    
+    def _get_track_radio_breakdown(self, artist, platform, start_date, end_date, country=None):
+        """
+        Get track-level radio spin breakdown for an artist.
+        
+        Calls SoundCharts API to get track-by-track radio spins.
+        
+        Args:
+            artist: Artist model instance
+            platform: Platform model instance (airplay)
+            start_date: Start date
+            end_date: End date
+            country: Optional country filter
+            
+        Returns:
+            dict with track breakdown data
+        """
+        from apps.soundcharts.models import Track
+        
+        # Get all tracks for this artist
+        tracks = Track.objects.filter(artists=artist)
+        
+        if not tracks.exists():
+            return {
+                'success': False,
+                'error': f'No tracks found for {artist.name}'
+            }
+        
+        # Fetch radio spin data for each track
+        track_list = []
+        total_spins = 0
+        
+        for track in tracks:
+            try:
+                # Call track radio spin count API
+                api_data = self.soundcharts.get_track_radio_spin_count(
+                    track_uuid=track.uuid,
+                    start_date=start_date.strftime('%Y-%m-%d'),
+                    end_date=end_date.strftime('%Y-%m-%d'),
+                    country_code=country
+                )
+                
+                if not api_data or not api_data.get('items'):
+                    continue
+                
+                # Aggregate spins for this track
+                # Actual format from /broadcast-groups (REAL format, not docs):
+                # {"items": [{"playCount": 10, "radio": {...}}, ...]}
+                # Each item = total plays on ONE radio station for the entire period
+                items = api_data.get('items', [])
+                
+                track_total_spins = 0
+                radio_stations = set()
+                
+                for item in items:
+                    # Extract play count (total for this station during period)
+                    play_count = item.get('playCount', 0)
+                    track_total_spins += play_count
+                    
+                    # Track unique stations
+                    radio_info = item.get('radio', {})
+                    if radio_info.get('name'):
+                        radio_stations.add(radio_info['name'])
+                
+                if track_total_spins > 0:
+                    # Calculate metrics
+                    period_days = (end_date - start_date).days + 1
+                    avg_daily = track_total_spins / period_days if period_days > 0 else 0
+                    
+                    # Note: We don't have daily breakdown, so we can't calculate true peak
+                    # Use total as a proxy for impact
+                    peak_spins = track_total_spins
+                    
+                    track_list.append({
+                        'track_name': track.name,
+                        'track_uuid': track.uuid,
+                        'track_credit': track.credit_name or '',
+                        'total_streams': track_total_spins,  # For consistency with chart-based data
+                        'total_spins': track_total_spins,
+                        'avg_daily_streams': avg_daily,
+                        'peak_streams': peak_spins,
+                        'stations_count': len(radio_stations),
+                        'data_points': period_days,  # Period duration in days
+                        'best_position': None,  # N/A for radio
+                        'weeks_on_chart': None,  # N/A for radio
+                        'entry_date': None,
+                        'first_appearance': None,
+                        'last_appearance': None,
+                    })
+                    
+                    total_spins += track_total_spins
+                    
+            except Exception as e:
+                logger.error(f"Error fetching radio spins for track {track.uuid}: {e}")
+                continue
+        
+        if not track_list:
+            return {
+                'success': False,
+                'error': f'No radio airplay data found for {artist.name} in the selected period.',
+                'tracks': []
+            }
+        
+        # Sort by total spins descending
+        track_list.sort(key=lambda x: x['total_spins'], reverse=True)
+        
+        top_track = track_list[0] if track_list else None
+        
+        return {
+            'success': True,
+            'artist': {
+                'id': artist.id,
+                'name': artist.name,
+                'uuid': artist.uuid
+            },
+            'platform': {
+                'id': platform.id,
+                'name': platform.name,
+                'slug': platform.slug
+            },
+            'period': {
+                'start': start_date,
+                'end': end_date,
+                'days': (end_date - start_date).days + 1
+            },
+            'tracks': track_list,
+            'summary': {
+                'total_tracks': len(track_list),
+                'total_streams': total_spins,  # For consistency
+                'total_spins': total_spins,
+                'avg_streams_per_track': total_spins / len(track_list) if track_list else 0,
+            },
+            'top_track': top_track,
+            'data_source': 'radio_api',
+            'note': 'Radio airplay counts from SoundCharts API. Shows tracks that received radio spins during the period.'
         }
 
