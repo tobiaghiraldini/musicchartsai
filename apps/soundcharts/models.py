@@ -434,7 +434,9 @@ class ChartRanking(models.Model):
         verbose_name_plural = "Chart Rankings"
 
     def __str__(self):
-        return f"{self.chart.name} - {self.ranking_date.strftime('%Y-%m-%d %H:%M')}"
+        if self.chart:
+            return f"{self.chart.name} - {self.ranking_date.strftime('%Y-%m-%d %H:%M')}"
+        return f"Unknown Chart - {self.ranking_date.strftime('%Y-%m-%d %H:%M')}"
 
     @property
     def entries_count(self):
