@@ -3,7 +3,7 @@ from celery import shared_task
 from django.utils import timezone
 from django.db import transaction
 from django.db.models import Q
-from .models import Track, MetadataFetchTask, ChartSyncSchedule, ChartSyncExecution, Chart, ChartRanking, ChartRankingEntry
+from .models import Track, Artist, MetadataFetchTask, ChartSyncSchedule, ChartSyncExecution, Chart, ChartRanking, ChartRankingEntry, Platform, TrackAudienceTimeSeries, ArtistAudienceTimeSeries
 from .service import SoundchartsService
 
 logger = logging.getLogger(__name__)
@@ -62,20 +62,61 @@ def fetch_track_metadata(self, track_uuid):
                     track.isrc = track_data["isrc"]
                 if "label" in track_data and track_data["label"]:
                     track.label = track_data["label"]["name"] if isinstance(track_data["label"], dict) else track_data["label"]
+                # Process genres (extract hierarchical genres)
                 if "genres" in track_data and track_data["genres"]:
-                    # Take the first genre as primary
+                    from .models import Genre
+                    track.genres.clear()
+                    track_genres = []
+                    primary_genre = None
+                    
                     if isinstance(track_data["genres"], list) and len(track_data["genres"]) > 0:
-                        genre = track_data["genres"][0]
-                        if isinstance(genre, dict) and "name" in genre:
-                            track.genre = genre["name"]
-                        elif isinstance(genre, str):
-                            track.genre = genre
+                        for genre_data in track_data["genres"]:
+                            if isinstance(genre_data, dict) and "root" in genre_data:
+                                result = Genre.create_from_soundcharts(genre_data)
+                                if result:
+                                    root_genre, subgenres = result
+                                    track_genres.append(root_genre)
+                                    track_genres.extend(subgenres)
+                                    
+                                    if primary_genre is None:
+                                        primary_genre = root_genre
+                    
+                    if track_genres:
+                        track.genres.set(track_genres)
+                        track.primary_genre = primary_genre
+                
+                # Process artists (extract artists from track metadata)
+                if "artists" in track_data and track_data["artists"]:
+                    track.artists.clear()
+                    track_artists = []
+                    primary_artist = None
+                    
+                    if isinstance(track_data["artists"], list) and len(track_data["artists"]) > 0:
+                        for artist_data in track_data["artists"]:
+                            if isinstance(artist_data, dict) and "uuid" in artist_data and "name" in artist_data:
+                                artist = Artist.create_from_soundcharts(artist_data)
+                                if artist:
+                                    track_artists.append(artist)
+                                    
+                                    if primary_artist is None:
+                                        primary_artist = artist
+                    
+                    if track_artists:
+                        track.artists.set(track_artists)
+                        track.primary_artist = primary_artist
                 
                 # Update metadata fetch timestamp
                 track.metadata_fetched_at = timezone.now()
                 track.save()
                 
                 logger.info(f"Successfully updated metadata for track {track_uuid}")
+                
+                # Cascade: After track metadata is fetched, sync artists
+                sync_artists_after_track_metadata.delay(track_uuid)
+                
+                # Cascade: After track metadata is fetched, fetch audience
+                sync_track_audience.delay(track_uuid)
+                
                 return True
             else:
                 logger.error(f"Invalid metadata format for track {track_uuid}")
@@ -138,34 +179,76 @@ def fetch_bulk_track_metadata(self, task_id):
                         if "imageUrl" in track_data:
                             track.image_url = track_data["imageUrl"]
                         
-                        # Update enhanced metadata fields
-                        if "releaseDate" in track_data and track_data["releaseDate"]:
-                            try:
-                                from datetime import datetime
-                                release_date = datetime.strptime(track_data["releaseDate"], "%Y-%m-%d").date()
-                                track.release_date = release_date
-                            except (ValueError, TypeError):
-                                pass
+                    # Update enhanced metadata fields
+                    if "releaseDate" in track_data and track_data["releaseDate"]:
+                        try:
+                            from datetime import datetime
+                            release_date = datetime.strptime(track_data["releaseDate"], "%Y-%m-%d").date()
+                            track.release_date = release_date
+                        except (ValueError, TypeError):
+                            pass
+                    
+                    if "duration" in track_data:
+                        track.duration = track_data["duration"]
+                    if "isrc" in track_data:
+                        track.isrc = track_data["isrc"]
+                    if "label" in track_data and track_data["label"]:
+                        track.label = track_data["label"]["name"] if isinstance(track_data["label"], dict) else track_data["label"]
+                    
+                    # Process genres (extract hierarchical genres)
+                    if "genres" in track_data and track_data["genres"]:
+                        from .models import Genre
+                        track.genres.clear()
+                        track_genres = []
+                        primary_genre = None
                         
-                        if "duration" in track_data:
-                            track.duration = track_data["duration"]
-                        if "isrc" in track_data:
-                            track.isrc = track_data["isrc"]
-                        if "label" in track_data and track_data["label"]:
-                            track.label = track_data["label"]["name"] if isinstance(track_data["label"], dict) else track_data["label"]
-                        if "genres" in track_data and track_data["genres"]:
-                            if isinstance(track_data["genres"], list) and len(track_data["genres"]) > 0:
-                                genre = track_data["genres"][0]
-                                if isinstance(genre, dict) and "name" in genre:
-                                    track.genre = genre["name"]
-                                elif isinstance(genre, str):
-                                    track.genre = genre
+                        if isinstance(track_data["genres"], list) and len(track_data["genres"]) > 0:
+                            for genre_data in track_data["genres"]:
+                                if isinstance(genre_data, dict) and "root" in genre_data:
+                                    result = Genre.create_from_soundcharts(genre_data)
+                                    if result:
+                                        root_genre, subgenres = result
+                                        track_genres.append(root_genre)
+                                        track_genres.extend(subgenres)
+                                        
+                                        if primary_genre is None:
+                                            primary_genre = root_genre
+                        
+                        if track_genres:
+                            track.genres.set(track_genres)
+                            track.primary_genre = primary_genre
+                    
+                    # Process artists (extract artists from track metadata)
+                    if "artists" in track_data and track_data["artists"]:
+                        track.artists.clear()
+                        track_artists = []
+                        primary_artist = None
+                        
+                        if isinstance(track_data["artists"], list) and len(track_data["artists"]) > 0:
+                            for artist_data in track_data["artists"]:
+                                if isinstance(artist_data, dict) and "uuid" in artist_data and "name" in artist_data:
+                                    artist = Artist.create_from_soundcharts(artist_data)
+                                    if artist:
+                                        track_artists.append(artist)
+                                        
+                                        if primary_artist is None:
+                                            primary_artist = artist
+                        
+                        if track_artists:
+                            track.artists.set(track_artists)
+                            track.primary_artist = primary_artist
                         
                         track.metadata_fetched_at = timezone.now()
                         track.save()
                         
                         success_count += 1
                         logger.debug(f"Successfully updated metadata for track {track_uuid}")
+                        
+                        # Cascade: After track metadata is fetched, sync artists
+                        sync_artists_after_track_metadata.delay(track_uuid)
+                        
+                        # Cascade: After track metadata is fetched, fetch audience
+                        sync_track_audience.delay(track_uuid)
                 else:
                     failed_count += 1
                     logger.warning(f"Failed to fetch metadata for track {track_uuid}")
@@ -853,3 +936,325 @@ def _create_audience_timeseries_entry(track, platform, data_point):
         
     except Exception as e:
         logger.error(f"Error creating audience timeseries entry: {str(e)}")
+
+
+# ============================================
+# CASCADE DATA FLOW TASKS
+# ============================================
+
+@shared_task(bind=True)
+def sync_artists_after_track_metadata(self, track_uuid):
+    """
+    Cascade: After track metadata is fetched, extract and sync artist metadata
+    Called automatically after track metadata fetch completes
+    """
+    try:
+        logger.info(f"Processing artist cascade for track {track_uuid}")
+        
+        # Get the track
+        try:
+            track = Track.objects.get(uuid=track_uuid)
+        except Track.DoesNotExist:
+            logger.error(f"Track {track_uuid} not found")
+            return False
+        
+        # Check if track has artists
+        if not track.artists.exists():
+            logger.info(f"Track {track_uuid} has no artists, skipping cascade")
+            return True
+        
+        # Get all artists for this track
+        artists = track.artists.all()
+        logger.info(f"Track {track.name} has {artists.count()} artist(s)")
+        
+        # Check which artists need metadata updates
+        artists_to_sync = []
+        for artist in artists:
+            if _should_fetch_artist_metadata(artist):
+                artists_to_sync.append(artist.uuid)
+        
+        if artists_to_sync:
+            logger.info(f"Queueing metadata fetch for {len(artists_to_sync)} artist(s)")
+            sync_artist_metadata_bulk.delay(artists_to_sync)
+        else:
+            logger.info("All artists already have up-to-date metadata")
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error in artist cascade for track {track_uuid}: {str(e)}")
+        return False
+
+
+@shared_task(bind=True)
+def sync_artist_metadata_bulk(self, artist_uuids):
+    """
+    Fetch metadata for multiple artists in bulk
+    """
+    try:
+        logger.info(f"Starting bulk artist metadata fetch for {len(artist_uuids)} artists")
+        
+        service = SoundchartsService()
+        success_count = 0
+        failed_count = 0
+        
+        for artist_uuid in artist_uuids:
+            try:
+                # Get the artist
+                artist = Artist.objects.get(uuid=artist_uuid)
+                
+                # Fetch metadata
+                metadata = service.get_artist_metadata(artist_uuid)
+                
+                if metadata and "object" in metadata:
+                    artist_data = metadata["object"]
+                    
+                    # Update artist with metadata
+                    if "name" in artist_data:
+                        artist.name = artist_data["name"]
+                    if "slug" in artist_data:
+                        artist.slug = artist_data["slug"]
+                    if "appUrl" in artist_data:
+                        artist.appUrl = artist_data["appUrl"]
+                    if "imageUrl" in artist_data:
+                        artist.imageUrl = artist_data["imageUrl"]
+                    if "biography" in artist_data:
+                        artist.biography = artist_data["biography"]
+                    if "isni" in artist_data:
+                        artist.isni = artist_data["isni"]
+                    if "ipi" in artist_data:
+                        artist.ipi = artist_data["ipi"]
+                    if "gender" in artist_data:
+                        artist.gender = artist_data["gender"]
+                    if "type" in artist_data:
+                        artist.type = artist_data["type"]
+                    if "careerStage" in artist_data:
+                        artist.careerStage = artist_data["careerStage"]
+                    if "cityName" in artist_data:
+                        artist.cityName = artist_data["cityName"]
+                    if "countryCode" in artist_data:
+                        artist.countryCode = artist_data["countryCode"]
+                    
+                    # Update metadata fetch timestamp
+                    artist.metadata_fetched_at = timezone.now()
+                    artist.save()
+                    
+                    success_count += 1
+                    logger.debug(f"Successfully updated artist {artist.name}")
+                    
+                    # After artist metadata is fetched, cascade to audience data
+                    sync_artist_audience.delay(artist_uuid)
+                else:
+                    failed_count += 1
+                    logger.warning(f"Failed to fetch metadata for artist {artist_uuid}")
+                    
+            except Artist.DoesNotExist:
+                failed_count += 1
+                logger.warning(f"Artist {artist_uuid} not found")
+            except Exception as e:
+                failed_count += 1
+                logger.error(f"Error processing artist {artist_uuid}: {str(e)}")
+        
+        logger.info(f"Bulk artist metadata fetch complete. Success: {success_count}, Failed: {failed_count}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error in bulk artist metadata fetch: {str(e)}")
+        return False
+
+
+@shared_task(bind=True)
+def sync_track_audience(self, track_uuid, platforms=None):
+    """
+    Cascade: Fetch audience data for a track after metadata is fetched
+    Platforms to fetch: spotify, youtube, shazam, airplay
+    """
+    try:
+        logger.info(f"Starting audience fetch for track {track_uuid}")
+        
+        # Get the track
+        try:
+            track = Track.objects.get(uuid=track_uuid)
+        except Track.DoesNotExist:
+            logger.error(f"Track {track_uuid} not found")
+            return False
+        
+        # Default platforms if not specified
+        if platforms is None:
+            platforms = ['spotify', 'youtube', 'shazam', 'airplay']
+        
+        # Fetch audience data for each platform
+        from .audience_processor import AudienceDataProcessor
+        processor = AudienceDataProcessor()
+        
+        for platform_slug in platforms:
+            try:
+                logger.info(f"Fetching audience data for track {track.name} on {platform_slug}")
+                
+                result = processor.process_and_store_audience_data(
+                    track.uuid,
+                    platform_slug,
+                    force_refresh=False
+                )
+                
+                if result.get('success'):
+                    logger.info(f"Successfully fetched audience data for track {track.name} on {platform_slug}")
+                else:
+                    logger.warning(f"Failed to fetch audience data for track {track.name} on {platform_slug}: {result.get('error')}")
+                    
+            except Exception as e:
+                logger.error(f"Error fetching audience data for track {track.name} on {platform_slug}: {str(e)}")
+                continue
+        
+        # Update track audience fetch timestamp
+        track.audience_fetched_at = timezone.now()
+        track.save()
+        
+        logger.info(f"Completed audience fetch for track {track.uuid}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error in track audience cascade for track {track_uuid}: {str(e)}")
+        return False
+
+
+@shared_task(bind=True)
+def sync_artist_audience(self, artist_uuid, platforms=None):
+    """
+    Cascade: Fetch audience data for an artist after metadata is fetched
+    Platforms to fetch: spotify, youtube, instagram, tiktok
+    """
+    try:
+        logger.info(f"Starting audience fetch for artist {artist_uuid}")
+        
+        # Get the artist
+        try:
+            artist = Artist.objects.get(uuid=artist_uuid)
+        except Artist.DoesNotExist:
+            logger.error(f"Artist {artist_uuid} not found")
+            return False
+        
+        # Default platforms if not specified
+        if platforms is None:
+            platforms = ['spotify', 'youtube', 'instagram', 'tiktok']
+        
+        # Fetch audience data for each platform
+        service = SoundchartsService()
+        
+        for platform_slug in platforms:
+            try:
+                logger.info(f"Fetching audience data for artist {artist.name} on {platform_slug}")
+                
+                audience_data = service.get_artist_audience_for_platform(
+                    artist.uuid,
+                    platform=platform_slug
+                )
+                
+                if audience_data and "items" in audience_data:
+                    # Process and store audience data
+                    records_created, records_updated = _process_artist_audience_timeseries(
+                        artist, platform_slug, audience_data
+                    )
+                    logger.info(f"Stored audience data for artist {artist.name} on {platform_slug}: {records_created} created, {records_updated} updated")
+                else:
+                    logger.warning(f"No audience data returned for artist {artist.name} on {platform_slug}")
+                    
+            except Exception as e:
+                logger.error(f"Error fetching audience data for artist {artist.name} on {platform_slug}: {str(e)}")
+                continue
+        
+        # Update artist audience fetch timestamp
+        artist.audience_fetched_at = timezone.now()
+        artist.save()
+        
+        logger.info(f"Completed audience fetch for artist {artist.uuid}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error in artist audience cascade for artist {artist_uuid}: {str(e)}")
+        return False
+
+
+def _should_fetch_artist_metadata(artist):
+    """
+    Determine if artist metadata should be fetched
+    """
+    from datetime import timedelta
+    
+    # Fetch if no metadata has been fetched
+    if not artist.metadata_fetched_at:
+        return True
+    
+    # Fetch if metadata is older than 30 days
+    cutoff_date = timezone.now() - timedelta(days=30)
+    return artist.metadata_fetched_at < cutoff_date
+
+
+def _process_artist_audience_timeseries(artist, platform_slug, audience_data):
+    """
+    Process and store artist audience time series data
+    Returns (records_created, records_updated)
+    """
+    from .models import Platform, ArtistAudienceTimeSeries
+    from datetime import datetime
+    
+    try:
+        # Get the platform
+        platform = Platform.objects.filter(slug=platform_slug).first()
+        if not platform:
+            logger.warning(f"Platform {platform_slug} not found")
+            return 0, 0
+        
+        items = audience_data.get('items', [])
+        
+        if not items:
+            return 0, 0
+        
+        records_created = 0
+        records_updated = 0
+        
+        for item in items:
+            item_date_str = item.get('date')
+            if not item_date_str:
+                continue
+            
+            try:
+                # Parse date (format: YYYY-MM-DDTHH:MM:SS+00:00 or YYYY-MM-DD)
+                if 'T' in item_date_str:
+                    item_date = datetime.fromisoformat(item_date_str.replace('Z', '+00:00')).date()
+                else:
+                    item_date = datetime.strptime(item_date_str, '%Y-%m-%d').date()
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Could not parse item date '{item_date_str}': {e}")
+                continue
+            
+            # Get the metric value (followerCount, likeCount, or viewCount)
+            audience_value = (item.get('followerCount') or 
+                            item.get('likeCount') or 
+                            item.get('viewCount'))
+            if audience_value is None:
+                continue
+            
+            # Create or update ArtistAudienceTimeSeries record
+            ts_record, created = ArtistAudienceTimeSeries.objects.update_or_create(
+                artist=artist,
+                platform=platform,
+                date=item_date,
+                defaults={
+                    'audience_value': audience_value,
+                    'platform_identifier': '',  # Not provided in this endpoint
+                    'api_data': item,
+                    'fetched_at': timezone.now()
+                }
+            )
+            
+            if created:
+                records_created += 1
+            else:
+                records_updated += 1
+        
+        return records_created, records_updated
+        
+    except Exception as e:
+        logger.error(f"Error processing artist audience timeseries: {e}")
+        return 0, 0

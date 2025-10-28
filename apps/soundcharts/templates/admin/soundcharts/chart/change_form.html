@@ -9,5 +9,67 @@
         </a>
     </div>
     {% endif %}
+    
+    {% if show_cascade_trigger_button and original %}
+    <div class="form-group mt-2">
+        <button type="button" class="btn btn-success w-100" onclick="triggerCascade()" id="cascade-button">
+            <span id="cascade-button-text">{% trans 'Trigger Cascade Data Fetch' %}</span>
+            <span id="cascade-button-loading" style="display: none;">
+                <i class="fa fa-spinner fa-spin"></i> {% trans 'Processing...' %}
+            </span>
+        </button>
+    </div>
+    {% endif %}
+    
     {{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{% if show_cascade_trigger_button and original %}
+<script>
+function triggerCascade() {
+    if (!confirm('{% trans "This will fetch metadata, artists, and audience data for all tracks in this chart. This may take some time and will run in the background. Continue?" %}')) {
+        return;
+    }
+    
+    // Show loading state
+    const button = document.getElementById('cascade-button');
+    const buttonText = document.getElementById('cascade-button-text');
+    const buttonLoading = document.getElementById('cascade-button-loading');
+    
+    button.disabled = true;
+    buttonText.style.display = 'none';
+    buttonLoading.style.display = 'inline';
+    
+    // Make AJAX request
+    const url = "{% url 'admin:soundcharts_chart_trigger_cascade' original.id %}";
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ ' + data.message + '\n\nTask ID: ' + data.task_id + '\nTracks: ' + data.tracks_count);
+        } else {
+            alert('❌ Error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        alert('❌ Error: ' + error.message);
+    })
+    .finally(() => {
+        // Restore button state
+        button.disabled = false;
+        buttonText.style.display = 'inline';
+        buttonLoading.style.display = 'none';
+    });
+}
+</script>
+{% endif %}
 {% endblock %}

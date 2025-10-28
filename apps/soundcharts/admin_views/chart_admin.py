@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.urls import path
 from django.http import JsonResponse
 from django.template.response import TemplateResponse
@@ -1571,6 +1571,11 @@ Ranking History Summary:
                 self.admin_site.admin_view(self.store_rankings_api),
                 name="soundcharts_chart_store_rankings",
             ),
+            path(
+                "<int:object_id>/trigger-cascade/",
+                self.admin_site.admin_view(self.trigger_cascade_api),
+                name="soundcharts_chart_trigger_cascade",
+            ),
         ]
         return custom_urls + urls
 
@@ -2017,12 +2022,66 @@ Ranking History Summary:
             logger.error(f"Error storing rankings for chart {object_id}: {e}")
             return JsonResponse({"error": str(e)}, status=500)
 
+    @csrf_exempt
+    def trigger_cascade_api(self, request, object_id):
+        """API endpoint to trigger cascade data fetch for a chart"""
+        if request.method != "POST":
+            return JsonResponse({"error": "Method not allowed"}, status=405)
+        
+        try:
+            chart = get_object_or_404(Chart, id=object_id)
+            
+            # Get all unique tracks from this chart's rankings
+            from django.db.models import Count
+            tracks = Track.objects.filter(
+                song_rankings__ranking__chart=chart
+            ).distinct()
+            
+            if not tracks.exists():
+                return JsonResponse({
+                    "success": False,
+                    "error": f"No tracks found for chart '{chart.name}'. Please import rankings first."
+                })
+            
+            # Create bulk metadata fetch task
+            from ..models import MetadataFetchTask
+            from ..tasks import fetch_bulk_track_metadata
+            
+            track_uuids = list(tracks.values_list('uuid', flat=True))
+            
+            task = MetadataFetchTask.objects.create(
+                task_type='bulk_metadata',
+                status='pending',
+                track_uuids=track_uuids,
+                total_tracks=len(track_uuids)
+            )
+            
+            # Start the bulk fetch task (this will trigger the cascade)
+            fetch_bulk_track_metadata.delay(task.id)
+            
+            logger.info(f"Triggered cascade for chart {chart.name}: {len(track_uuids)} tracks")
+            
+            return JsonResponse({
+                "success": True,
+                "message": f"Triggered cascade data fetch for {len(track_uuids)} tracks from '{chart.name}'",
+                "task_id": task.id,
+                "tracks_count": len(track_uuids)
+            })
+            
+        except Exception as e:
+            logger.error(f"Error triggering cascade for chart {object_id}: {e}")
+            return JsonResponse({
+                "success": False,
+                "error": f"Error triggering cascade: {str(e)}"
+            }, status=500)
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        """Override change view to add cascade trigger button"""
+        extra_context = extra_context or {}
+        extra_context["show_cascade_trigger_button"] = True
+        return super().change_view(request, object_id, form_url, extra_context)
+
     def response_change(self, request, obj):
         """Handle custom actions in change form"""
         # This method is now simplified since we moved ranking import to a separate interface
         return super().response_change(request, obj)
-
-    def change_view(self, request, object_id, form_url="", extra_context=None):
-        """Override change view to handle custom actions"""
-        # This method is now simplified since we moved ranking import to a separate interface
-        return super().change_view(request, object_id, form_url, extra_context)
