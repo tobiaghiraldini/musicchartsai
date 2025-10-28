@@ -96,6 +96,8 @@ nav:
     - Configuration: getting-started/configuration.md
   - Features:
     - Overview: features/overview.md
+    - Music Analytics: features/analytics.md
+    - Artist Management: features/artist-management.md
     - Soundcharts Integration: features/soundcharts-integration.md
     - ACRCloud Analysis: features/acrcloud-analysis.md
     - Dynamic Tables & API: features/dynamic-tables-api.md

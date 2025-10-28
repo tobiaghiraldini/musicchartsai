@@ -1,342 +1,405 @@
 # Soundcharts Integration
 
+The Soundcharts integration provides automated chart synchronization, data cascading, and comprehensive music analytics.
+
 ## Overview
 
-The Soundcharts integration provides comprehensive music chart data management, including automated synchronization, track metadata management, audience analytics, and a powerful dashboard interface. The system transforms raw chart data into actionable insights through real-time analytics and interactive visualizations.
+The Soundcharts integration enables:
 
-## Features
-
-### Core Functionality
-- **Chart Data Synchronization**: Automated fetching of chart rankings from multiple platforms
-- **Track Metadata Management**: Complete track information with artist relationships
-- **Audience Analytics**: Time-series audience data across platforms
-- **Multi-Platform Support**: Spotify, Apple Music, YouTube, and other streaming platforms
-- **Real-time Dashboard**: Comprehensive analytics interface with interactive charts
-- **Admin Interface**: Enhanced navigation and management tools
-
-### Data Management
-- **Automated Sync**: Background task processing for chart data updates
-- **Data Validation**: Comprehensive validation and error handling
-- **Historical Tracking**: Complete chart ranking history and trends
-- **Platform Health**: Monitoring of data source reliability and performance
+- **Automated Chart Sync**: Scheduled chart ranking retrieval
+- **Cascade Data Flow**: Automatic metadata and audience data fetching
+- **Track Management**: Complete track lifecycle management
+- **Artist Management**: Artist metadata and audience tracking
+- **Audience Analytics**: Time-series audience data analysis
+- **Multi-Platform Support**: Spotify, YouTube, Instagram, TikTok, and more
 
 ## Architecture
-
-### Core Models
-
-#### Chart
-- Platform-specific chart definitions
-- Chart metadata and configuration
-- Health monitoring and status tracking
-
-#### ChartRanking
-- Individual chart snapshots with timestamps
-- Platform and chart associations
-- Fetch status and error tracking
-
-#### ChartRankingEntry
-- Individual song positions within rankings
-- Track references and position data
-- Trend calculations and comparisons
-
-#### Track
-- Complete track metadata and information
-- Artist relationships and associations
-- Audience data and analytics
-
-#### Platform
-- Platform definitions and metadata
-- API configuration and endpoints
-- Audience metric specifications
 
 ### Data Flow
 
 ```
-SoundCharts API → Chart Sync System → Database Models → Dashboard Analytics
+Chart Sync (Automatic)
+    ↓
+Creates Tracks (minimal data)
+    ↓
+Auto-Queue: Track Metadata Fetch
+    ↓
+Extract Artists & Genres
+Link to Tracks
+    ↓
+Auto-Queue: Artist Metadata Fetch
+    ↓
+Fetch Full Artist Metadata
+    ↓
+Auto-Queue: Track Audience Fetch
+Auto-Queue: Artist Audience Fetch
+    ↓
+Complete Analytics Data Available
 ```
 
-## Dashboard Implementation
+### Components
 
-### Real-time Analytics
+#### Chart Sync System
 
-The Soundcharts Dashboard provides comprehensive analytics through a modern interface:
+- **Scheduled Tasks**: Celery Beat scheduling
+- **Chart Ranking**: Fetches chart rankings from API
+- **Track Creation**: Automatically creates track records
+- **Status Tracking**: Monitors sync health and status
 
-#### Weekly Rankings Fetched
-- **Purpose**: Shows total chart rankings fetched over the last 7 days
-- **Calculation**: Daily counts of `ChartRanking.objects.filter(fetched_at__date=day.date())`
-- **Visualization**: Interactive area chart with trend indicators
-- **Comparison**: Current week vs previous week with percentage change
+#### Cascade Flow
 
-#### Top Platforms Statistics
-- **Purpose**: Identifies most active music platforms by ranking volume
-- **Calculation**: Groups charts by platform, counts rankings in the last month
-- **Display**: Tabbed interface with direct admin navigation links
-- **Performance**: Platform-specific analytics and health metrics
+- **Automatic Triggering**: No manual intervention required
+- **Sequential Processing**: Metadata → Audience
+- **Error Handling**: Comprehensive retry mechanisms
+- **Status Monitoring**: Real-time progress tracking
 
-#### Top Performing Tracks
-- **Purpose**: Shows tracks appearing in the most chart rankings
-- **Calculation**: Counts chart appearances per track via relationships
-- **Display**: Track name, artist, and total chart appearances
-- **Trending**: Real-time identification of popular tracks
+#### API Integration
 
-#### Chart Health Metrics
-- **Active Charts**: Number of charts receiving new rankings
-- **Health Percentage**: Percentage of total charts actively updated
-- **System Status**: Overall data collection health monitoring
+- **Soundcharts API**: Secure API communication
+- **Authentication**: API key-based authentication
+- **Rate Limiting**: Respects API rate limits
+- **Error Recovery**: Automatic retry on failures
 
-### Interactive Features
+## Features
 
-#### ApexCharts Integration
-- **Chart Type**: Area charts with gradient fills
-- **Data Points**: 7 days of daily ranking counts
-- **Styling**: Blue gradient matching Flowbite theme
-- **Responsive**: Auto-adjusts to container size
-- **Interactive**: Hover effects and data point details
+### Automated Chart Sync
 
-#### Navigation Flow
-1. **Dashboard Overview** → **Chart Analytics**
-2. **Platform Performance** → **Detailed Platform Views**
-3. **Track Analysis** → **Individual Track Details**
-4. **Admin Integration** → **Direct Management Access**
+The system automatically fetches chart rankings and creates tracks.
 
-## Audience Data System
+#### Configuration
 
-### Time-Series Analytics
+In the admin interface:
 
-The system provides comprehensive audience analytics with time-series data:
+1. **Create Chart Sync Schedule**
+2. **Configure Settings**:
+   - Chart selection
+   - Schedule (daily, weekly, etc.)
+   - Auto-fetch options
+   - Cascade triggers
 
-#### TrackAudienceTimeSeries Model
+#### Chart Sync Process
+
+1. **Schedule Triggered**: Celery Beat starts sync
+2. **Fetch Rankings**: Calls Soundcharts API
+3. **Create Tracks**: Creates track records
+4. **Store Data**: Saves rankings to database
+5. **Trigger Cascade**: If enabled, starts metadata fetch
+
+### Cascade Data Flow
+
+The cascade system automatically fetches data in sequence.
+
+#### Cascade Steps
+
+1. **Track Metadata**
+   - Fetches full track information
+   - Extracts artists
+   - Extracts genres
+   - Links relationships
+
+2. **Artist Metadata**
+   - Fetches artist details
+   - Updates artist records
+   - Stores metadata timestamps
+
+3. **Track Audience**
+   - Fetches platform-specific data
+   - Stores time-series data
+   - Updates audience metrics
+
+4. **Artist Audience**
+   - Fetches platform-specific data
+   - Stores time-series data
+   - Updates audience metrics
+
+#### Platform Configuration
+
+**Track Audience Platforms** (default):
+- Spotify
+- YouTube
+- Shazam
+- Airplay
+
+**Artist Audience Platforms** (default):
+- Spotify
+- YouTube
+- Instagram
+- TikTok
+
+#### Manual Triggers
+
+You can manually trigger cascade flow:
+
+1. Navigate to chart admin
+2. Click **"Trigger Cascade Data Fetch"**
+3. System queues all cascade tasks
+4. Monitor progress in admin
+
+### Track Management
+
+Complete track lifecycle management.
+
+#### Track Creation
+
+Tracks are created automatically during chart sync.
+
+**Initial Data** (minimal):
+- Track name
+- UUID
+- Slug
+- Credit name
+- Image URL
+
+#### Track Metadata Fetch
+
+Fetches complete track information.
+
+**Includes**:
+- Full metadata
+- Artist relationships
+- Genre relationships
+- Image URLs
+- Production details
+
+#### Track Audience Data
+
+Fetches platform-specific audience data.
+
+**Metrics**:
+- Stream counts
+- Listener counts
+- Chart positions
+- Time-series data
+
+### Artist Management
+
+Complete artist management integration.
+
+#### Artist Extraction
+
+Artists are automatically extracted from tracks.
+
+**Process**:
+1. Fetch track metadata
+2. Parse credit names
+3. Extract artist UUIDs
+4. Create artist records
+5. Link to tracks
+
+#### Artist Metadata Fetch
+
+Fetches comprehensive artist information.
+
+**Includes**:
+- Name and display name
+- Biography
+- Career stage
+- Country
+- Image URLs
+
+#### Artist Audience Data
+
+Fetches audience analytics for artists.
+
+**Platforms**:
+- Streaming: Monthly listeners
+- Social: Follower counts
+- Historical: Time-series data
+
+### Audience Analytics
+
+Time-series audience data analysis.
+
+#### Data Points
+
+Each data point contains:
+- **Platform**: Spotify, YouTube, etc.
+- **Metric Type**: Listeners, followers, etc.
+- **Value**: Audience count
+- **Date**: Measurement date
+
+#### Data Processing
+
+- **Time Series**: Sequential data storage
+- **Aggregation**: Calculated metrics
+- **Charts**: Visual representation
+- **Export**: Excel export capability
+
+## Configuration
+
+### Chart Sync Schedule
+
+Configure chart synchronization:
+
 ```python
-class TrackAudienceTimeSeries(models.Model):
-    track = models.ForeignKey(Track, on_delete=models.CASCADE)
-    platform = models.ForeignKey(Platform, on_delete=models.CASCADE)
-    date = models.DateField()
-    audience_value = models.BigIntegerField()
-    platform_identifier = models.CharField(max_length=255)
-    fetched_at = models.DateTimeField(auto_now_add=True)
-    api_data = models.JSONField(default=dict)
+# In admin interface
+ChartSyncSchedule:
+    chart: Spotify Top 50
+    schedule: Daily at 2 AM
+    fetch_track_metadata: True
+    auto_trigger_cascade: True
 ```
 
-#### Chart Data API Endpoints
+### Cascade Settings
 
-**Single Platform:**
-```
-GET /soundcharts/audience/chart/{track_uuid}/{platform_slug}/
-```
+Control cascade behavior:
 
-**Multi-Platform Comparison:**
-```
-GET /soundcharts/audience/chart/{track_uuid}/
-```
+```python
+# Track metadata triggers
+fetch_track_metadata:
+    auto_extract_artists: True
+    auto_extract_genres: True
+    trigger_artist_metadata: True
+    trigger_audience_fetch: True
 
-**Query Parameters:**
-- `start_date`: Filter data from this date (YYYY-MM-DD)
-- `end_date`: Filter data until this date (YYYY-MM-DD)
-- `limit`: Maximum number of data points to return
-
-### Data Processing
-
-#### AudienceDataProcessor
-- Processes API responses and stores time-series data
-- Handles bulk operations and data validation
-- Provides error handling and retry mechanisms
-- Supports force refresh and incremental updates
-
-#### Management Commands
-```bash
-# Process specific track
-python manage.py fetch_audience_data --track-uuid <uuid> --platform spotify
-
-# Process all tracks
-python manage.py fetch_audience_data --all-tracks --platform spotify --limit 50
-
-# Process stale tracks
-python manage.py fetch_audience_data --limit 100
+# Platform selection
+track_audience_platforms: ['spotify', 'youtube', 'shazam', 'airplay']
+artist_audience_platforms: ['spotify', 'youtube', 'instagram', 'tiktok']
 ```
 
-## Admin Interface Enhancements
+## API Endpoints
 
-### Navigation Improvements
+### Soundcharts API
 
-#### Chart Rankings Tab Navigation
-- **Enhanced Links**: Clickable "View Details" buttons for each ranking
-- **Direct Navigation**: Links to specific `ChartRanking` change views
-- **Improved UX**: Seamless navigation between related data
+#### Chart Rankings
 
-#### Track Links in Chart Ranking Entries
-- **Track Navigation**: Clickable track names in ranking entries
-- **Direct Access**: Navigation to individual track details
-- **Context Preservation**: Maintains navigation context
+```
+GET /api/v2.37/chart/{chart_id}/ranking
+```
 
-#### Audience Data Fetch Integration
-- **Admin Actions**: Fetch audience data directly from track admin
-- **Platform Selection**: Choose specific platforms for data fetching
-- **Force Refresh**: Option to update existing data
-- **Real-time Feedback**: Success/error messages and status updates
+#### Track Metadata
 
-### Enhanced Features
+```
+GET /api/v2.37/track/{uuid}
+```
 
-#### Track Management
-- **Metadata Fetching**: Update track information from APIs
-- **Audience Analytics**: Fetch and display audience data
-- **Platform Integration**: Multi-platform data management
-- **Bulk Operations**: Process multiple tracks simultaneously
+#### Artist Metadata
 
-#### Chart Management
-- **Health Monitoring**: Track chart sync status and health
-- **Platform Analytics**: Platform-specific performance metrics
-- **Error Tracking**: Monitor and resolve sync issues
-- **Historical Data**: Access to complete ranking history
+```
+GET /api/v2.37/artist/{uuid}
+```
 
-## API Integration
+#### Audience Data
 
-### SoundCharts API
-- **Authentication**: Secure API key management
-- **Rate Limiting**: Respectful API usage and quota management
-- **Error Handling**: Comprehensive error handling and retry logic
-- **Data Validation**: Input validation and data integrity checks
+```
+GET /api/v2/artist/{uuid}/streaming/{platform}
+GET /api/v2.37/artist/{uuid}/social/{platform}/followers/
+GET /api/v2/track/{uuid}/streaming/{platform}
+```
 
-### External Platform APIs
-- **Spotify**: Track metadata and audience data
-- **Apple Music**: Chart rankings and analytics
-- **YouTube**: Video performance metrics
-- **Other Platforms**: Extensible architecture for new platforms
+### Internal API
 
-## Data Synchronization
+#### Trigger Cascade
 
-### Automated Sync System
-- **Background Processing**: Celery-based task processing
-- **Scheduled Updates**: Regular chart data synchronization
-- **Error Recovery**: Automatic retry mechanisms for failed syncs
-- **Health Monitoring**: Real-time sync status and performance tracking
+```
+POST /admin/soundcharts/chart/{id}/trigger-cascade/
+```
 
-### Chart Sync Process
-1. **API Request**: Fetch latest chart data from SoundCharts API
-2. **Data Validation**: Validate and clean incoming data
-3. **Database Update**: Store new rankings and update existing records
-4. **Relationship Management**: Maintain track and platform relationships
-5. **Status Updates**: Update sync status and health metrics
+#### Check Status
 
-## Performance Optimization
+```
+GET /admin/soundcharts/chart/{id}/status/
+```
 
-### Database Optimization
-- **Indexing**: Optimized indexes for common query patterns
-- **Query Optimization**: Efficient queries with `select_related()` and `prefetch_related()`
-- **Data Partitioning**: Consider date-based partitioning for large datasets
-
-### Caching Strategy
-- **Redis Integration**: Cache frequently accessed chart data
-- **API Response Caching**: Cache external API responses
-- **Dashboard Data**: Cache dashboard analytics for improved performance
-
-### Background Processing
-- **Celery Workers**: Distributed task processing
-- **Task Queuing**: Priority-based task queuing
-- **Resource Management**: Efficient resource utilization
-
-## Security Considerations
-
-### API Security
-- **Authentication**: Secure API key storage and management
-- **Rate Limiting**: Prevent API abuse and quota exhaustion
-- **Input Validation**: Comprehensive input validation and sanitization
-- **Error Handling**: Secure error messages without sensitive information
-
-### Data Privacy
-- **User Isolation**: Proper data isolation between users
-- **Audit Logging**: Comprehensive audit trails for all operations
-- **Data Retention**: Configurable data retention policies
-- **Access Control**: Role-based access control for admin functions
-
-## Monitoring and Maintenance
+## Monitoring
 
 ### Health Checks
-- **API Connectivity**: Monitor external API availability
-- **Database Performance**: Track database query performance
-- **Sync Status**: Monitor chart synchronization health
-- **System Resources**: Monitor system resource utilization
 
-### Logging and Debugging
-- **Comprehensive Logging**: Detailed logs for all operations
-- **Error Tracking**: Track and analyze error patterns
-- **Performance Monitoring**: Monitor system performance metrics
-- **Debug Tools**: Django Debug Toolbar and custom debugging tools
+Monitor chart sync health:
 
-### Maintenance Tasks
-- **Data Cleanup**: Regular cleanup of old or invalid data
-- **Index Maintenance**: Regular database index optimization
-- **API Quota Management**: Monitor and manage API usage
-- **Backup Procedures**: Regular data backup and recovery procedures
+- **Last Sync**: Last successful sync time
+- **Success Rate**: Percentage of successful syncs
+- **Error Count**: Number of failures
+- **Status**: Current sync status
+
+### Task Status
+
+Monitor Celery task progress:
+
+- **Task ID**: Unique task identifier
+- **Status**: Pending, processing, complete, failed
+- **Progress**: Percentage complete
+- **Logs**: Task execution logs
+
+### Admin Dashboard
+
+View comprehensive metrics:
+
+- **Charts**: Total number of charts
+- **Tracks**: Total number of tracks
+- **Artists**: Total number of artists
+- **Status**: System health indicators
 
 ## Troubleshooting
 
-### Common Issues
+### Chart Sync Fails
 
-#### Sync Failures
-- **API Errors**: Check API credentials and connectivity
-- **Rate Limits**: Monitor API usage and implement proper rate limiting
-- **Data Validation**: Review data validation and error logs
-- **Network Issues**: Check network connectivity and timeout settings
+**Possible Causes**:
+- Invalid API credentials
+- Network connectivity issues
+- API rate limits exceeded
+- Invalid chart configuration
 
-#### Performance Issues
-- **Database Queries**: Optimize slow queries and add missing indexes
-- **Memory Usage**: Monitor memory usage and optimize data processing
-- **API Response Times**: Monitor external API performance
-- **Background Tasks**: Check Celery worker status and performance
+**Solutions**:
+- Verify API credentials
+- Check network connection
+- Review rate limits
+- Validate chart settings
 
-#### Data Inconsistencies
-- **Validation Errors**: Review data validation rules and error logs
-- **Relationship Issues**: Check foreign key relationships and constraints
-- **Duplicate Data**: Implement proper duplicate detection and handling
-- **Data Integrity**: Regular data integrity checks and repairs
+### Cascade Stops
 
-### Debug Tools
-- **Django Debug Toolbar**: Query analysis and performance monitoring
-- **Management Commands**: Custom commands for data validation and repair
-- **Logging Configuration**: Comprehensive logging for troubleshooting
-- **Test Suite**: Automated tests for functionality verification
+**Possible Causes**:
+- Task queue full
+- Error in previous step
+- Missing data dependencies
+- Resource exhaustion
 
-## Future Enhancements
+**Solutions**:
+- Check task queue status
+- Review error logs
+- Verify data completeness
+- Monitor resource usage
 
-### Planned Features
-- **Real-time Updates**: WebSocket integration for live data updates
-- **Advanced Analytics**: Machine learning-powered insights and predictions
-- **Data Export**: CSV/Excel export functionality for analytics
-- **Custom Dashboards**: User-configurable dashboard layouts
-- **Mobile Support**: Mobile-optimized interfaces and APIs
+### Missing Data
 
-### Integration Opportunities
-- **Third-party APIs**: Integration with additional music platforms
-- **Analytics Platforms**: Integration with business intelligence tools
-- **Notification Systems**: Real-time alerts for important events
-- **Data Warehousing**: Long-term data storage and analysis capabilities
+**Possible Causes**:
+- Chart sync not completed
+- Metadata not fetched
+- Audience data not available
+- Platform-specific issues
 
-## Implementation Status
+**Solutions**:
+- Trigger manual sync
+- Manually fetch metadata
+- Check platform availability
+- Review data completeness
 
-### ✅ Completed Features
-- **Core Models**: Complete data model implementation
-- **Dashboard Interface**: Real-time analytics dashboard
-- **Admin Enhancements**: Improved navigation and management tools
-- **Audience Analytics**: Time-series audience data system
-- **API Integration**: Full SoundCharts API integration
-- **Background Processing**: Celery-based task processing
-- **Data Validation**: Comprehensive data validation and error handling
+## Best Practices
 
-### 🎯 Production Ready
-The Soundcharts integration is production-ready with:
-- Complete feature implementation
-- Robust error handling and monitoring
-- Security best practices
-- Performance optimization
-- Comprehensive documentation
-- Testing and debugging tools
+### Configuration
 
-## Support and Documentation
+1. **Enable Auto-Cascade**: Always enable cascade triggers
+2. **Monitor Health**: Regularly check sync status
+3. **Schedule Appropriately**: Don't sync too frequently
+4. **Handle Errors**: Set up error notifications
 
-For technical support or questions about the Soundcharts integration:
+### Data Management
 
-1. Check the troubleshooting section for common issues
-2. Review error logs and monitoring data
-3. Use debug tools for performance analysis
-4. Contact system administrator for assistance
-5. Submit issue reports for bug tracking
+1. **Regular Backups**: Backup database regularly
+2. **Clean Old Data**: Archive old chart rankings
+3. **Monitor Storage**: Track database growth
+4. **Optimize Queries**: Monitor query performance
+
+### API Usage
+
+1. **Respect Limits**: Don't exceed rate limits
+2. **Cache Responses**: Cache API responses
+3. **Handle Errors**: Implement retry logic
+4. **Monitor Usage**: Track API consumption
+
+## Related Documentation
+
+- [Chart Management](chart-management.md)
+- [Artist Management](artist-management.md)
+- [Background Tasks](background-tasks.md)
+- [API Reference](../../api/overview.md)

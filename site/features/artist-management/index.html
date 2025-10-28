@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://musicchartsai.com/docs/features/soundcharts-integration/">
+        <link rel="canonical" href="https://musicchartsai.com/docs/features/artist-management/">
       
       
-        <link rel="prev" href="../artist-management/">
+        <link rel="prev" href="../analytics/">
       
       
-        <link rel="next" href="../acrcloud-analysis/">
+        <link rel="next" href="../soundcharts-integration/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Soundcharts Integration - MusicChartsAI Documentation</title>
+        <title>Artist Management - MusicChartsAI Documentation</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#soundcharts-integration" class="md-skip">
+        <a href="#artist-management" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Soundcharts Integration
+              Artist Management
             
           </span>
         </div>
@@ -661,29 +661,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../artist-management/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Artist Management
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -701,7 +678,7 @@
   
   
   <span class="md-ellipsis">
-    Soundcharts Integration
+    Artist Management
     
   </span>
   
@@ -714,7 +691,7 @@
   
   
   <span class="md-ellipsis">
-    Soundcharts Integration
+    Artist Management
     
   </span>
   
@@ -746,72 +723,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      Architecture
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Architecture">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#data-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data Flow
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#components" class="md-nav__link">
-    <span class="md-ellipsis">
-      Components
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#chart-sync-system" class="md-nav__link">
-    <span class="md-ellipsis">
-      Chart Sync System
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cascade-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cascade Flow
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#api-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Integration
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#features" class="md-nav__link">
     <span class="md-ellipsis">
       Features
@@ -822,28 +733,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automated-chart-sync" class="md-nav__link">
+  <a href="#artist-search" class="md-nav__link">
     <span class="md-ellipsis">
-      Automated Chart Sync
+      Artist Search
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Automated Chart Sync">
+    <nav class="md-nav" aria-label="Artist Search">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#search-interface" class="md-nav__link">
     <span class="md-ellipsis">
-      Configuration
+      Search Interface
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#chart-sync-process" class="md-nav__link">
+  <a href="#workflow" class="md-nav__link">
     <span class="md-ellipsis">
-      Chart Sync Process
+      Workflow
     </span>
   </a>
   
@@ -855,37 +766,37 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#cascade-data-flow" class="md-nav__link">
+  <a href="#artist-list" class="md-nav__link">
     <span class="md-ellipsis">
-      Cascade Data Flow
+      Artist List
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Cascade Data Flow">
+    <nav class="md-nav" aria-label="Artist List">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cascade-steps" class="md-nav__link">
+  <a href="#table-layout" class="md-nav__link">
     <span class="md-ellipsis">
-      Cascade Steps
+      Table Layout
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#platform-configuration" class="md-nav__link">
+  <a href="#status-indicators" class="md-nav__link">
     <span class="md-ellipsis">
-      Platform Configuration
+      Status Indicators
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#manual-triggers" class="md-nav__link">
+  <a href="#features_1" class="md-nav__link">
     <span class="md-ellipsis">
-      Manual Triggers
+      Features
     </span>
   </a>
   
@@ -897,86 +808,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#track-management" class="md-nav__link">
+  <a href="#artist-detail-page" class="md-nav__link">
     <span class="md-ellipsis">
-      Track Management
+      Artist Detail Page
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Track Management">
+    <nav class="md-nav" aria-label="Artist Detail Page">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#track-creation" class="md-nav__link">
+  <a href="#artist-information-card" class="md-nav__link">
     <span class="md-ellipsis">
-      Track Creation
+      Artist Information Card
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#track-metadata-fetch" class="md-nav__link">
-    <span class="md-ellipsis">
-      Track Metadata Fetch
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#track-audience-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Track Audience Data
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#artist-management" class="md-nav__link">
-    <span class="md-ellipsis">
-      Artist Management
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Artist Management">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#artist-extraction" class="md-nav__link">
-    <span class="md-ellipsis">
-      Artist Extraction
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#artist-metadata-fetch" class="md-nav__link">
-    <span class="md-ellipsis">
-      Artist Metadata Fetch
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#artist-audience-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Artist Audience Data
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -987,22 +833,63 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Audience Analytics">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
-  <a href="#data-points" class="md-nav__link">
+  <a href="#platform-specific-charts" class="md-nav__link">
     <span class="md-ellipsis">
-      Data Points
+      Platform-Specific Charts
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#data-processing" class="md-nav__link">
+  <a href="#related-tracks" class="md-nav__link">
     <span class="md-ellipsis">
-      Data Processing
+      Related Tracks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#artist-track-linking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Artist-Track Linking
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Artist-Track Linking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#track-artist-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      Track → Artist Links
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#artist-track-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      Artist → Track Links
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits
     </span>
   </a>
   
@@ -1019,122 +906,47 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configuration_1" class="md-nav__link">
+  <a href="#admin-interface" class="md-nav__link">
     <span class="md-ellipsis">
-      Configuration
+      Admin Interface
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Configuration">
+    <nav class="md-nav" aria-label="Admin Interface">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#chart-sync-schedule" class="md-nav__link">
+  <a href="#enhanced-admin-features" class="md-nav__link">
     <span class="md-ellipsis">
-      Chart Sync Schedule
+      Enhanced Admin Features
     </span>
   </a>
   
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cascade-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cascade Settings
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#api-endpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Endpoints
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="API Endpoints">
+    <nav class="md-nav" aria-label="Enhanced Admin Features">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#soundcharts-api" class="md-nav__link">
+  <a href="#metadata-management" class="md-nav__link">
     <span class="md-ellipsis">
-      Soundcharts API
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Soundcharts API">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#chart-rankings" class="md-nav__link">
-    <span class="md-ellipsis">
-      Chart Rankings
+      Metadata Management
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#track-metadata" class="md-nav__link">
+  <a href="#audience-management" class="md-nav__link">
     <span class="md-ellipsis">
-      Track Metadata
+      Audience Management
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#artist-metadata" class="md-nav__link">
+  <a href="#form-validation" class="md-nav__link">
     <span class="md-ellipsis">
-      Artist Metadata
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#audience-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Audience Data
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#internal-api" class="md-nav__link">
-    <span class="md-ellipsis">
-      Internal API
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Internal API">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#trigger-cascade" class="md-nav__link">
-    <span class="md-ellipsis">
-      Trigger Cascade
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check Status
+      Form Validation
     </span>
   </a>
   
@@ -1151,37 +963,136 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#monitoring" class="md-nav__link">
+  <a href="#api-integration" class="md-nav__link">
     <span class="md-ellipsis">
-      Monitoring
+      API Integration
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Monitoring">
+    <nav class="md-nav" aria-label="API Integration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#health-checks" class="md-nav__link">
+  <a href="#corrected-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
-      Health Checks
+      Corrected Endpoints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Corrected Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search-artists" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search Artists
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#task-status" class="md-nav__link">
+  <a href="#get-artist-metadata" class="md-nav__link">
     <span class="md-ellipsis">
-      Task Status
+      Get Artist Metadata
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#admin-dashboard" class="md-nav__link">
+  <a href="#get-audience-data" class="md-nav__link">
     <span class="md-ellipsis">
-      Admin Dashboard
+      Get Audience Data
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#artist-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Artist Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#artistaudience-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      ArtistAudience Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#artistaudiencetimeseries-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      ArtistAudienceTimeSeries Model
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Workflows
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-new-artist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a New Artist
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewing-artist-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing Artist Analytics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetching-audience-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fetching Audience Data
     </span>
   </a>
   
@@ -1203,69 +1114,36 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#chart-sync-fails" class="md-nav__link">
+  <a href="#artist-not-found" class="md-nav__link">
     <span class="md-ellipsis">
-      Chart Sync Fails
+      Artist Not Found
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#cascade-stops" class="md-nav__link">
+  <a href="#metadata-fetch-fails" class="md-nav__link">
     <span class="md-ellipsis">
-      Cascade Stops
+      Metadata Fetch Fails
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#missing-data" class="md-nav__link">
+  <a href="#audience-data-missing" class="md-nav__link">
     <span class="md-ellipsis">
-      Missing Data
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#best-practices" class="md-nav__link">
-    <span class="md-ellipsis">
-      Best Practices
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Best Practices">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configuration_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuration
+      Audience Data Missing
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#data-management" class="md-nav__link">
+  <a href="#linking-issues" class="md-nav__link">
     <span class="md-ellipsis">
-      Data Management
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#api-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Usage
+      Linking Issues
     </span>
   </a>
   
@@ -1289,6 +1167,29 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../soundcharts-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Soundcharts Integration
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2120,72 +2021,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      Architecture
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Architecture">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#data-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data Flow
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#components" class="md-nav__link">
-    <span class="md-ellipsis">
-      Components
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#chart-sync-system" class="md-nav__link">
-    <span class="md-ellipsis">
-      Chart Sync System
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cascade-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cascade Flow
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#api-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Integration
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#features" class="md-nav__link">
     <span class="md-ellipsis">
       Features
@@ -2196,28 +2031,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automated-chart-sync" class="md-nav__link">
+  <a href="#artist-search" class="md-nav__link">
     <span class="md-ellipsis">
-      Automated Chart Sync
+      Artist Search
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Automated Chart Sync">
+    <nav class="md-nav" aria-label="Artist Search">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#search-interface" class="md-nav__link">
     <span class="md-ellipsis">
-      Configuration
+      Search Interface
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#chart-sync-process" class="md-nav__link">
+  <a href="#workflow" class="md-nav__link">
     <span class="md-ellipsis">
-      Chart Sync Process
+      Workflow
     </span>
   </a>
   
@@ -2229,37 +2064,37 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#cascade-data-flow" class="md-nav__link">
+  <a href="#artist-list" class="md-nav__link">
     <span class="md-ellipsis">
-      Cascade Data Flow
+      Artist List
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Cascade Data Flow">
+    <nav class="md-nav" aria-label="Artist List">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cascade-steps" class="md-nav__link">
+  <a href="#table-layout" class="md-nav__link">
     <span class="md-ellipsis">
-      Cascade Steps
+      Table Layout
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#platform-configuration" class="md-nav__link">
+  <a href="#status-indicators" class="md-nav__link">
     <span class="md-ellipsis">
-      Platform Configuration
+      Status Indicators
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#manual-triggers" class="md-nav__link">
+  <a href="#features_1" class="md-nav__link">
     <span class="md-ellipsis">
-      Manual Triggers
+      Features
     </span>
   </a>
   
@@ -2271,86 +2106,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#track-management" class="md-nav__link">
+  <a href="#artist-detail-page" class="md-nav__link">
     <span class="md-ellipsis">
-      Track Management
+      Artist Detail Page
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Track Management">
+    <nav class="md-nav" aria-label="Artist Detail Page">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#track-creation" class="md-nav__link">
+  <a href="#artist-information-card" class="md-nav__link">
     <span class="md-ellipsis">
-      Track Creation
+      Artist Information Card
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#track-metadata-fetch" class="md-nav__link">
-    <span class="md-ellipsis">
-      Track Metadata Fetch
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#track-audience-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Track Audience Data
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#artist-management" class="md-nav__link">
-    <span class="md-ellipsis">
-      Artist Management
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Artist Management">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#artist-extraction" class="md-nav__link">
-    <span class="md-ellipsis">
-      Artist Extraction
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#artist-metadata-fetch" class="md-nav__link">
-    <span class="md-ellipsis">
-      Artist Metadata Fetch
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#artist-audience-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Artist Audience Data
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -2361,22 +2131,63 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Audience Analytics">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
-  <a href="#data-points" class="md-nav__link">
+  <a href="#platform-specific-charts" class="md-nav__link">
     <span class="md-ellipsis">
-      Data Points
+      Platform-Specific Charts
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#data-processing" class="md-nav__link">
+  <a href="#related-tracks" class="md-nav__link">
     <span class="md-ellipsis">
-      Data Processing
+      Related Tracks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#artist-track-linking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Artist-Track Linking
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Artist-Track Linking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#track-artist-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      Track → Artist Links
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#artist-track-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      Artist → Track Links
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits
     </span>
   </a>
   
@@ -2393,122 +2204,47 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configuration_1" class="md-nav__link">
+  <a href="#admin-interface" class="md-nav__link">
     <span class="md-ellipsis">
-      Configuration
+      Admin Interface
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Configuration">
+    <nav class="md-nav" aria-label="Admin Interface">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#chart-sync-schedule" class="md-nav__link">
+  <a href="#enhanced-admin-features" class="md-nav__link">
     <span class="md-ellipsis">
-      Chart Sync Schedule
+      Enhanced Admin Features
     </span>
   </a>
   
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cascade-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cascade Settings
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#api-endpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Endpoints
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="API Endpoints">
+    <nav class="md-nav" aria-label="Enhanced Admin Features">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#soundcharts-api" class="md-nav__link">
+  <a href="#metadata-management" class="md-nav__link">
     <span class="md-ellipsis">
-      Soundcharts API
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Soundcharts API">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#chart-rankings" class="md-nav__link">
-    <span class="md-ellipsis">
-      Chart Rankings
+      Metadata Management
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#track-metadata" class="md-nav__link">
+  <a href="#audience-management" class="md-nav__link">
     <span class="md-ellipsis">
-      Track Metadata
+      Audience Management
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#artist-metadata" class="md-nav__link">
+  <a href="#form-validation" class="md-nav__link">
     <span class="md-ellipsis">
-      Artist Metadata
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#audience-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Audience Data
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#internal-api" class="md-nav__link">
-    <span class="md-ellipsis">
-      Internal API
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Internal API">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#trigger-cascade" class="md-nav__link">
-    <span class="md-ellipsis">
-      Trigger Cascade
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check Status
+      Form Validation
     </span>
   </a>
   
@@ -2525,37 +2261,136 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#monitoring" class="md-nav__link">
+  <a href="#api-integration" class="md-nav__link">
     <span class="md-ellipsis">
-      Monitoring
+      API Integration
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Monitoring">
+    <nav class="md-nav" aria-label="API Integration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#health-checks" class="md-nav__link">
+  <a href="#corrected-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
-      Health Checks
+      Corrected Endpoints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Corrected Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search-artists" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search Artists
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#task-status" class="md-nav__link">
+  <a href="#get-artist-metadata" class="md-nav__link">
     <span class="md-ellipsis">
-      Task Status
+      Get Artist Metadata
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#admin-dashboard" class="md-nav__link">
+  <a href="#get-audience-data" class="md-nav__link">
     <span class="md-ellipsis">
-      Admin Dashboard
+      Get Audience Data
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#artist-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Artist Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#artistaudience-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      ArtistAudience Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#artistaudiencetimeseries-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      ArtistAudienceTimeSeries Model
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Workflows
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-new-artist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a New Artist
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewing-artist-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing Artist Analytics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetching-audience-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fetching Audience Data
     </span>
   </a>
   
@@ -2577,69 +2412,36 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#chart-sync-fails" class="md-nav__link">
+  <a href="#artist-not-found" class="md-nav__link">
     <span class="md-ellipsis">
-      Chart Sync Fails
+      Artist Not Found
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#cascade-stops" class="md-nav__link">
+  <a href="#metadata-fetch-fails" class="md-nav__link">
     <span class="md-ellipsis">
-      Cascade Stops
+      Metadata Fetch Fails
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#missing-data" class="md-nav__link">
+  <a href="#audience-data-missing" class="md-nav__link">
     <span class="md-ellipsis">
-      Missing Data
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#best-practices" class="md-nav__link">
-    <span class="md-ellipsis">
-      Best Practices
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Best Practices">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configuration_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuration
+      Audience Data Missing
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#data-management" class="md-nav__link">
+  <a href="#linking-issues" class="md-nav__link">
     <span class="md-ellipsis">
-      Data Management
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#api-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Usage
+      Linking Issues
     </span>
   </a>
   
@@ -2678,330 +2480,292 @@
   
 
 
-<h1 id="soundcharts-integration">Soundcharts Integration<a class="headerlink" href="#soundcharts-integration" title="Permanent link">&para;</a></h1>
-<p>The Soundcharts integration provides automated chart synchronization, data cascading, and comprehensive music analytics.</p>
+<h1 id="artist-management">Artist Management<a class="headerlink" href="#artist-management" title="Permanent link">&para;</a></h1>
+<p>Complete artist functionality for the Soundcharts integration, including search, metadata management, audience analytics, and bidirectional track linking.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>The Soundcharts integration enables:</p>
+<p>The Artist Management system provides:</p>
 <ul>
-<li><strong>Automated Chart Sync</strong>: Scheduled chart ranking retrieval</li>
-<li><strong>Cascade Data Flow</strong>: Automatic metadata and audience data fetching</li>
-<li><strong>Track Management</strong>: Complete track lifecycle management</li>
-<li><strong>Artist Management</strong>: Artist metadata and audience tracking</li>
-<li><strong>Audience Analytics</strong>: Time-series audience data analysis</li>
-<li><strong>Multi-Platform Support</strong>: Spotify, YouTube, Instagram, TikTok, and more</li>
-</ul>
-<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
-<h3 id="data-flow">Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Chart Sync (Automatic)
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    ↓
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Creates Tracks (minimal data)
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    ↓
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>Auto-Queue: Track Metadata Fetch
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    ↓
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>Extract Artists &amp; Genres
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>Link to Tracks
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    ↓
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>Auto-Queue: Artist Metadata Fetch
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    ↓
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>Fetch Full Artist Metadata
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    ↓
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>Auto-Queue: Track Audience Fetch
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>Auto-Queue: Artist Audience Fetch
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    ↓
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>Complete Analytics Data Available
-</span></code></pre></div>
-<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
-<h4 id="chart-sync-system">Chart Sync System<a class="headerlink" href="#chart-sync-system" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Scheduled Tasks</strong>: Celery Beat scheduling</li>
-<li><strong>Chart Ranking</strong>: Fetches chart rankings from API</li>
-<li><strong>Track Creation</strong>: Automatically creates track records</li>
-<li><strong>Status Tracking</strong>: Monitors sync health and status</li>
-</ul>
-<h4 id="cascade-flow">Cascade Flow<a class="headerlink" href="#cascade-flow" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Automatic Triggering</strong>: No manual intervention required</li>
-<li><strong>Sequential Processing</strong>: Metadata → Audience</li>
-<li><strong>Error Handling</strong>: Comprehensive retry mechanisms</li>
-<li><strong>Status Monitoring</strong>: Real-time progress tracking</li>
-</ul>
-<h4 id="api-integration">API Integration<a class="headerlink" href="#api-integration" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Soundcharts API</strong>: Secure API communication</li>
-<li><strong>Authentication</strong>: API key-based authentication</li>
-<li><strong>Rate Limiting</strong>: Respects API rate limits</li>
-<li><strong>Error Recovery</strong>: Automatic retry on failures</li>
+<li><strong>Artist Search</strong> with Soundcharts API integration</li>
+<li><strong>Artist List</strong> with table layout and status tracking</li>
+<li><strong>Artist Details</strong> with ApexCharts audience analytics</li>
+<li><strong>Bidirectional Linking</strong> between artists and tracks</li>
+<li><strong>Admin Interface</strong> with enhanced controls</li>
+<li><strong>API Integration</strong> with corrected endpoints</li>
 </ul>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
-<h3 id="automated-chart-sync">Automated Chart Sync<a class="headerlink" href="#automated-chart-sync" title="Permanent link">&para;</a></h3>
-<p>The system automatically fetches chart rankings and creates tracks.</p>
-<h4 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h4>
-<p>In the admin interface:</p>
-<ol>
-<li><strong>Create Chart Sync Schedule</strong></li>
-<li><strong>Configure Settings</strong>:</li>
-<li>Chart selection</li>
-<li>Schedule (daily, weekly, etc.)</li>
-<li>Auto-fetch options</li>
-<li>Cascade triggers</li>
-</ol>
-<h4 id="chart-sync-process">Chart Sync Process<a class="headerlink" href="#chart-sync-process" title="Permanent link">&para;</a></h4>
-<ol>
-<li><strong>Schedule Triggered</strong>: Celery Beat starts sync</li>
-<li><strong>Fetch Rankings</strong>: Calls Soundcharts API</li>
-<li><strong>Create Tracks</strong>: Creates track records</li>
-<li><strong>Store Data</strong>: Saves rankings to database</li>
-<li><strong>Trigger Cascade</strong>: If enabled, starts metadata fetch</li>
-</ol>
-<h3 id="cascade-data-flow">Cascade Data Flow<a class="headerlink" href="#cascade-data-flow" title="Permanent link">&para;</a></h3>
-<p>The cascade system automatically fetches data in sequence.</p>
-<h4 id="cascade-steps">Cascade Steps<a class="headerlink" href="#cascade-steps" title="Permanent link">&para;</a></h4>
-<ol>
-<li><strong>Track Metadata</strong></li>
-<li>Fetches full track information</li>
-<li>Extracts artists</li>
-<li>Extracts genres</li>
-<li>
-<p>Links relationships</p>
-</li>
-<li>
-<p><strong>Artist Metadata</strong></p>
-</li>
-<li>Fetches artist details</li>
-<li>Updates artist records</li>
-<li>
-<p>Stores metadata timestamps</p>
-</li>
-<li>
-<p><strong>Track Audience</strong></p>
-</li>
-<li>Fetches platform-specific data</li>
-<li>Stores time-series data</li>
-<li>
-<p>Updates audience metrics</p>
-</li>
-<li>
-<p><strong>Artist Audience</strong></p>
-</li>
-<li>Fetches platform-specific data</li>
-<li>Stores time-series data</li>
-<li>Updates audience metrics</li>
-</ol>
-<h4 id="platform-configuration">Platform Configuration<a class="headerlink" href="#platform-configuration" title="Permanent link">&para;</a></h4>
-<p><strong>Track Audience Platforms</strong> (default):
-- Spotify
-- YouTube
-- Shazam
-- Airplay</p>
-<p><strong>Artist Audience Platforms</strong> (default):
-- Spotify
-- YouTube
-- Instagram
-- TikTok</p>
-<h4 id="manual-triggers">Manual Triggers<a class="headerlink" href="#manual-triggers" title="Permanent link">&para;</a></h4>
-<p>You can manually trigger cascade flow:</p>
-<ol>
-<li>Navigate to chart admin</li>
-<li>Click <strong>"Trigger Cascade Data Fetch"</strong></li>
-<li>System queues all cascade tasks</li>
-<li>Monitor progress in admin</li>
-</ol>
-<h3 id="track-management">Track Management<a class="headerlink" href="#track-management" title="Permanent link">&para;</a></h3>
-<p>Complete track lifecycle management.</p>
-<h4 id="track-creation">Track Creation<a class="headerlink" href="#track-creation" title="Permanent link">&para;</a></h4>
-<p>Tracks are created automatically during chart sync.</p>
-<p><strong>Initial Data</strong> (minimal):
-- Track name
-- UUID
-- Slug
-- Credit name
-- Image URL</p>
-<h4 id="track-metadata-fetch">Track Metadata Fetch<a class="headerlink" href="#track-metadata-fetch" title="Permanent link">&para;</a></h4>
-<p>Fetches complete track information.</p>
-<p><strong>Includes</strong>:
-- Full metadata
-- Artist relationships
-- Genre relationships
-- Image URLs
-- Production details</p>
-<h4 id="track-audience-data">Track Audience Data<a class="headerlink" href="#track-audience-data" title="Permanent link">&para;</a></h4>
-<p>Fetches platform-specific audience data.</p>
-<p><strong>Metrics</strong>:
-- Stream counts
-- Listener counts
-- Chart positions
-- Time-series data</p>
-<h3 id="artist-management">Artist Management<a class="headerlink" href="#artist-management" title="Permanent link">&para;</a></h3>
-<p>Complete artist management integration.</p>
-<h4 id="artist-extraction">Artist Extraction<a class="headerlink" href="#artist-extraction" title="Permanent link">&para;</a></h4>
-<p>Artists are automatically extracted from tracks.</p>
-<p><strong>Process</strong>:
-1. Fetch track metadata
-2. Parse credit names
-3. Extract artist UUIDs
-4. Create artist records
-5. Link to tracks</p>
-<h4 id="artist-metadata-fetch">Artist Metadata Fetch<a class="headerlink" href="#artist-metadata-fetch" title="Permanent link">&para;</a></h4>
-<p>Fetches comprehensive artist information.</p>
-<p><strong>Includes</strong>:
-- Name and display name
-- Biography
-- Career stage
-- Country
-- Image URLs</p>
-<h4 id="artist-audience-data">Artist Audience Data<a class="headerlink" href="#artist-audience-data" title="Permanent link">&para;</a></h4>
-<p>Fetches audience analytics for artists.</p>
-<p><strong>Platforms</strong>:
-- Streaming: Monthly listeners
-- Social: Follower counts
-- Historical: Time-series data</p>
-<h3 id="audience-analytics">Audience Analytics<a class="headerlink" href="#audience-analytics" title="Permanent link">&para;</a></h3>
-<p>Time-series audience data analysis.</p>
-<h4 id="data-points">Data Points<a class="headerlink" href="#data-points" title="Permanent link">&para;</a></h4>
-<p>Each data point contains:
-- <strong>Platform</strong>: Spotify, YouTube, etc.
-- <strong>Metric Type</strong>: Listeners, followers, etc.
-- <strong>Value</strong>: Audience count
-- <strong>Date</strong>: Measurement date</p>
-<h4 id="data-processing">Data Processing<a class="headerlink" href="#data-processing" title="Permanent link">&para;</a></h4>
+<h3 id="artist-search">Artist Search<a class="headerlink" href="#artist-search" title="Permanent link">&para;</a></h3>
+<p>Search and import artists from Soundcharts API.</p>
+<h4 id="search-interface">Search Interface<a class="headerlink" href="#search-interface" title="Permanent link">&para;</a></h4>
 <ul>
-<li><strong>Time Series</strong>: Sequential data storage</li>
-<li><strong>Aggregation</strong>: Calculated metrics</li>
-<li><strong>Charts</strong>: Visual representation</li>
-<li><strong>Export</strong>: Excel export capability</li>
+<li><strong>Autocomplete Search</strong>: Search by artist name</li>
+<li><strong>Real-time Results</strong>: Instant API search results</li>
+<li><strong>Import Functionality</strong>: Save artists to database</li>
+<li><strong>Action Buttons</strong>: </li>
+<li>🟢 Save to Database</li>
+<li>🔵 Fetch Metadata</li>
+<li>🟣 Fetch Audience Data</li>
 </ul>
-<h2 id="configuration_1">Configuration<a class="headerlink" href="#configuration_1" title="Permanent link">&para;</a></h2>
-<h3 id="chart-sync-schedule">Chart Sync Schedule<a class="headerlink" href="#chart-sync-schedule" title="Permanent link">&para;</a></h3>
-<p>Configure chart synchronization:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># In admin interface</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">ChartSyncSchedule</span><span class="p">:</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">chart</span><span class="p">:</span> <span class="n">Spotify</span> <span class="n">Top</span> <span class="mi">50</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">schedule</span><span class="p">:</span> <span class="n">Daily</span> <span class="n">at</span> <span class="mi">2</span> <span class="n">AM</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">fetch_track_metadata</span><span class="p">:</span> <span class="kc">True</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">auto_trigger_cascade</span><span class="p">:</span> <span class="kc">True</span>
-</span></code></pre></div>
-<h3 id="cascade-settings">Cascade Settings<a class="headerlink" href="#cascade-settings" title="Permanent link">&para;</a></h3>
-<p>Control cascade behavior:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Track metadata triggers</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">fetch_track_metadata</span><span class="p">:</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">auto_extract_artists</span><span class="p">:</span> <span class="kc">True</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">auto_extract_genres</span><span class="p">:</span> <span class="kc">True</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">trigger_artist_metadata</span><span class="p">:</span> <span class="kc">True</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">trigger_audience_fetch</span><span class="p">:</span> <span class="kc">True</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># Platform selection</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">track_audience_platforms</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;spotify&#39;</span><span class="p">,</span> <span class="s1">&#39;youtube&#39;</span><span class="p">,</span> <span class="s1">&#39;shazam&#39;</span><span class="p">,</span> <span class="s1">&#39;airplay&#39;</span><span class="p">]</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">artist_audience_platforms</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;spotify&#39;</span><span class="p">,</span> <span class="s1">&#39;youtube&#39;</span><span class="p">,</span> <span class="s1">&#39;instagram&#39;</span><span class="p">,</span> <span class="s1">&#39;tiktok&#39;</span><span class="p">]</span>
-</span></code></pre></div>
-<h2 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h2>
-<h3 id="soundcharts-api">Soundcharts API<a class="headerlink" href="#soundcharts-api" title="Permanent link">&para;</a></h3>
-<h4 id="chart-rankings">Chart Rankings<a class="headerlink" href="#chart-rankings" title="Permanent link">&para;</a></h4>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>GET /api/v2.37/chart/{chart_id}/ranking
-</span></code></pre></div>
-<h4 id="track-metadata">Track Metadata<a class="headerlink" href="#track-metadata" title="Permanent link">&para;</a></h4>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>GET /api/v2.37/track/{uuid}
-</span></code></pre></div>
-<h4 id="artist-metadata">Artist Metadata<a class="headerlink" href="#artist-metadata" title="Permanent link">&para;</a></h4>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>GET /api/v2.37/artist/{uuid}
-</span></code></pre></div>
-<h4 id="audience-data">Audience Data<a class="headerlink" href="#audience-data" title="Permanent link">&para;</a></h4>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>GET /api/v2/artist/{uuid}/streaming/{platform}
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>GET /api/v2.37/artist/{uuid}/social/{platform}/followers/
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>GET /api/v2/track/{uuid}/streaming/{platform}
-</span></code></pre></div>
-<h3 id="internal-api">Internal API<a class="headerlink" href="#internal-api" title="Permanent link">&para;</a></h3>
-<h4 id="trigger-cascade">Trigger Cascade<a class="headerlink" href="#trigger-cascade" title="Permanent link">&para;</a></h4>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>POST /admin/soundcharts/chart/{id}/trigger-cascade/
-</span></code></pre></div>
-<h4 id="check-status">Check Status<a class="headerlink" href="#check-status" title="Permanent link">&para;</a></h4>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>GET /admin/soundcharts/chart/{id}/status/
-</span></code></pre></div>
-<h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
-<h3 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
-<p>Monitor chart sync health:</p>
+<h4 id="workflow">Workflow<a class="headerlink" href="#workflow" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Navigate to <strong>Artist Search</strong> (<code>/soundcharts/artists/search/</code>)</li>
+<li>Enter artist name in search box</li>
+<li>View results in table format</li>
+<li>Click action buttons to:</li>
+<li>Save artist to database</li>
+<li>Fetch metadata from API</li>
+<li>Fetch audience data from API</li>
+</ol>
+<h3 id="artist-list">Artist List<a class="headerlink" href="#artist-list" title="Permanent link">&para;</a></h3>
+<p>View all stored artists with comprehensive status tracking.</p>
+<h4 id="table-layout">Table Layout<a class="headerlink" href="#table-layout" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Artist</strong></td>
+<td>Artist name and image</td>
+</tr>
+<tr>
+<td><strong>Country</strong></td>
+<td>Country of origin</td>
+</tr>
+<tr>
+<td><strong>Career Stage</strong></td>
+<td>Career stage classification</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>Metadata and audience status</td>
+</tr>
+<tr>
+<td><strong>Actions</strong></td>
+<td>View details button</td>
+</tr>
+</tbody>
+</table>
+<h4 id="status-indicators">Status Indicators<a class="headerlink" href="#status-indicators" title="Permanent link">&para;</a></h4>
 <ul>
-<li><strong>Last Sync</strong>: Last successful sync time</li>
-<li><strong>Success Rate</strong>: Percentage of successful syncs</li>
-<li><strong>Error Count</strong>: Number of failures</li>
-<li><strong>Status</strong>: Current sync status</li>
+<li><strong>Metadata Status</strong>: Shows when metadata was fetched</li>
+<li><strong>Audience Status</strong>: Shows when audience data was fetched</li>
+<li><strong>Status Colors</strong>: Color-coded status indicators</li>
 </ul>
-<h3 id="task-status">Task Status<a class="headerlink" href="#task-status" title="Permanent link">&para;</a></h3>
-<p>Monitor Celery task progress:</p>
+<h4 id="features_1">Features<a class="headerlink" href="#features_1" title="Permanent link">&para;</a></h4>
 <ul>
-<li><strong>Task ID</strong>: Unique task identifier</li>
-<li><strong>Status</strong>: Pending, processing, complete, failed</li>
-<li><strong>Progress</strong>: Percentage complete</li>
-<li><strong>Logs</strong>: Task execution logs</li>
+<li><strong>Responsive Design</strong>: Works on all devices</li>
+<li><strong>Status Tracking</strong>: Visual indicators for data completeness</li>
+<li><strong>Quick Access</strong>: View details with one click</li>
+<li><strong>Search and Filter</strong>: Search and filter capabilities</li>
 </ul>
-<h3 id="admin-dashboard">Admin Dashboard<a class="headerlink" href="#admin-dashboard" title="Permanent link">&para;</a></h3>
-<p>View comprehensive metrics:</p>
+<h3 id="artist-detail-page">Artist Detail Page<a class="headerlink" href="#artist-detail-page" title="Permanent link">&para;</a></h3>
+<p>Comprehensive artist information and analytics.</p>
+<h4 id="artist-information-card">Artist Information Card<a class="headerlink" href="#artist-information-card" title="Permanent link">&para;</a></h4>
 <ul>
-<li><strong>Charts</strong>: Total number of charts</li>
-<li><strong>Tracks</strong>: Total number of tracks</li>
-<li><strong>Artists</strong>: Total number of artists</li>
-<li><strong>Status</strong>: System health indicators</li>
+<li><strong>Artist Image</strong>: Full artist photo</li>
+<li><strong>Name and Country</strong>: Display name and country</li>
+<li><strong>Career Stage</strong>: Current career stage</li>
+<li><strong>Biography</strong>: Full artist biography</li>
+<li><strong>Metadata Info</strong>: Last metadata fetch timestamp</li>
 </ul>
+<h4 id="audience-analytics">Audience Analytics<a class="headerlink" href="#audience-analytics" title="Permanent link">&para;</a></h4>
+<p><strong>ApexCharts Integration</strong> provides interactive charts:</p>
+<ul>
+<li><strong>30-Day Trends</strong>: Historical audience data</li>
+<li><strong>Multi-Platform</strong>: Spotify, YouTube, Instagram, TikTok</li>
+<li><strong>Interactive Zoom</strong>: Zoom and pan functionality</li>
+<li><strong>Color-Coded</strong>: Platform-specific colors</li>
+<li><strong>Dark Mode</strong>: Full dark mode support</li>
+</ul>
+<h4 id="platform-specific-charts">Platform-Specific Charts<a class="headerlink" href="#platform-specific-charts" title="Permanent link">&para;</a></h4>
+<p>Each platform displays:</p>
+<ul>
+<li><strong>Streaming Platforms</strong>: Monthly listeners (Spotify, YouTube)</li>
+<li><strong>Social Platforms</strong>: Follower counts (Instagram, TikTok)</li>
+<li><strong>Time Series</strong>: 30-day historical data</li>
+<li><strong>Growth Trends</strong>: Visual trend indicators</li>
+</ul>
+<h4 id="related-tracks">Related Tracks<a class="headerlink" href="#related-tracks" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Track Links</strong>: Links to related track pages</li>
+<li><strong>Track List</strong>: Shows all tracks by artist</li>
+<li><strong>Bidirectional Navigation</strong>: Navigate tracks ↔ artists</li>
+</ul>
+<h3 id="artist-track-linking">Artist-Track Linking<a class="headerlink" href="#artist-track-linking" title="Permanent link">&para;</a></h3>
+<p>Bidirectional navigation between artists and tracks.</p>
+<h4 id="track-artist-links">Track → Artist Links<a class="headerlink" href="#track-artist-links" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Song Detail Pages</strong>: Link to artist pages</li>
+<li><strong>Track Cards</strong>: Show artist information</li>
+<li><strong>Navigation</strong>: Quick access to artist data</li>
+</ul>
+<h4 id="artist-track-links">Artist → Track Links<a class="headerlink" href="#artist-track-links" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Artist Detail Pages</strong>: Show related tracks</li>
+<li><strong>Track List</strong>: All tracks by artist</li>
+<li><strong>Navigation</strong>: Quick access to track data</li>
+</ul>
+<h4 id="benefits">Benefits<a class="headerlink" href="#benefits" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Complete Data</strong>: Access artist data from track pages</li>
+<li><strong>Track Data</strong>: Access track data from artist pages</li>
+<li><strong>Seamless Navigation</strong>: Intuitive user experience</li>
+</ul>
+<h2 id="admin-interface">Admin Interface<a class="headerlink" href="#admin-interface" title="Permanent link">&para;</a></h2>
+<h3 id="enhanced-admin-features">Enhanced Admin Features<a class="headerlink" href="#enhanced-admin-features" title="Permanent link">&para;</a></h3>
+<h4 id="metadata-management">Metadata Management<a class="headerlink" href="#metadata-management" title="Permanent link">&para;</a></h4>
+<p><strong>"Fetch Metadata from API" Button</strong>:
+- Fetches complete artist metadata
+- Updates artist record with latest data
+- Stores fetch timestamp
+- Error handling and logging</p>
+<p><strong>Metadata Includes</strong>:
+- Artist name and display name
+- Biography and description
+- Country and career stage
+- Image URLs and thumbnails
+- Metadata timestamps</p>
+<h4 id="audience-management">Audience Management<a class="headerlink" href="#audience-management" title="Permanent link">&para;</a></h4>
+<p><strong>"Fetch Audience Data from API" Button</strong>:
+- Select platform from dropdown
+- Fetches audience time-series data
+- Processes and stores data
+- Updates audience timestamp</p>
+<p><strong>Platform Support</strong>:
+- Spotify: Monthly listeners
+- YouTube: Monthly listeners
+- Instagram: Followers
+- TikTok: Followers</p>
+<h4 id="form-validation">Form Validation<a class="headerlink" href="#form-validation" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>UUID Validation</strong>: Ensures valid Soundcharts UUIDs</li>
+<li><strong>Error Handling</strong>: Graceful error messages</li>
+<li><strong>Success Feedback</strong>: Confirmation messages</li>
+</ul>
+<h2 id="api-integration">API Integration<a class="headerlink" href="#api-integration" title="Permanent link">&para;</a></h2>
+<h3 id="corrected-endpoints">Corrected Endpoints<a class="headerlink" href="#corrected-endpoints" title="Permanent link">&para;</a></h3>
+<h4 id="search-artists">Search Artists<a class="headerlink" href="#search-artists" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">GET</span> <span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v2</span><span class="mf">.37</span><span class="o">/</span><span class="n">artist</span><span class="o">/</span><span class="n">search</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Fixed Limit</strong>: Changed from 100 to 20 results</li>
+<li><strong>Autocomplete</strong>: Fast search results</li>
+<li><strong>Query Parameters</strong>: Name search</li>
+</ul>
+<h4 id="get-artist-metadata">Get Artist Metadata<a class="headerlink" href="#get-artist-metadata" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">GET</span> <span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v2</span><span class="mf">.37</span><span class="o">/</span><span class="n">artist</span><span class="o">/</span><span class="p">{</span><span class="n">uuid</span><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Complete Profile</strong>: Full artist information</li>
+<li><strong>Metadata Fields</strong>: All artist details</li>
+<li><strong>Image URLs</strong>: High-quality images</li>
+</ul>
+<h4 id="get-audience-data">Get Audience Data<a class="headerlink" href="#get-audience-data" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">GET</span> <span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v2</span><span class="o">/</span><span class="n">artist</span><span class="o">/</span><span class="p">{</span><span class="n">uuid</span><span class="p">}</span><span class="o">/</span><span class="n">streaming</span><span class="o">/</span><span class="p">{</span><span class="n">platform</span><span class="p">}</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">GET</span> <span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v2</span><span class="mf">.37</span><span class="o">/</span><span class="n">artist</span><span class="o">/</span><span class="p">{</span><span class="n">uuid</span><span class="p">}</span><span class="o">/</span><span class="n">social</span><span class="o">/</span><span class="p">{</span><span class="n">platform</span><span class="p">}</span><span class="o">/</span><span class="n">followers</span><span class="o">/</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Corrected URLs</strong>: Fixed API endpoints</li>
+<li><strong>Platform Support</strong>: Streaming and social</li>
+<li><strong>Time Series</strong>: Historical data support</li>
+</ul>
+<h2 id="data-models">Data Models<a class="headerlink" href="#data-models" title="Permanent link">&para;</a></h2>
+<h3 id="artist-model">Artist Model<a class="headerlink" href="#artist-model" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Artist</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">uuid</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">display_name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">country</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">career_stage</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">bio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">image_url</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="n">thumbnail_url</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="n">metadata_fetched_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="n">audience_fetched_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="artistaudience-model">ArtistAudience Model<a class="headerlink" href="#artistaudience-model" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ArtistAudience</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">artist</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Artist</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">platform</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">metric_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">audience_count</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BigIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">recorded_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">()</span>
+</span></code></pre></div>
+<h3 id="artistaudiencetimeseries-model">ArtistAudienceTimeSeries Model<a class="headerlink" href="#artistaudiencetimeseries-model" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ArtistAudienceTimeSeries</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">artist</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Artist</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">platform</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">metric_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">value</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BigIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">()</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;artist&#39;</span><span class="p">,</span> <span class="s1">&#39;platform&#39;</span><span class="p">,</span> <span class="s1">&#39;metric_type&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">]]</span>
+</span></code></pre></div>
+<h2 id="usage-workflows">Usage Workflows<a class="headerlink" href="#usage-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="adding-a-new-artist">Adding a New Artist<a class="headerlink" href="#adding-a-new-artist" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Navigate to <strong>Artist Search</strong></li>
+<li>Search for artist name</li>
+<li>Click <strong>🟢 Save to Database</strong></li>
+<li>Click <strong>🔵 Fetch Metadata</strong> to get full details</li>
+<li>Click <strong>🟣 Fetch Audience</strong> to get audience data</li>
+</ol>
+<h3 id="viewing-artist-analytics">Viewing Artist Analytics<a class="headerlink" href="#viewing-artist-analytics" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Navigate to <strong>Artist List</strong></li>
+<li>Click <strong>View Details</strong> on desired artist</li>
+<li>View artist information card</li>
+<li>Explore audience charts per platform</li>
+<li>Review related tracks</li>
+</ol>
+<h3 id="fetching-audience-data">Fetching Audience Data<a class="headerlink" href="#fetching-audience-data" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Open artist in admin interface</li>
+<li>Select platform from dropdown</li>
+<li>Click <strong>"Fetch Audience Data from API"</strong></li>
+<li>Wait for completion</li>
+<li>View updated timestamp</li>
+<li>Check audience charts on detail page</li>
+</ol>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<h3 id="chart-sync-fails">Chart Sync Fails<a class="headerlink" href="#chart-sync-fails" title="Permanent link">&para;</a></h3>
-<p><strong>Possible Causes</strong>:
-- Invalid API credentials
-- Network connectivity issues
-- API rate limits exceeded
-- Invalid chart configuration</p>
-<p><strong>Solutions</strong>:
-- Verify API credentials
-- Check network connection
-- Review rate limits
-- Validate chart settings</p>
-<h3 id="cascade-stops">Cascade Stops<a class="headerlink" href="#cascade-stops" title="Permanent link">&para;</a></h3>
-<p><strong>Possible Causes</strong>:
-- Task queue full
-- Error in previous step
-- Missing data dependencies
-- Resource exhaustion</p>
-<p><strong>Solutions</strong>:
-- Check task queue status
-- Review error logs
-- Verify data completeness
-- Monitor resource usage</p>
-<h3 id="missing-data">Missing Data<a class="headerlink" href="#missing-data" title="Permanent link">&para;</a></h3>
-<p><strong>Possible Causes</strong>:
-- Chart sync not completed
-- Metadata not fetched
-- Audience data not available
-- Platform-specific issues</p>
-<p><strong>Solutions</strong>:
-- Trigger manual sync
-- Manually fetch metadata
-- Check platform availability
-- Review data completeness</p>
-<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
-<h3 id="configuration_2">Configuration<a class="headerlink" href="#configuration_2" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>Enable Auto-Cascade</strong>: Always enable cascade triggers</li>
-<li><strong>Monitor Health</strong>: Regularly check sync status</li>
-<li><strong>Schedule Appropriately</strong>: Don't sync too frequently</li>
-<li><strong>Handle Errors</strong>: Set up error notifications</li>
-</ol>
-<h3 id="data-management">Data Management<a class="headerlink" href="#data-management" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>Regular Backups</strong>: Backup database regularly</li>
-<li><strong>Clean Old Data</strong>: Archive old chart rankings</li>
-<li><strong>Monitor Storage</strong>: Track database growth</li>
-<li><strong>Optimize Queries</strong>: Monitor query performance</li>
-</ol>
-<h3 id="api-usage">API Usage<a class="headerlink" href="#api-usage" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>Respect Limits</strong>: Don't exceed rate limits</li>
-<li><strong>Cache Responses</strong>: Cache API responses</li>
-<li><strong>Handle Errors</strong>: Implement retry logic</li>
-<li><strong>Monitor Usage</strong>: Track API consumption</li>
-</ol>
+<h3 id="artist-not-found">Artist Not Found<a class="headerlink" href="#artist-not-found" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Verify artist exists in Soundcharts</li>
+<li>Check spelling of artist name</li>
+<li>Review search parameters</li>
+</ul>
+<h3 id="metadata-fetch-fails">Metadata Fetch Fails<a class="headerlink" href="#metadata-fetch-fails" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Verify API credentials</li>
+<li>Check network connectivity</li>
+<li>Review error logs</li>
+<li>Ensure valid UUID</li>
+</ul>
+<h3 id="audience-data-missing">Audience Data Missing<a class="headerlink" href="#audience-data-missing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Verify platform is supported</li>
+<li>Check date range has data</li>
+<li>Ensure API credentials are valid</li>
+<li>Review fetch timestamp</li>
+</ul>
+<h3 id="linking-issues">Linking Issues<a class="headerlink" href="#linking-issues" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Verify track has credit_name</li>
+<li>Check artist exists in database</li>
+<li>Review database relationships</li>
+<li>Clear cache if needed</li>
+</ul>
 <h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../chart-management/">Chart Management</a></li>
-<li><a href="../artist-management/">Artist Management</a></li>
-<li><a href="../background-tasks/">Background Tasks</a></li>
+<li><a href="../analytics/">Analytics</a></li>
+<li><a href="../soundcharts-integration/">Soundcharts Integration</a></li>
 <li><a href="../../api/overview.md">API Reference</a></li>
 </ul>
 
