@@ -236,13 +236,19 @@ class TrackAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
                     track.image_url = track_data["imageUrl"]
                 
                 # Update enhanced metadata fields
+                # releaseDate format: "2019-03-29T00:00:00+00:00" (ISO 8601 with timezone offset)
                 if "releaseDate" in track_data and track_data["releaseDate"]:
                     try:
                         from datetime import datetime
-                        release_date = datetime.strptime(track_data["releaseDate"], "%Y-%m-%d").date()
+                        # API returns format: "2019-03-29T00:00:00+00:00" (ISO 8601 with timezone offset)
+                        # datetime.fromisoformat() handles this format directly in Python 3.7+
+                        # Handle potential 'Z' suffix (UTC indicator) if it ever appears
+                        release_date_str = track_data["releaseDate"]
+                        normalized_date = release_date_str.replace('Z', '+00:00') if release_date_str.endswith('Z') else release_date_str
+                        release_date = datetime.fromisoformat(normalized_date).date()
                         track.release_date = release_date
-                    except (ValueError, TypeError):
-                        pass
+                    except (ValueError, TypeError) as e:
+                        logger.warning(f"Invalid release date format for track {track.uuid}: {track_data.get('releaseDate')} - {e}")
                 
                 if "duration" in track_data:
                     track.duration = track_data["duration"]
