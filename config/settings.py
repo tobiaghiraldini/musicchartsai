@@ -322,7 +322,7 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "INFO",
+        "level": "ERROR",
     },
 }
 

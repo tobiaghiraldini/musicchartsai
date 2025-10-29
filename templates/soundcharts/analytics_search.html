@@ -35,9 +35,9 @@
           <div id="selected-artists" class="flex flex-wrap gap-2 mt-2 min-h-[40px]">
             <!-- Selected artists will appear here -->
           </div>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          {% comment %} <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
             ℹ️ Only artists with SoundCharts UUIDs can be selected (required for API access)
-          </p>
+          </p> {% endcomment %}
         </div>
 
         <!-- Date Range -->
@@ -231,8 +231,16 @@ function selectArtist(artist) {
     renderSelectedArtists();
     
     // Clear search
-    document.getElementById('artistSearch').value = '';
-    document.getElementById('artist-suggestions').classList.add('hidden');
+    const artistSearchInput = document.getElementById('artistSearch');
+    if (artistSearchInput) {
+        artistSearchInput.value = '';
+    }
+    
+    // Hide suggestions dropdown if it exists
+    const suggestionsDropdown = document.getElementById('artist-suggestions');
+    if (suggestionsDropdown) {
+        suggestionsDropdown.classList.add('hidden');
+    }
 }
 
 function removeArtist(artistId) {
@@ -1158,10 +1166,10 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Set default dates to last COMPLETE month (e.g., September 2024)
+// Set default dates to last month from today (30 days ending today)
 const today = new Date();
-const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1); // First day of last month
-const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0); // Last day of last month
+const lastMonth = new Date(today);
+lastMonth.setDate(today.getDate() - 30); // 30 days ago
 
 // Format as YYYY-MM-DD for date input
 const formatDate = (date) => {
@@ -1172,7 +1180,110 @@ const formatDate = (date) => {
 };
 
 document.getElementById('start-date').value = formatDate(lastMonth);
-document.getElementById('end-date').value = formatDate(lastMonthEnd);
+document.getElementById('end-date').value = formatDate(today);
+
+// Handle pre-filled artist from query parameter (deep linking from artist detail page)
+{% if prefill_artist_json and prefill_artist_json != 'null' %}
+// Function to select all platforms with retry mechanism
+function selectAllPlatformsWithRetry(maxRetries = 10, currentRetry = 0) {
+    const selectAllCheckbox = document.getElementById('select-all-platforms');
+    const platformCheckboxes = document.querySelectorAll('.platform-checkbox');
+    
+    console.log(`Attempt ${currentRetry + 1}: Found ${platformCheckboxes.length} platform checkboxes`);
+    
+    if (platformCheckboxes.length === 0 && currentRetry < maxRetries) {
+        // Platform checkboxes not ready yet, retry
+        setTimeout(() => {
+            selectAllPlatformsWithRetry(maxRetries, currentRetry + 1);
+        }, 200);
+        return false;
+    }
+    
+    if (platformCheckboxes.length > 0) {
+        // Manually check each platform checkbox
+        platformCheckboxes.forEach((cb, index) => {
+            cb.checked = true;
+            // Also trigger change event on each checkbox to ensure it registers
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+            console.log(`Checked platform ${index + 1}: ${cb.value}`);
+        });
+        
+        // Check the "Select All" checkbox and trigger change event
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = true;
+            selectAllCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        
+        // Verify platforms are actually selected
+        const checkedPlatforms = document.querySelectorAll('.platform-checkbox:checked');
+        console.log(`Successfully selected ${checkedPlatforms.length} out of ${platformCheckboxes.length} platforms`);
+        
+        return checkedPlatforms.length > 0;
+    }
+    
+    return false;
+}
+
+// Function to prefill and submit
+function prefillAndSubmit() {
+    const prefillArtist = {{ prefill_artist_json|safe }};
+    if (prefillArtist) {
+        console.log('Prefilling artist:', prefillArtist.name);
+        
+        // Wait a moment to ensure DOM elements are ready before selecting artist
+        setTimeout(() => {
+            // Verify required elements exist
+            const artistSearchInput = document.getElementById('artistSearch');
+            const selectedArtistsContainer = document.getElementById('selected-artists');
+            
+            if (artistSearchInput && selectedArtistsContainer) {
+                // Pre-select the artist
+                selectArtist(prefillArtist);
+                
+                // Wait for artist selection and DOM to stabilize, then select all platforms
+                setTimeout(() => {
+                    const success = selectAllPlatformsWithRetry();
+                    
+                    if (success) {
+                        // Wait a bit more to ensure everything is ready, then submit
+                        setTimeout(() => {
+                            // Double-check platforms are still selected
+                            const verifiedPlatforms = document.querySelectorAll('.platform-checkbox:checked');
+                            if (verifiedPlatforms.length > 0) {
+                                console.log('Final check: platforms selected, submitting form...');
+                                const searchButton = document.getElementById('search-button');
+                                if (searchButton && !searchButton.disabled) {
+                                    searchButton.click();
+                                } else {
+                                    console.error('Search button not found or disabled');
+                                }
+                            } else {
+                                console.error('Platforms were not selected correctly');
+                            }
+                        }, 500);
+                    } else {
+                        console.error('Failed to select platforms after retries');
+                    }
+                }, 300);
+            } else {
+                console.error('Required DOM elements not found - artistSearch:', !!artistSearchInput, 'selectedArtists:', !!selectedArtistsContainer);
+            }
+        }, 200);
+    }
+}
+
+// Try to run when DOM is ready
+function initPrefill() {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', prefillAndSubmit);
+    } else {
+        // DOM already loaded, but wait a bit more to ensure platforms are rendered
+        setTimeout(prefillAndSubmit, 200);
+    }
+}
+
+initPrefill();
+{% endif %}
 </script>
 
 <style>

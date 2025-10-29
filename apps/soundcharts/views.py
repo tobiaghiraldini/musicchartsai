@@ -1337,6 +1337,9 @@ def analytics_search_form(request):
     This form allows users to select artists, platforms, and date range
     to aggregate audience metrics.
     
+    Query parameters:
+    - artist_uuid: Pre-select an artist by UUID (for deep linking from artist detail page)
+    
     TODO: Add role-based permissions in the future:
     - @permission_required('soundcharts.view_analytics')
     - Different user roles: admin, analyst, viewer
@@ -1344,6 +1347,7 @@ def analytics_search_form(request):
     - Rate limiting for expensive aggregation queries
     """
     from .analytics_service import MusicAnalyticsService
+    import json
     
     service = MusicAnalyticsService()
     
@@ -1360,9 +1364,30 @@ def analytics_search_form(request):
     # Get available countries (informational only)
     countries = service.get_available_countries()
     
+    # Check for artist_uuid query parameter (for deep linking from artist detail page)
+    artist_uuid = request.GET.get('artist_uuid', '').strip()
+    prefill_artist = None
+    
+    if artist_uuid:
+        try:
+            from .models import Artist
+            artist = Artist.objects.filter(uuid=artist_uuid).first()
+            if artist:
+                prefill_artist = {
+                    'id': artist.id,
+                    'uuid': artist.uuid,
+                    'name': artist.name,
+                    'imageUrl': artist.imageUrl or '',
+                    'countryCode': artist.countryCode or '',
+                    'has_uuid': bool(artist.uuid)
+                }
+        except Exception as e:
+            logger.warning(f"Error looking up artist by UUID {artist_uuid}: {e}")
+    
     context = {
         'platforms': platforms,
         'countries': countries,
+        'prefill_artist_json': json.dumps(prefill_artist) if prefill_artist else 'null',
     }
     
     return render(request, 'soundcharts/analytics_search.html', context)
