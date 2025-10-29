@@ -899,18 +899,35 @@ class ArtistSearchView(View):
 
 @method_decorator(login_required, name='dispatch')
 class ArtistListView(View):
-    """View for listing stored artists"""
+    """View for listing stored artists with search and pagination"""
     
     def get(self, request):
-        """Get all stored artists with their audience data"""
+        """Get all stored artists with their audience data, filtered and paginated"""
+        from django.core.paginator import Paginator
+        
         try:
-            artists = Artist.objects.all().prefetch_related(
+            # Get all artists with related data
+            artists_query = Artist.objects.all().prefetch_related(
                 'genres', 
                 'audience_timeseries__platform'
-            ).order_by('name')
+            )
             
+            # Apply search filter if provided
+            search_query = request.GET.get('search', '').strip()
+            if search_query:
+                artists_query = artists_query.filter(name__icontains=search_query)
+            
+            # Order by name
+            artists_query = artists_query.order_by('name')
+            
+            # Paginate results (10 items per page)
+            page = request.GET.get('page', 1)
+            paginator = Paginator(artists_query, 10)
+            artists_page = paginator.page(page)
+            
+            # Build artists data for template
             artists_data = []
-            for artist in artists:
+            for artist in artists_page:
                 # Get platforms that have audience data
                 platforms_with_data = Platform.objects.filter(
                     artist_audience_timeseries__artist=artist
@@ -932,6 +949,8 @@ class ArtistListView(View):
             
             return render(request, 'soundcharts/artist_list.html', {
                 'artists': artists_data,
+                'artists_page': artists_page,  # Paginator page object
+                'search_query': search_query,
                 'segment': 'artists',
             })
             

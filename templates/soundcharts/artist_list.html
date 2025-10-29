@@ -9,7 +9,7 @@
   <div class="px-4 pt-6">
     <!-- Header Section -->
     <div class="mb-6">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between mb-4">
         <div>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Stored Artists</h1>
           <p class="text-gray-600 dark:text-gray-400">Artists saved in your database</p>
@@ -21,6 +21,20 @@
           </svg>
           Search New Artists
         </a>
+      </div>
+      
+      <!-- Search Field -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center mb-4 sm:mb-0">
+          <form class="sm:pr-3" method="GET">
+            <label for="artist-search" class="sr-only">Search</label>
+            <div class="relative w-48 mt-1 sm:w-64 xl:w-96">
+              <input type="text" name="search" id="artist-search" value="{{ search_query }}"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Search for artists">
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -165,6 +179,77 @@
       </div>
     </div>
     
+    <!-- Pagination -->
+    {% if artists_page and artists_page.has_other_pages %}
+    <div class="sticky bottom-0 right-0 items-center w-full p-4 bg-white border-t border-gray-200 flex justify-between dark:bg-gray-800 dark:border-gray-700 mt-4">
+      <div class="flex items-center mb-4 sm:mb-0">
+        {% if artists_page.has_previous %}
+        <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ artists_page.previous_page_number }}"
+          class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white">
+          <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+              d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+        </a>
+        {% endif %}
+
+        {% if artists_page.has_next %}
+        <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ artists_page.next_page_number }}"
+          class="inline-flex justify-center p-1 mr-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white">
+          <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+        </a>
+        {% endif %}
+        <span class="text-sm font-normal text-gray-500 dark:text-gray-400">Showing <span
+            class="font-semibold text-gray-900 dark:text-white">{{ artists_page.start_index }}-{{ artists_page.end_index }}</span> of <span
+            class="font-semibold text-gray-900 dark:text-white">{{ artists_page.paginator.count }}</span></span>
+      </div>
+      <div class="flex items-center space-x-3">
+        {% if artists_page.has_previous %}
+        <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ artists_page.previous_page_number }}"
+          class="inline-flex items-center justify-center flex-1 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          <svg class="w-5 h-5 mr-1 -ml-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+              d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+          Previous
+        </a>
+        {% endif %}
+        {% if artists_page.has_next %}
+        <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ artists_page.next_page_number }}"
+          class="inline-flex items-center justify-center flex-1 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          Next
+          <svg class="w-5 h-5 ml-1 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    
+    {% elif not artists and search_query %}
+    <!-- No Results from Search -->
+    <div class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No artists found</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">No artists match your search query "{{ search_query }}"</p>
+      <div class="mt-6">
+        <a href="{% url 'soundcharts:artist_list' %}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          Clear Search
+        </a>
+      </div>
+    </div>
     {% else %}
     <!-- Empty State -->
     <div class="text-center py-12">
@@ -344,6 +429,19 @@ function showNotification(message, type = 'success') {
         setTimeout(() => notification.remove(), 300);
     }, 5000);
 }
+
+// Auto-submit search form on Enter key
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('artist-search');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.closest('form').submit();
+            }
+        });
+    }
+});
 </script>
 
 <style>
