@@ -2,43 +2,48 @@
 {% load i18n admin_urls static %}
 
 {% block extra_actions %}
+
   {% if show_fetch_metadata_button and original and original.uuid %}
 
     <div class="form-group mt-2">
-      <form method="post" action="{{ request.path }}" style="display: inline; width: 100%;">
-        {% csrf_token %}
-        <input type="submit" value="{% trans 'Fetch Metadata from API' %}" name="_fetch_metadata" class="btn btn-info w-100">
-      </form>
+      <input type="submit" value="{% trans 'Fetch Metadata from API' %}" name="_fetch_metadata" class="btn btn-info w-100">
     </div>
   {% endif %}
   
   {% if show_fetch_audience_button and original and original.uuid %}
     <div class="form-group mt-2">
-      <form method="post" action="{{ request.path }}" id="audienceForm">
-        {% csrf_token %}
-        <div class="flex-row gap-2 mb-2">
-          <label for="platform_select">Platform:
-          <select name="platform" id="platform_select" style="padding: 5px;">
-            <option value="spotify">Spotify</option>
-            <option value="instagram">Instagram</option>
-            <option value="youtube">YouTube</option>
-            <option value="tiktok">TikTok</option>
-            <option value="facebook">Facebook</option>
-            <option value="twitter">X (Twitter)</option>
-            <option value="soundcloud">SoundCloud</option>
-            {% for slug, name in available_platforms %}
-              {% if slug not in 'spotify,instagram,youtube,tiktok,facebook,twitter,soundcloud' %}
-                <option value="{{ slug }}">{{ name }}</option>
-              {% endif %}
-            {% endfor %}
-          </select>
-          </label>
-          <small style="margin-left: 10px; color: #666;">
-            Returns latest 90 days of follower/like counts
-          </small>
-        </div>
-        <input type="submit" value="{% trans 'Fetch Audience Data from API' %}" name="_fetch_audience" class="btn btn-info w-100">
-      </form>
+      <div class="flex-row gap-2 mb-2">
+        <strong>Fetch Audience</strong>
+      </div>
+      <div class="flex-row gap-2 mb-2">
+        <small style="color:#333;">
+          The "Fetch Audience Data from API" button fetches for default platforms:
+          <em>spotify, youtube, tiktok, airplay, shazam</em>.
+        </small>
+      </div>
+      <input type="submit" value="{% trans 'Fetch Audience Data from API' %}" name="_fetch_audience" class="btn btn-info w-100">
+      <div class="flex-row gap-2 mb-2" style="margin-top:10px;">
+        <small style="color:#666;">Alternatively, fetch a single selected platform below:</small>
+      </div>
+      <div class="flex-row gap-2 mb-2">
+        <label for="platform_select">Platform:
+        <select name="platform" id="platform_select" style="padding: 5px;">
+          <option value="spotify">Spotify</option>
+          <option value="youtube">YouTube</option>
+          <option value="tiktok">TikTok</option>
+          <option value="airplay">Airplay (Radio)</option>
+          <option value="shazam">Shazam</option>
+          <option value="instagram">Instagram</option>
+          <option value="facebook">Facebook</option>
+          <option value="twitter">X (Twitter)</option>
+          <option value="soundcloud">SoundCloud</option>
+        </select>
+        </label>
+        <small style="margin-left: 10px; color: #666;">
+          Returns latest ~90 days of values if available.
+        </small>
+      </div>
+      <input type="submit" value="{% trans 'Fetch Selected Platform Only' %}" name="_fetch_audience_selected" class="btn btn-secondary w-100">
     </div>
   {% endif %}
   
@@ -48,6 +53,7 @@
 {% block extrahead %}
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static "assets/admin-import.css" %}">
+<script src="{% static "assets/artist-admin-alerts.js" %}"></script>
 <style>
 .submit-row input[name="_fetch_metadata"] {
     background: #28a745 !important;

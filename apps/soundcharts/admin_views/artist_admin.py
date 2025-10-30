@@ -1,7 +1,6 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.http import HttpResponseRedirect, JsonResponse
-from django.utils.html import format_html
-from django.urls import reverse, path
+from django.urls import path
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -9,11 +8,20 @@ from datetime import datetime
 import logging
 import json
 
-from ..models import Artist, Genre, Platform, ArtistAudience, ArtistAudienceTimeSeries
+from ..models import Artist, Genre, Platform, ArtistAudienceTimeSeries
 from ..service import SoundchartsService
 from .soundcharts_admin_mixin import SoundchartsAdminMixin
 
 logger = logging.getLogger(__name__)
+
+# Default audience platforms to fetch when using the admin action/button
+DEFAULT_AUDIENCE_PLATFORMS = [
+    'spotify',
+    'youtube',
+    'tiktok',
+    'airplay',
+    'shazam',
+]
 
 
 class ArtistAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
@@ -85,7 +93,7 @@ class ArtistAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
             self.message_user(
                 request,
                 f"Failed to fetch metadata for {error_count} artist(s)",
-                level="WARNING",
+                level=messages.WARNING,
             )
 
         # Log detailed messages
@@ -127,7 +135,7 @@ class ArtistAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
             
             # Extract the time-series data
             items = audience_data.get('items', [])
-            related = audience_data.get('related', {})
+            # related = audience_data.get('related', {})  # not used currently
             
             if not items:
                 return {'success': False, 'error': 'No time-series data in response'}
@@ -214,14 +222,18 @@ class ArtistAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
                 obj = self.get_object(request, object_id)
                 if obj:
                     return self._handle_fetch_audience(request, obj)
+            elif "_fetch_audience_selected" in request.POST:
+                obj = self.get_object(request, object_id)
+                if obj:
+                    return self._handle_fetch_audience_selected(request, obj)
         
         # Add context for template
         extra_context = extra_context or {}
         extra_context["show_fetch_metadata_button"] = True
         extra_context["show_fetch_audience_button"] = True
         
-        # Add available platforms for audience fetching
-        extra_context["available_platforms"] = Platform.objects.all().values_list('slug', 'name')
+        # Note: We intentionally do NOT expose a platform selector anymore for audience fetch.
+        # The audience fetch button will fetch across DEFAULT_AUDIENCE_PLATFORMS.
         
         return super().change_view(request, object_id, form_url, extra_context)
     
@@ -229,7 +241,7 @@ class ArtistAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
         """Handle metadata fetch action"""
         if not obj.uuid:
             self.message_user(
-                request, f"Artist '{obj.name}' has no UUID", level="WARNING"
+                request, f"Artist '{obj.name}' has no UUID", level=messages.WARNING
             )
             return HttpResponseRedirect(request.get_full_path())
         
@@ -324,72 +336,124 @@ class ArtistAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
                 self.message_user(
                     request,
                     f"Invalid metadata format for '{obj.name}'",
-                    level="WARNING",
+                    level=messages.WARNING,
                 )
         except Exception as e:
             self.message_user(
                 request,
                 f"Error fetching metadata for '{obj.name}': {str(e)}",
-                level="ERROR",
+                level=messages.ERROR,
             )
             logger.error(f"Error fetching metadata for artist {obj.name}: {e}")
         
         return HttpResponseRedirect(request.get_full_path())
-    
-    def _handle_fetch_audience(self, request, obj):
-        """Handle audience fetch action"""
+
+    def _handle_fetch_audience_selected(self, request, obj):
+        """Handle single selected-platform audience fetch"""
         if not obj.uuid:
             self.message_user(
-                request, f"Artist '{obj.name}' has no UUID", level="WARNING"
+                request, f"Artist '{obj.name}' has no UUID", level=messages.WARNING
             )
             return HttpResponseRedirect(request.get_full_path())
-        
+
         platform = request.POST.get('platform', 'spotify')
-        # Note: The audience endpoint doesn't use date parameters like reports
-        # It returns the latest 90 days of data by default
-        
         service = SoundchartsService()
         try:
             audience_data = service.get_artist_audience_for_platform(
-                obj.uuid, 
-                platform=platform
+                obj.uuid,
+                platform=platform,
             )
-            
             if audience_data and "items" in audience_data:
-                # Process and store audience data
                 result = self._process_artist_audience_data(obj, platform, audience_data)
-                
                 if result['success']:
                     obj.audience_fetched_at = timezone.now()
                     obj.save()
-                    
                     records_msg = f"{result.get('records_created', 0)} created, {result.get('records_updated', 0)} updated"
-                    follower_msg = f"Latest: {result.get('latest_follower_count', 'N/A'):,}" if result.get('latest_follower_count') else ""
-                    
+                    follower_msg = (
+                        f" Latest: {result.get('latest_follower_count', 'N/A'):,}"
+                        if result.get('latest_follower_count') else ""
+                    )
                     self.message_user(
                         request,
-                        f"Successfully fetched audience data for '{obj.name}' on {platform}: {records_msg}. {follower_msg}",
+                        f"Fetched audience for '{obj.name}' on {platform}: {records_msg}.{follower_msg}",
                     )
-                    logger.info(f"Updated artist {obj.name} with audience data: {result}")
                 else:
                     self.message_user(
                         request,
-                        f"Failed to process audience data for '{obj.name}': {result.get('error', 'Unknown error')}",
-                        level="WARNING",
+                        f"Failed to process audience for '{obj.name}' on {platform}: {result.get('error', 'Unknown error')}",
+                        level=messages.WARNING,
                     )
             else:
                 self.message_user(
                     request,
-                    f"Failed to fetch audience data for '{obj.name}' on {platform}",
-                    level="WARNING",
+                    f"Failed to fetch audience for '{obj.name}' on {platform}",
+                    level=messages.WARNING,
                 )
         except Exception as e:
             self.message_user(
                 request,
-                f"Error fetching audience data for '{obj.name}': {str(e)}",
-                level="ERROR",
+                f"Error fetching audience for '{obj.name}' on {platform}: {str(e)}",
+                level=messages.ERROR,
             )
-            logger.error(f"Error fetching audience data for artist {obj.name}: {e}")
+            logger.error(f"Error fetching audience data for artist {obj.name} on {platform}: {e}")
+
+        return HttpResponseRedirect(request.get_full_path())
+    
+    def _handle_fetch_audience(self, request, obj):
+        """Handle audience fetch action - fetches across DEFAULT_AUDIENCE_PLATFORMS"""
+        if not obj.uuid:
+            self.message_user(
+                request, f"Artist '{obj.name}' has no UUID", level=messages.WARNING
+            )
+            return HttpResponseRedirect(request.get_full_path())
+        
+        # Fetch across all default platforms
+        platforms = list(DEFAULT_AUDIENCE_PLATFORMS)
+        fetched_ok = 0
+        fetched_fail = 0
+        per_platform_msgs = []
+
+        service = SoundchartsService()
+        for platform in platforms:
+            try:
+                audience_data = service.get_artist_audience_for_platform(
+                    obj.uuid,
+                    platform=platform
+                )
+                if audience_data and "items" in audience_data:
+                    result = self._process_artist_audience_data(obj, platform, audience_data)
+                    if result['success']:
+                        fetched_ok += 1
+                        records_msg = f"{result.get('records_created', 0)} created, {result.get('records_updated', 0)} updated"
+                        follower_msg = (
+                            f" Latest: {result.get('latest_follower_count', 'N/A'):,}"
+                            if result.get('latest_follower_count') else ""
+                        )
+                        per_platform_msgs.append(f"{platform}: OK ({records_msg}.{follower_msg})")
+                        logger.info(f"Updated artist {obj.name} with audience data on {platform}: {result}")
+                    else:
+                        fetched_fail += 1
+                        per_platform_msgs.append(
+                            f"{platform}: FAIL (process - {result.get('error', 'Unknown error')})"
+                        )
+                else:
+                    fetched_fail += 1
+                    per_platform_msgs.append(f"{platform}: FAIL (fetch)")
+            except Exception as e:
+                fetched_fail += 1
+                per_platform_msgs.append(f"{platform}: ERROR ({str(e)})")
+                logger.error(f"Error fetching audience data for artist {obj.name} on {platform}: {e}")
+
+        # Update timestamp if at least one platform succeeded
+        if fetched_ok > 0:
+            obj.audience_fetched_at = timezone.now()
+            obj.save()
+
+        # Summary admin message
+        summary = f"Fetched audience for {obj.name}: {fetched_ok} ok, {fetched_fail} failed."
+        self.message_user(request, summary, level=messages.SUCCESS if fetched_ok else messages.WARNING)
+        # Detail as info
+        self.message_user(request, "; ".join(per_platform_msgs), level=messages.INFO)
         
         return HttpResponseRedirect(request.get_full_path())
     
@@ -398,6 +462,11 @@ class ArtistAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = [
             path(
+                "<int:object_id>/fetch-metadata/",
+                self.admin_site.admin_view(self.fetch_metadata_api),
+                name="soundcharts_artist_fetch_metadata",
+            ),
+            path(
                 "<int:object_id>/fetch-audience/",
                 self.admin_site.admin_view(self.fetch_audience_api),
                 name="soundcharts_artist_fetch_audience",
@@ -405,6 +474,72 @@ class ArtistAdmin(SoundchartsAdminMixin, admin.ModelAdmin):
         ]
         return custom_urls + urls
     
+    @csrf_exempt
+    def fetch_metadata_api(self, request, object_id):
+        """API endpoint to fetch metadata for a single artist"""
+        if request.method != "POST":
+            return JsonResponse({"error": "Method not allowed"}, status=405)
+
+        try:
+            artist = get_object_or_404(Artist, id=object_id)
+
+            if not artist.uuid:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Artist has no UUID - cannot fetch metadata"
+                })
+
+            service = SoundchartsService()
+            metadata = service.get_artist_metadata(artist.uuid)
+
+            if metadata and "object" in metadata:
+                artist_data = metadata["object"]
+
+                if "name" in artist_data:
+                    artist.name = artist_data["name"]
+                if "slug" in artist_data:
+                    artist.slug = artist_data["slug"]
+                if "appUrl" in artist_data:
+                    artist.appUrl = artist_data["appUrl"]
+                if "imageUrl" in artist_data:
+                    artist.imageUrl = artist_data["imageUrl"]
+                if "biography" in artist_data:
+                    artist.biography = artist_data["biography"]
+                if "isni" in artist_data:
+                    artist.isni = artist_data["isni"]
+                if "ipi" in artist_data:
+                    artist.ipi = artist_data["ipi"]
+                if "gender" in artist_data:
+                    artist.gender = artist_data["gender"]
+                if "type" in artist_data:
+                    artist.type = artist_data["type"]
+                if "careerStage" in artist_data:
+                    artist.careerStage = artist_data["careerStage"]
+                if "cityName" in artist_data:
+                    artist.cityName = artist_data["cityName"]
+                if "countryCode" in artist_data:
+                    artist.countryCode = artist_data["countryCode"]
+
+                artist.metadata_fetched_at = timezone.now()
+                artist.save()
+
+                return JsonResponse({
+                    "success": True,
+                    "message": f"Successfully fetched and updated metadata for '{artist.name}'"
+                })
+            else:
+                return JsonResponse({
+                    "success": False,
+                    "error": f"Failed to fetch metadata for '{artist.name}'"
+                })
+
+        except Exception as e:
+            logger.error(f"Error fetching metadata for artist {object_id}: {e}")
+            return JsonResponse({
+                "success": False,
+                "error": f"Error fetching metadata: {str(e)}"
+            }, status=500)
+
     @csrf_exempt
     def fetch_audience_api(self, request, object_id):
         """API endpoint to fetch audience data for a single artist"""
