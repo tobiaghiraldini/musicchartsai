@@ -114,7 +114,7 @@ class MusicAnalyticsService:
             }
         
         # Aggregate the fetched data
-        result = self._aggregate_fetched_data(all_data, valid_artists, platforms, start_date, end_date)
+        result = self._aggregate_fetched_data(all_data, valid_artists, platforms, start_date, end_date, country)
         
         if validation.get('error'):
             result['warning'] = validation['error']
@@ -469,7 +469,7 @@ class MusicAnalyticsService:
             logger.error(traceback.format_exc())
             return []
     
-    def _aggregate_fetched_data(self, data_points, artists, platforms, start_date, end_date):
+    def _aggregate_fetched_data(self, data_points, artists, platforms, start_date, end_date, country=None):
         """
         Aggregate the fetched data points into summary metrics.
         
@@ -587,7 +587,8 @@ class MusicAnalyticsService:
                 data['artist__uuid'],
                 data['platform__slug'],
                 start_date,
-                end_date
+                end_date,
+                country
             )
             
             detailed_breakdown.append({
@@ -959,25 +960,31 @@ class MusicAnalyticsService:
             artist = Artist.objects.get(uuid=artist_uuid)
             platform = Platform.objects.get(slug=platform_slug)
             
-            # Get all tracks for this artist
+            # Special handling for radio/airplay: sum radio spins across all tracks via SoundCharts API
+            if platform.slug.lower() in ['airplay', 'radio']:
+                try:
+                    # Reuse the radio breakdown to obtain a correct total
+                    radio_result = self._get_track_radio_breakdown(artist, platform, start_date, end_date, country)
+                    if radio_result.get('success') and radio_result.get('summary'):
+                        return radio_result['summary'].get('total_spins', 0) or 0
+                    return 0
+                except Exception as e:
+                    logger.error(f"Error aggregating radio spins total: {e}")
+                    return 0
+
+            # For non-radio platforms, sum chart metrics across all tracks
             tracks = Track.objects.filter(artists=artist)
-            
             if not tracks.exists():
                 return 0
-            
-            # Get chart entries for these tracks in the date range
             chart_entries = ChartRankingEntry.objects.filter(
                 track__in=tracks,
                 ranking__ranking_date__range=(start_date, end_date),
                 ranking__chart__platform=platform
             )
-            
-            # Sum up all stream counts
             total_streams = 0
             for entry in chart_entries:
                 metric = entry.api_data.get('metric', 0) if entry.api_data else 0
                 total_streams += metric
-            
             return total_streams
             
         except (Artist.DoesNotExist, Platform.DoesNotExist):
