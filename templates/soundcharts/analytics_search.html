@@ -126,7 +126,7 @@
     </div>
 
     <!-- Loading State -->
-    <div id="loading-state" class="hidden mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
+    <div id="analytics-loading-state" class="hidden mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
       <div class="flex items-center">
         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -313,7 +313,7 @@ document.getElementById('analytics-search-form').addEventListener('submit', func
 
 function submitAnalyticsSearch(data) {
     // Show loading
-    document.getElementById('loading-state').classList.remove('hidden');
+    document.getElementById('analytics-loading-state').classList.remove('hidden');
     document.getElementById('error-state').classList.add('hidden');
     document.getElementById('search-button').disabled = true;
     
@@ -350,7 +350,7 @@ function submitAnalyticsSearch(data) {
         }
     })
     .finally(() => {
-        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('analytics-loading-state').classList.add('hidden');
         document.getElementById('search-button').disabled = false;
     });
 }
@@ -1182,107 +1182,45 @@ const formatDate = (date) => {
 document.getElementById('start-date').value = formatDate(lastMonth);
 document.getElementById('end-date').value = formatDate(today);
 
+// Ensure clean initial UI state on direct navigation (no auto-submit)
+(() => {
+    const hide = (id) => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); };
+    hide('analytics-loading-state');
+    hide('error-state');
+    // Do not auto-show results unless a search runs
+    const results = document.getElementById('results-container');
+    if (results) results.classList.add('hidden');
+})();
+
 // Handle pre-filled artist from query parameter (deep linking from artist detail page)
 {% if prefill_artist_json and prefill_artist_json != 'null' %}
-// Function to select all platforms with retry mechanism
-function selectAllPlatformsWithRetry(maxRetries = 10, currentRetry = 0) {
-    const selectAllCheckbox = document.getElementById('select-all-platforms');
-    const platformCheckboxes = document.querySelectorAll('.platform-checkbox');
-    
-    console.log(`Attempt ${currentRetry + 1}: Found ${platformCheckboxes.length} platform checkboxes`);
-    
-    if (platformCheckboxes.length === 0 && currentRetry < maxRetries) {
-        // Platform checkboxes not ready yet, retry
-        setTimeout(() => {
-            selectAllPlatformsWithRetry(maxRetries, currentRetry + 1);
-        }, 200);
-        return false;
-    }
-    
-    if (platformCheckboxes.length > 0) {
-        // Manually check each platform checkbox
-        platformCheckboxes.forEach((cb, index) => {
-            cb.checked = true;
-            // Also trigger change event on each checkbox to ensure it registers
-            cb.dispatchEvent(new Event('change', { bubbles: true }));
-            console.log(`Checked platform ${index + 1}: ${cb.value}`);
-        });
-        
-        // Check the "Select All" checkbox and trigger change event
-        if (selectAllCheckbox) {
-            selectAllCheckbox.checked = true;
-            selectAllCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-        
-        // Verify platforms are actually selected
-        const checkedPlatforms = document.querySelectorAll('.platform-checkbox:checked');
-        console.log(`Successfully selected ${checkedPlatforms.length} out of ${platformCheckboxes.length} platforms`);
-        
-        return checkedPlatforms.length > 0;
-    }
-    
-    return false;
-}
-
-// Function to prefill and submit
-function prefillAndSubmit() {
+function prefillArtistOnly() {
     const prefillArtist = {{ prefill_artist_json|safe }};
-    if (prefillArtist) {
-        console.log('Prefilling artist:', prefillArtist.name);
-        
-        // Wait a moment to ensure DOM elements are ready before selecting artist
-        setTimeout(() => {
-            // Verify required elements exist
-            const artistSearchInput = document.getElementById('artistSearch');
-            const selectedArtistsContainer = document.getElementById('selected-artists');
-            
-            if (artistSearchInput && selectedArtistsContainer) {
-                // Pre-select the artist
-                selectArtist(prefillArtist);
-                
-                // Wait for artist selection and DOM to stabilize, then select all platforms
-                setTimeout(() => {
-                    const success = selectAllPlatformsWithRetry();
-                    
-                    if (success) {
-                        // Wait a bit more to ensure everything is ready, then submit
-                        setTimeout(() => {
-                            // Double-check platforms are still selected
-                            const verifiedPlatforms = document.querySelectorAll('.platform-checkbox:checked');
-                            if (verifiedPlatforms.length > 0) {
-                                console.log('Final check: platforms selected, submitting form...');
-                                const searchButton = document.getElementById('search-button');
-                                if (searchButton && !searchButton.disabled) {
-                                    searchButton.click();
-                                } else {
-                                    console.error('Search button not found or disabled');
-                                }
-                            } else {
-                                console.error('Platforms were not selected correctly');
-                            }
-                        }, 500);
-                    } else {
-                        console.error('Failed to select platforms after retries');
-                    }
-                }, 300);
-            } else {
-                console.error('Required DOM elements not found - artistSearch:', !!artistSearchInput, 'selectedArtists:', !!selectedArtistsContainer);
-            }
-        }, 200);
+    if (!prefillArtist) return;
+
+    // Optional: require artist_uuid in URL to guard accidental prefill
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.has('artist_uuid')) {
+        console.log('Prefill artist available but no artist_uuid in URL - skipping');
+        return;
     }
+
+    // Ensure DOM is ready then just prefill the artist, no platform selection, no submit
+    setTimeout(() => {
+        const artistSearchInput = document.getElementById('artistSearch');
+        const selectedArtistsContainer = document.getElementById('selected-artists');
+        if (artistSearchInput && selectedArtistsContainer) {
+            console.log('Prefilling artist only:', prefillArtist.name);
+            selectArtist(prefillArtist);
+        }
+    }, 200);
 }
 
-// Try to run when DOM is ready
-function initPrefill() {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', prefillAndSubmit);
-    } else {
-        // DOM already loaded, but wait a bit more to ensure platforms are rendered
-        setTimeout(prefillAndSubmit, 200);
-    }
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', prefillArtistOnly);
+} else {
+    setTimeout(prefillArtistOnly, 200);
 }
-
-initPrefill();
 {% endif %}
 </script>
 
