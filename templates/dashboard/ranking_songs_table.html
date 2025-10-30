@@ -16,7 +16,7 @@
         </a>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Chart Songs</h1>
       </div>
-      <p class="text-gray-600 dark:text-gray-400">{{ ranking.chart.name }} - {{ ranking.ranking_date|date:"M d, Y H:i" }}</p>
+      <p class="text-gray-600 dark:text-gray-400">{{ranking.chart.platform.name }} - {{ ranking.chart.name }} - {{ ranking.ranking_date|date:"M d, Y H:i" }}</p>
     </div>
 
     <!-- Filters Section -->
