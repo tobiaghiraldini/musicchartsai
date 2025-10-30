@@ -112,6 +112,7 @@ def user_list(request):
     context = {
         'users': users,
         'form': form,
+        'segment': 'users',
     }
     return render(request, 'apps/users.html', context)
 

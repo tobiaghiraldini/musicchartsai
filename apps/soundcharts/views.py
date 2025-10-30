@@ -1407,6 +1407,7 @@ def analytics_search_form(request):
         'platforms': platforms,
         'countries': countries,
         'prefill_artist_json': json.dumps(prefill_artist) if prefill_artist else 'null',
+        'segment': 'analytics',
     }
     
     return render(request, 'soundcharts/analytics_search.html', context)

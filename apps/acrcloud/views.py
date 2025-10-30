@@ -27,7 +27,7 @@ class UploadAudioView(View):
     """
     def get(self, request):
         form = SongUploadForm()
-        return render(request, 'acrcloud/upload_audio.html', {'form': form})
+        return render(request, 'acrcloud/upload_audio.html', {'form': form, 'segment': 'dynamic_dt'})
     
     def post(self, request):
         # Debug logging
@@ -129,7 +129,7 @@ class UploadAudioView(View):
             messages.success(request, f'Song "{song.title or song.original_filename}" uploaded successfully. Analysis in progress.')
             return redirect('acrcloud:song_detail', song_id=str(song.id))
         
-        return render(request, 'acrcloud/upload_audio.html', {'form': form})
+        return render(request, 'acrcloud/upload_audio.html', {'form': form, 'segment': 'dynamic_dt'})
 
 
 @method_decorator(login_required, name='dispatch')
@@ -158,6 +158,7 @@ class ViewAudiosView(View):
             'songs': songs,
             'status_filter': status_filter,
             'search_query': search_query,
+            'segment': 'audience'
         }
         return render(request, 'acrcloud/view_audios.html', context)
 
